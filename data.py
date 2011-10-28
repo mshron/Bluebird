@@ -1,18 +1,28 @@
 '''Data model for collaborative manifesto maker'''
 
 class User:
-    THRESHOLD = 3
+    THRESHOLD_UP = 3
+    THRESHOLD_DOWN = 3
     def __init__(self, userid):
         self.userid = userid
         self.createdRev = []
-        self.votesRev = []
+        self.upVotesRev = []
+        self.downVotesRev = []
+
+    def __repr__(self):
+        return self.userid + \
+          "\nUp: %s"%("\n".join(self.upVotesRev)) + \
+          "\nDown: %s"%("\n".join(self.downVotesRev))
    
     def vote(self, revision, up, down):
-        if len(self.votesRev) >= THRESHOLD:
-            raise
-        else: #ultimately revision ids
-            revision.addVote(up, down)
-            
+        assert(up==0 or down==0)
+        if up >= 0:
+            if len(self.upVotesRev) >= THRESHOLD_UP:
+                raise
+        else:
+            if len(self.downVotesRev) >= THRESHOLD_DOWN:
+                raise
+        revision.addVote(up, down)
 
 class Revision:
     def __init__(self, docid, text, rid, topics, children=[], root=False):
@@ -52,6 +62,4 @@ class Document:
     def rankThreads(self):
         pass
 
-def rankRevisions(revision):
-    '''Should be handed a root revision'''
-    pass
+
