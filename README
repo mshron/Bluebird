@@ -1,0 +1,24 @@
+Data Model
+--
+- Revision (have votes for, votes against, text, id, children, creation_time, topics, and some more)
+  - fork
+  - add votes
+- Threads (have many revisions)
+  - best
+  - calculate current state (BFS)
+- Document (have many threads, set of topics)
+  - register revision, register topics
+- Users (have revisions they have voted for, revisions they contributed)
+  - vote
+
+Functionality
+--
+- Create thread (declare text and topics) POST
+- Fork revision POST
+- Vote up / down POST
+    - check for applicability -> ERROR, SUCCESS
+- Create user POST
+- Get views GET
+    - per-thread revisions
+    - total consensus
+    - probably lots more
