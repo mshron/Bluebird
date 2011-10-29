@@ -1,8 +1,8 @@
 '''A flask webapp for the data model'''
 from data import *
-from flask import Flask, request
 from random import randrange
 from datetime import datetime
+from flask import Flask, request, render_template
 app = Flask(__name__)
 
 state = {}
@@ -48,7 +48,7 @@ def thread(docid):
     else:
         r = state.get('revisions',{})
         d = state['documents'].get(docid,[])
-        return str(d) + "\n" + "\n".join([str(x) for x in r.values() if x.docid==docid])
+        return render_template('document.html', d=d, r=[x for x in r.values() if x.docid==docid])
 
 def rankRevisions(revision):
     '''Should be handed a root revision'''
