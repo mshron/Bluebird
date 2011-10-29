@@ -38,6 +38,9 @@ class Revision:
         self.creationTime = None
         self.score = None
 
+    def __repr__(self):
+        return self.text + "\nFor: %s\nAgainst: %s\nScore: %s\n"%(self.votesFor,self.votesAgainst,self.score)
+
     def addVote(self, up, down):
         self.votesFor += up
         self.votesAgainst += down
@@ -52,12 +55,13 @@ class Revision:
         pass
 
 class Document:
-    def __init__(self):
+    def __init__(self, name):
         self.topics = set()
         self.topicCacheDirty = False
+        self.name = name
 
-    def addThread(self, revision):
-        self.threads.append(revision)
+    def __repr__(self):
+        return self.name + "\n" + "\t".join(self.topics)
 
     def rankThreads(self):
         pass
