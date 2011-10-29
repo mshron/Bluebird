@@ -46,7 +46,7 @@ class Revision:
         self.votesFor += up
         self.votesAgainst += down
         self.score = self.calculateScore()
-        for child in children:
+        for child in self.children:
             child.addVote(up, down)
 
     def addFork(self, revision):
