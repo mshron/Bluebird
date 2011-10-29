@@ -12,6 +12,7 @@ def rnd():
 
 @app.route("/user/<userid>",methods=['GET','PUT'])
 def user(userid):
+    '''Creates users and gets user summaries'''
     if request.method == 'PUT':
         state.setdefault('user',{})[userid] = User(userid)
         return "1"
@@ -21,6 +22,7 @@ def user(userid):
 @app.route("/vote/<userid>/<rid>/<int:vote>/", 
     methods=['PUT'])
 def vote(userid, rid, vote):
+    '''Count an (up/down) vote'''
     u = state['user'][userid]
     r = state['revisions'][rid]
     u.vote(r, r.docid, vote)
@@ -28,6 +30,7 @@ def vote(userid, rid, vote):
 
 @app.route("/document/", methods=['POST','GET'])
 def document():
+    '''Create new documents or return the list of all documents'''
     if request.method == 'POST':
         name = request.form['name']
         docid = rnd()
@@ -39,6 +42,7 @@ def document():
 
 @app.route("/document/<docid>/", methods=['POST', 'GET'])
 def revision(docid):
+    '''Create new threads or get all threads in a document'''
     if request.method == 'POST':
         rid = rnd()
         text = request.form['text']    
@@ -53,6 +57,7 @@ def revision(docid):
 
 @app.route("/revision/<rid>/", methods=['POST', 'GET'])
 def fork(rid):
+    '''Fork a revision or display all descendants of a revision'''
     try:
         prev = state.get('revisions',{})[rid]
         docid = prev.docid
@@ -71,10 +76,6 @@ def fork(rid):
         revs = state.get('revisions',{})
         return str(doc) + "\n" + str(prev) + "\n" + "\n".join([str(revs[rid]) for rid in prev.children])
 
-
-def rankRevisions(revision):
-    '''Should be handed a root revision'''
-    pass
 
 if __name__ == "__main__":
     app.debug = True
