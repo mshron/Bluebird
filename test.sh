@@ -41,6 +41,16 @@ echo "Topics: "$topics
 echo "ID: "$rid3
 echo ""
 
+# post some forks
+text="I think we need horses in every park, rivers of lemonade, and peace between all men." 
+topics="animals public_spaces international_affairs"
+fid1=`curl -s -F text="$text" -F topics="$topics" http://127.0.0.1:5000/revision/${rid2}/`
+echo "Forked Revision $rid2"
+echo "Text: "$text
+echo "Topics: "$topics
+echo "ID: "$fid1
+echo ""
+
 # vote for revision 1
 curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid1}/0/
 curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid2}/1/

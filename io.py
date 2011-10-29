@@ -23,7 +23,6 @@ def user(userid):
 def vote(userid, rid, vote):
     u = state['user'][userid]
     r = state['revisions'][rid]
-    print vote
     u.vote(r, r.docid, vote)
     return '1'
 
@@ -39,11 +38,11 @@ def document():
                 
 
 @app.route("/document/<docid>/", methods=['POST', 'GET'])
-def thread(docid):
+def revision(docid):
     if request.method == 'POST':
+        rid = rnd()
         text = request.form['text']    
         topics = request.form['topics']
-        rid = rnd()
         r = Revision(docid, text, rid, topics, [], True)
         state.setdefault('revisions',{})[rid] = r
         return str(rid)
@@ -51,6 +50,27 @@ def thread(docid):
         r = state.get('revisions',{})
         d = state['documents'].get(docid,[])
         return render_template('document.html', d=d, r=[x for x in r.values() if x.docid==docid])
+
+@app.route("/revision/<rid>/", methods=['POST', 'GET'])
+def fork(rid):
+    try:
+        prev = state.get('revisions',{})[rid]
+        docid = prev.docid
+    except KeyError:
+        return 'Sorry, the revision with id "%s" does not exist' % rid
+    if request.method == 'POST':
+        fid = rnd()
+        text = request.form['text']    
+        topics = request.form['topics']
+        frev = Revision(docid, text, fid, topics, [], True)
+        state['revisions'][fid] = frev
+        prev.children.append(fid)
+        return str(fid)
+    else:
+        doc = state['documents'].get(docid,[])
+        revs = state.get('revisions',{})
+        return str(doc) + "\n" + str(prev) + "\n" + "\n".join([str(revs[rid]) for rid in prev.children])
+
 
 def rankRevisions(revision):
     '''Should be handed a root revision'''
