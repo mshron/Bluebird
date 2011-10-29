@@ -18,10 +18,10 @@ class User:
     def vote(self, revision, up, down):
         assert(up==0 or down==0)
         if up >= 0:
-            if len(self.upVotesRev) >= self.THRESHOLD_UP:
+            if len(self.upVotesRev) + up >= self.THRESHOLD_UP:
                 raise
         else:
-            if len(self.downVotesRev) >= self.THRESHOLD_DOWN:
+            if len(self.downVotesRev) + down >= self.THRESHOLD_DOWN:
                 raise
         revision.addVote(up, down)
 

@@ -23,6 +23,7 @@ def user(userid):
 def vote(userid, rid, up, down):
     u = state['user'][userid]
     u.vote(state['revisions'][rid], up, down)
+    return '1'
 
 @app.route("/document/", methods=['POST','GET'])
 def document():
@@ -48,8 +49,6 @@ def thread(docid):
         r = state.get('revisions',{})
         d = state['documents'].get(docid,[])
         return str(d) + "\n" + "\n".join([str(x) for x in r.values() if x.docid==docid])
-    
-
 
 def rankRevisions(revision):
     '''Should be handed a root revision'''
