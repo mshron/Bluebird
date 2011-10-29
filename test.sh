@@ -19,7 +19,7 @@ rid1=`curl -s -F text="$text" -F topics="$topics" http://127.0.0.1:5000/document
 echo "Posted Revision"
 echo "Text: "$text
 echo "Topics: "$topics
-echo "ID: "$rid
+echo "ID: "$rid1
 echo ""
 
 text="I think we need ponies in every park, rivers of lemonade, and peace between all men." 
@@ -28,7 +28,7 @@ rid2=`curl -s -F text="$text" -F topics="$topics" http://127.0.0.1:5000/document
 echo "Posted Revision"
 echo "Text: "$text
 echo "Topics: "$topics
-echo "ID: "$rid
+echo "ID: "$rid2
 echo ""
 
 
@@ -38,11 +38,11 @@ rid3=`curl -s -F text="$text" -F topics="$topics" http://127.0.0.1:5000/document
 echo "Posted Revision"
 echo "Text: "$text
 echo "Topics: "$topics
-echo "ID: "$rid
+echo "ID: "$rid3
 echo ""
 
 # add some votes
-curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid1}/1/0
+curl -X PUT http://127.0.0.1:5000/vote/0/${rid1}/0/1
 #curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid2}/0/2
 #curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid3}/5/3
 
