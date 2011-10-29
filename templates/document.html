@@ -3,7 +3,7 @@
 <body>
     <div>{{ d.name }}</div>
     {% for rev in r %}
-        <div>{{ rev.text}}</div>
+        <div>{{ rev.text}} - {{ rev.votesFor }}, {{ rev.votesAgainst }}</div>
     {% endfor %}
 </body>
 </html>

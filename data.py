@@ -15,14 +15,20 @@ class User:
           "\nUp: %s"%("\n".join(self.upVotesRev)) + \
           "\nDown: %s"%("\n".join(self.downVotesRev))
    
-    def vote(self, revision, up, down):
-        assert(up==0 or down==0)
-        if up >= 0:
-            if len(self.upVotesRev) + up >= self.THRESHOLD_UP:
+    def vote(self, revision, docid, vote):
+        assert(vote == 1 or vote == 0)
+        if vote == 1:
+            u = [v for v in self.upVotesRev if v[0] == docid]
+            if len(u) + 1 >= self.THRESHOLD_UP:
                 raise
+            self.upVotesRev.append((docid,revision.rid))
         else:
-            if len(self.downVotesRev) + down >= self.THRESHOLD_DOWN:
+            d = [v for v in self.upVotesRev if v[0] == docid]
+            if len(d) + 1 >= self.THRESHOLD_DOWN:
                 raise
+            self.downVotesRev.append((docid,revision.rid))
+        up = 1 if vote == 1 else 0
+        down = 1 if vote == 0 else 0
         revision.addVote(up, down)
 
 class Revision:

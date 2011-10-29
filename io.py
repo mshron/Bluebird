@@ -18,11 +18,13 @@ def user(userid):
     else:
        return str(state['user'].get(userid)) + '\n'
 
-@app.route("/vote/<userid>/<rid>/<int:up>/<int:down>", 
+@app.route("/vote/<userid>/<rid>/<int:vote>/", 
     methods=['PUT'])
-def vote(userid, rid, up, down):
+def vote(userid, rid, vote):
     u = state['user'][userid]
-    u.vote(state['revisions'][rid], up, down)
+    r = state['revisions'][rid]
+    print vote
+    u.vote(r, r.docid, vote)
     return '1'
 
 @app.route("/document/", methods=['POST','GET'])
