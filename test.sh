@@ -54,8 +54,9 @@ echo ""
 # vote for revision 1
 curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid1}/0/
 curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid2}/1/
+curl -s -X PUT http://127.0.0.1:5000/vote/0/${fid1}/1/
 # this should not work, and does not work
-curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid3}/2/
+#curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid3}/2/
 
 # query resulting doc
 echo "Getting document: $docid"
