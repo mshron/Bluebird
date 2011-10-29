@@ -1,13 +1,14 @@
 '''Data model for collaborative manifesto maker'''
 
 class User:
-    THRESHOLD_UP = 3
-    THRESHOLD_DOWN = 3
     def __init__(self, userid):
         self.userid = userid
         self.createdRev = []
         self.upVotesRev = []
         self.downVotesRev = []
+        self.THRESHOLD_UP = 3
+        self.THRESHOLD_DOWN = 3
+
 
     def __repr__(self):
         return self.userid + \
@@ -17,10 +18,10 @@ class User:
     def vote(self, revision, up, down):
         assert(up==0 or down==0)
         if up >= 0:
-            if len(self.upVotesRev) >= THRESHOLD_UP:
+            if len(self.upVotesRev) >= self.THRESHOLD_UP:
                 raise
         else:
-            if len(self.downVotesRev) >= THRESHOLD_DOWN:
+            if len(self.downVotesRev) >= self.THRESHOLD_DOWN:
                 raise
         revision.addVote(up, down)
 
