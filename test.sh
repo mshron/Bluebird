@@ -41,10 +41,12 @@ echo "Topics: "$topics
 echo "ID: "$rid3
 echo ""
 
-# add some votes
-curl -X PUT http://127.0.0.1:5000/vote/0/${rid1}/0/1
-#curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid2}/0/2
-#curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid3}/5/3
+# vote for revision 1
+curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid1}/0/1
+# this should not work, but does
+curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid2}/0/2
+# this should not work, and does not work
+curl -s -X PUT http://127.0.0.1:5000/vote/0/${rid3}/5/3
 
 # query resulting doc
 echo "Getting document: $docid"
