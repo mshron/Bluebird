@@ -56,7 +56,7 @@ def revision(docid):
         d = state['documents'].get(docid,[])
         roots = [x for x in r.values() if x.docid==docid and x.root]
         roots = map(rankRevisions, roots)
-        print(roots)
+        roots = rankThreads(roots)
         return render_template('document.html', d=d, r=roots)
 
 
