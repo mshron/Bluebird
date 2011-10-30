@@ -1,5 +1,6 @@
 '''A flask webapp for the data model'''
 from data import *
+from logic import *
 from random import randrange
 from datetime import datetime
 from flask import Flask, request, render_template
@@ -53,7 +54,11 @@ def revision(docid):
     else:
         r = state.get('revisions',{})
         d = state['documents'].get(docid,[])
-        return render_template('document.html', d=d, r=[x for x in r.values() if x.docid==docid])
+        roots = [x for x in r.values() if x.docid==docid and x.root]
+        roots = map(rankRevisions, roots)
+        print(roots)
+        return render_template('document.html', d=d, r=roots)
+
 
 @app.route("/revision/<rid>/", methods=['POST', 'GET'])
 def fork(rid):
@@ -67,7 +72,7 @@ def fork(rid):
         fid = rnd()
         text = request.form['text']    
         topics = request.form['topics']
-        frev = Revision(docid, text, fid, topics, [], True)
+        frev = Revision(docid, text, fid, topics, [], False)
         state['revisions'][fid] = frev
         prev.children.append(frev)
         return str(fid)
@@ -75,6 +80,10 @@ def fork(rid):
         doc = state['documents'].get(docid,[])
         revs = state.get('revisions',{})
         return str(doc) + "\n" + str(prev) + "\n" + "\n".join([str(revs[rid]) for rid in prev.children])
+
+@app.route("/_debug")
+def debug():
+    raise IndexError
 
 
 if __name__ == "__main__":

@@ -3,15 +3,17 @@
 <body>
     <div>{{ d.name }}</div>
     <ul>
-    {% for rev in r %}
-        <li>
-            <div>{{ rev.text}} - 
-            <span onclick="vote('{{ rev.rid }}', 1)"> 
-                <span id="v-1-{{ rev.rid }}">{{ rev.votesFor }} </span> &#x1f44d; </span>
-             <span onclick="vote('{{ rev.rid }}', 0)"> 
-                 <span id="v-0-{{ rev.rid}}">{{ rev.votesAgainst }}</span> &#x1f44e;</span>
-            </div>
-        </li>
+    {% for root in r %}
+        {% for rev in root %}
+                <li>
+                    <div style="margin-left: {% if loop.first %} 0 {% else %} 1em {% endif %}">{{ rev.text}} - 
+                        <span onclick="vote('{{ rev.rid }}', 1)"> 
+                            <span id="v-1-{{ rev.rid }}">{{ rev.votesFor }} </span> &#x1f44d; </span>
+                         <span onclick="vote('{{ rev.rid }}', 0)"> 
+                             <span id="v-0-{{ rev.rid}}">{{ rev.votesAgainst }}</span> &#x1f44e;</span>
+                    </div>
+                </li>
+        {% endfor %}
     {% endfor %}
 
 <script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/zepto/0.7/zepto.min.js'></script>
