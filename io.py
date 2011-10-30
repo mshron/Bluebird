@@ -8,7 +8,7 @@ app = Flask(__name__)
 state = {}
 
 def rnd():
-    return str(randrange(0,2**64))
+    return hex(randrange(0,2**64))[2:]
 
 @app.route("/user/<userid>",methods=['GET','PUT'])
 def user(userid):
@@ -25,8 +25,8 @@ def vote(userid, rid, vote):
     '''Count an (up/down) vote'''
     u = state['user'][userid]
     r = state['revisions'][rid]
-    u.vote(r, r.docid, vote)
-    return '1'
+    out = u.vote(r, r.docid, vote)
+    return str(out) # t/f for success
 
 @app.route("/document/", methods=['POST','GET'])
 def document():

@@ -2,8 +2,39 @@
 <html>
 <body>
     <div>{{ d.name }}</div>
+    <ul>
     {% for rev in r %}
-        <div>{{ rev.text}} - {{ rev.votesFor }}, {{ rev.votesAgainst }}</div>
+        <li>
+            <div>{{ rev.text}} - 
+            <span onclick="vote('{{ rev.rid }}', 1)"> 
+                <span id="v-1-{{ rev.rid }}">{{ rev.votesFor }} </span> &#x1f44d; </span>
+             <span onclick="vote('{{ rev.rid }}', 0)"> 
+                 <span id="v-0-{{ rev.rid}}">{{ rev.votesAgainst }}</span> &#x1f44e;</span>
+            </div>
+        </li>
     {% endfor %}
+
+<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/zepto/0.7/zepto.min.js'></script>
+<script type='text/javascript'>
+function vote(rid, v) {
+    $.ajax({
+        url: "/vote/0/"+rid+"/"+v+"/",
+        type: "PUT",
+        success: function (data) {
+        // this should really be client-side validated first
+            if (data == 1) {
+                var id = '#v-' + v + '-' + rid,
+                     n = Number($(id).text()) + 1
+                $(id).text(n);
+            } else {
+                alert("You have no votes left!");
+            }
+        
+        }
+
+        });
+
+}
+</script>
 </body>
 </html>

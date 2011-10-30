@@ -20,16 +20,17 @@ class User:
         if vote == 1:
             u = [v for v in self.upVotesRev if v[0] == docid]
             if len(u) + 1 >= self.THRESHOLD_UP:
-                raise
+                return 0
             self.upVotesRev.append((docid,revision.rid))
         else:
-            d = [v for v in self.upVotesRev if v[0] == docid]
+            d = [v for v in self.downVotesRev if v[0] == docid]
             if len(d) + 1 >= self.THRESHOLD_DOWN:
-                raise
+                return 0
             self.downVotesRev.append((docid,revision.rid))
         up = 1 if vote == 1 else 0
         down = 1 if vote == 0 else 0
         revision.addVote(up, down)
+        return 1
 
 class Revision:
     def __init__(self, docid, text, rid, topics, children=[], root=False):
