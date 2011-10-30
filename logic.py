@@ -7,6 +7,7 @@ def flattenTree(rev, c=[]):
     return c + [rev]
 
 def scoreRev(rev):
+    '''Individual score for a single revision'''
     up = rev.votesFor
     down = rev.votesAgainst
     return (up + 1.) / (up + down + 2.)
@@ -19,12 +20,14 @@ def rankRevisions(rev):
     return map(itemgetter(1),l)
 
 def scoreThread(revlist):
+    '''Takes a list of revisions (from one thread) and gives the whole list a score'''
     up = sum(map(lambda x: x.votesFor, revlist))
     down = sum(map(lambda x: x.votesAgainst, revlist))
     return up-down
 
-def rankThreads(rootlist):
-    l = zip(map(scoreThread, rootlist), rootlist)
+def rankThreads(threadlist):
+    '''Takes a list of list of revisions and ranks the outer list by scoreThread'''
+    l = zip(map(scoreThread, threadlist), threadlist)
     l = sorted(l)[::-1]
     return map(itemgetter(1),l)
 
