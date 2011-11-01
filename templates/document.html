@@ -6,37 +6,18 @@
     {% for root in r %}
         {% for rev in root %}
                 <li>
-                    <div style="margin-left: {% if loop.first %} 0 {% else %} 1em {% endif %}">{{ rev.text}} - 
-                        <span onclick="vote('{{ rev.rid }}', 1)"> 
-                            <span id="v-1-{{ rev.rid }}">{{ rev.votesFor }} </span> &#x1f44d; </span>
-                         <span onclick="vote('{{ rev.rid }}', 0)"> 
-                             <span id="v-0-{{ rev.rid}}">{{ rev.votesAgainst }}</span> &#x1f44e;</span>
+                    <div style="margin-left: {% if loop.first %} 0 {% else %} 1em {% endif %}">
+                    <span onclick="edit('{{ rev.rid}}')" id="text-{{ rev.rid }}">{{ rev.text}}</span> - 
+                    <span onclick="vote('{{ rev.rid }}', 1)"> 
+                    <span id="v-1-{{ rev.rid }}">{{ rev.votesFor }} </span> &#x1f44d; </span>
+                    <span onclick="vote('{{ rev.rid }}', 0)"> 
+                    <span id="v-0-{{ rev.rid}}">{{ rev.votesAgainst }}</span> &#x1f44e;</span>
                     </div>
                 </li>
         {% endfor %}
     {% endfor %}
 
 <script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/zepto/0.7/zepto.min.js'></script>
-<script type='text/javascript'>
-function vote(rid, v) {
-    $.ajax({
-        url: "/vote/0/"+rid+"/"+v+"/",
-        type: "PUT",
-        success: function (data) {
-        // this should really be client-side validated first
-            if (data == 1) {
-                var id = '#v-' + v + '-' + rid,
-                     n = Number($(id).text()) + 1
-                $(id).text(n);
-            } else {
-                alert("You have no votes left!");
-            }
-        
-        }
-
-        });
-
-}
-</script>
+<script type='text/javascript' src='/static/scripts/main.js'> </script>
 </body>
 </html>

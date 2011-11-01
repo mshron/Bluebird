@@ -73,6 +73,7 @@ def fork(rid):
         text = request.form['text']    
         topics = request.form['topics']
         frev = Revision(docid, text, fid, topics, [], False)
+        frev.inherit(prev)
         state['revisions'][fid] = frev
         prev.children.append(frev)
         return str(fid)

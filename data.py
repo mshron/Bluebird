@@ -19,12 +19,12 @@ class User:
         assert(vote == 1 or vote == 0)
         if vote == 1:
             u = [v for v in self.upVotesRev if v[0] == docid]
-            if len(u) + 1 >= self.THRESHOLD_UP:
+            if len(u) + 1 > self.THRESHOLD_UP:
                 return 0
             self.upVotesRev.append((docid,revision.rid))
         else:
             d = [v for v in self.downVotesRev if v[0] == docid]
-            if len(d) + 1 >= self.THRESHOLD_DOWN:
+            if len(d) + 1 > self.THRESHOLD_DOWN:
                 return 0
             self.downVotesRev.append((docid,revision.rid))
         up = 1 if vote == 1 else 0
@@ -46,6 +46,10 @@ class Revision:
         self.creationTime = None
         self.score = None
 
+    def inherit(self, rev):
+        self.votesFor = rev.votesFor
+        self.votesAgainst = rev.votesAgainst
+
     def __repr__(self):
         return self.text + "\nFor: %s\nAgainst: %s\nScore: %s\n"%(self.votesFor,self.votesAgainst,self.score)
 
@@ -55,6 +59,8 @@ class Revision:
         self.score = self.calculateScore()
         for child in self.children:
             child.addVote(up, down)
+
+
 
     def addFork(self, revision):
         self.children.append(revision)
