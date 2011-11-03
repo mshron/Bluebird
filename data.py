@@ -5,11 +5,11 @@ import json
 import sys
 from redis import Redis
 
-# this is how times are stored (chosen to be sortable)
-TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-
 # we only allow gets and puts of these types of objects
 DATA_TYPES = ['Document', 'Thread', 'Revision', 'User']
+
+# this is how times are stored (chosen to be sortable)
+TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 # since redis does not support nesting lists in hashes,
 # lists are stored in a string representation. 
@@ -30,10 +30,18 @@ def rnd():
     '''Generates a random value for usage in keys'''
     return hex(randrange(0,2**64))[2:]
 
+def get_parent(key):
+    '''Returns key for parent of object'''
+    return ':'.join(key.split(':')[:-2])
+
+def get_collection(key):
+    '''Returns key for collection object is a member of'''
+    return ':'.join(key.split(':')[:-1])
+
 def parse(attrs):
     '''Takes a dictionary representation of a DataModel
     instance and returns the corresponding object'''
-    obj_type = attrs['key'].split(':')[-1]
+    obj_type = attrs['type'].split(':')[-1]
     if not obj_type in DATA_TYPES:
         raise ValueError('Illegal type for DataModel instance: %s' % obj_type)
     # parse lists where necessary
@@ -46,25 +54,61 @@ def parse(attrs):
     return Obj(**attrs)
 
 
-class DataModel():
+class DataModel(object):
     '''Base class for DataStore object model. Each DataModel instance
     must have a key property, which indicates its location in the 
-    redis backend. Keys encode relations between objects as:
+    redis backend. Object keys take the format
 
-      obj_key = ParentClass:parent_id:ObjClass:obj_id
+    key = ParentSet:parent_id:ObjSet:obj_id
 
-    where the parent object could be retrieved from
+    This key encodes its relationship to other objects via
 
-      parent_key = ParentClass:parent_id
+    parent = ParentSet:parent_id
+    collection = ParentSet:parent_id:ObjSet
+    children = ParentSet:parent_id:ObjSet:obj_id:ChildSet
+
+    :key: 
+        Reference to object in dataset. Can be specified
+        either as full key or object id.
+
+    :parent:
+        Reference to object parent. Overrides ancestors in key and
+        collection. 
+         
+    :collection: 
+        Reference to object collection. Implicitly defines parent
+        if unspecified and overrides ancestor in key.
+
+    :children: 
+        Name of descendant collection, accessible under 
+        'key:children'
+
+    :type:
+        Explicitly stores type of object so it is passed
+        along when serialized.
     '''
-    def __init__(self, key=None, parent=None, children=[]):
-        if key is None:
-            key = '%s:%s' % (self.__class__.__name__, rnd())
-        if not parent is None:
-            self.key = '%s:%s' % (parent, key)
+    def __init__(self, key=None, parent=None, collection=None, children=None):
+        key = key if key else ''
+        # if unspecified, generate random object id
+        obj_id = key.split(':')[-1] if key.split(':')[-1] else rnd()
+        # if unspecified, get collection from key
+        collection = collection if collection \
+                     else ':'.join(key.split(':')[:-1])
+        # if still unspecified, construct it from class name
+        collection = collection if collection \
+                     else self.__class__.__name__ + 's'
+        # if parent is specified, it overrides that of collection and key
+        if parent:
+            # strip collection to last field
+            collection = collection.split(':')[-1]
+            key = '%s:%s:%s' % (parent, collection, obj_id)
         else:
-            self.key = key
+            key = '%s:%s' % (collection, obj_id)
+        # ensure parent of children is key
+        children = '%s:%s' % (key, children.split(':')[-1]) if children else ''    
+        self.key = key
         self.parent = parent
+        self.collection = collection
         self.children = children
 
     def __eq__(self, other):
@@ -74,63 +118,55 @@ class DataModel():
         return self.key
 
 
-class DataStore():
+class DataSet(object):
+    '''BaseClass for sets of object references'''
+    def __init__(self, key=None, members=()):
+        self.key = key if key else ''
+        self.members = members
+
+    def __eq__(self, other):
+        return (self.key == other.key)
+
+    def __nonzero__(self):
+        return bool(self.key)
+    
+    def __repr__(self):
+        return self.key
+
+
+class DataStore(object):
     '''Interface with redis datastore'''
 
     def __init__(self, *args, **kwargs):
         self.redis = Redis(*args, **kwargs)
 
-    def documents(self):
-        '''Lists keys for each document'''
-        return self.redis.smembers('documents')
-
-    def threads(self):
-        '''Lists keys for each thread'''
-        return self.redis.smembers('threads')
-
-    def revisions(self):
-        '''Lists keys for each submitted revision'''
-        return self.redis.smembers('revisions')
-
-    def users(self):
-        '''Lists keys for each user'''
-        return self.redis.smembers('users')
+    def list(self, key):
+        '''Returns a DataSet containing references in collection 
+        under key'''
+        members = self.redis.smembers(key)
+        return DataSet(key=key, members=members)
 
     def get(self, key):
-        '''Retrieves a document, revision or user'''
-        if not self.redis.exits(key):
-            raise KeyError('No object with key: %s' % key)
+        '''Retrieves a DataModel object'''
         # retrieve object attributes from datastore
         attrs = self.redis.hgetall(key)
         # parse into corresponding object
-        return parse(attrs)
+        obj_type = attrs.pop('type')
+        obj = globals()[obj_type](**attrs)
+        return obj
 
     def put(self, data):
-        '''Writes out a document, revision or user'''
-        # determine if object has an allowed class type
-        obj_type = data.__class__.__name__
-        if not obj_type in DATA_TYPES:
-            raise ValueError('Object type not allowed: %s' % obj_type)
-        # add object key to corresponding index set
-        index_name = obj_type.lower() + 's'
-        self.redis.sadd(index_name, data.key)
+        '''Writes out a DataModel object'''
+        # add object reference to sibling set
+        self.redis.sadd(data.collection, data.key)
         # write out dict representation of object
         return self.redis.hmset(data.key, data.__dict__)
 
-    # def to_json(self):
-    #     '''returns a JSON serializable dictionary'''
-    #     dic = {}
-    #     for key, val in self.__dict__.items():
-    #         try:
-    #             dic[key] = [v.to_json() for v in val]
-    #         except (AttributeError, TypeError):
-    #             dic[key] = val
-    #     return dic
-
-
 class Document(DataModel):
-    def __init__(self, name=None, children=[], key=None):
-        DataModel.__init__(self, key=key, children=children)
+    def __init__(self, name='', collection='Documents', 
+                 children='Threads', **kwargs):
+        super(Document, self).__init__(collection=collection, 
+                                       children=children, **kwargs)
         self.name = name
 
     # def topics(self):
@@ -146,11 +182,13 @@ class Document(DataModel):
     #     return thread
         
 class Thread(DataModel):
-    def __init__(self, root=None, topics=[], 
-                 parent=None, children=[], key=None):
-        DataModel.__init__(self, key=key, parent=parent, children=children)
+    def __init__(self, root=None, parent=None, topics='Topics',
+                 collection='Threads', children='Revisions', **kwargs):
+        super(Thread, self).__init__(parent=parent, collection=collection, 
+                                     children=children, **kwargs)
         self.root = root
-        self.topics = topics
+        topics = topics.split(':')[-1] if topics else 'Topics'
+        self.topics = '%s:%s' % (self.key, 'Topics')
 
     # def to_json(self):
     #     dic = Model.to_json(self)
@@ -160,14 +198,15 @@ class Thread(DataModel):
     #     return dic
 
 class Revision(DataModel):
-    def __init__(self, text=None, author=None, created=None, 
-                 up=0, down=0, parent=None, children=[], key=None):
-        DataModel.__init__(self, key=key, parent=parent, children=children)
+    def __init__(self, text=None, author=None, created=None, up=0, down=0,
+                 parent=None, collection='Revisions', children='Forks', **kwargs):
+        super(Revision, self).__init__(parent=parent, collection=collection, 
+                                       children=children, **kwargs)
         self.text = text
         self.author = author
         self.created = created if created else time.strftime(TIME_FORMAT)
-        self.up = 0
-        self.down = 0
+        self.up = up
+        self.down = down
 
     # def __repr__(self):
     #     return self.text + '\nUp: %s' % self.up \
@@ -195,17 +234,19 @@ class Revision(DataModel):
 
 
 class User(DataModel):
-    def __init__(self, handle=None, name=None, location=None, bio=None, created=None, 
-                 authored=[], up_voted=[], down_voted=[], key=None):
-        Model.__init__(key=key)
+    def __init__(self, handle=None, name=None, created=None, 
+                 location=None, bio=None, 
+                 collection='Users', authored='Authored', 
+                 up_voted='UpVotes', down_voted='DownVotes', **kwargs):
+        super(User, self).__init__(collection=collection, **kwargs)
         self.handle = handle
         self.name = name
         self.location = location
         self.bio = bio
         self.created = created if created else time.strftime(TIME_FORMAT)
-        self.authored = []
-        self.up_voted = []
-        self.down_voted = []
+        self.authored = '%s:%s' % (self.key, authored.split(':')[-1])
+        self.up_voted = '%s:%s' % (self.key, up_voted.split(':')[-1])
+        self.down_voted = '%s:%s' % (self.key, down_voted.split(':')[-1])
 
     # def __repr__(self):
     #     return self.handle + \
