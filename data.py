@@ -11,21 +11,6 @@ DATA_TYPES = ['Document', 'Thread', 'Revision', 'User']
 # this is how times are stored (chosen to be sortable)
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-# since redis does not support nesting lists in hashes,
-# lists are stored in a string representation. 
-#
-# we could detect lists by checking whether the first and
-# last characters are '[]', but then you'd have to worry
-# about what happens when someone tries to use '[bold]'
-# as their username. 
-#
-# tl;dr -- we'll keep a lookup with list-valued 
-# attributes for each data type for now
-LIST_ATTRS = {'Document': ['threads'],
-              'Thread': ['topics', 'revisions'],
-              'Revision': ['children'],
-              'User': ['upvoted', 'downvoted', 'created']}
-
 def rnd():
     '''Generates a random value for usage in keys'''
     return hex(randrange(0,2**64))[2:]
@@ -169,17 +154,6 @@ class Document(DataModel):
                                        children=children, **kwargs)
         self.name = name
 
-    # def topics(self):
-    #     topics = set()
-    #     for t in threads:
-    #         topics.add(t.topics)
-    #     return topics
-
-    # def add_thread(self, text, author, topics, created=None):
-    #     rev = Revision(text, author, created=created, thread=self)
-    #     thread = Thread(text, rev, topics, document=self) 
-    #     self.threads.append(thread)
-    #     return thread
         
 class Thread(DataModel):
     def __init__(self, root=None, parent=None, topics='Topics',
@@ -190,12 +164,6 @@ class Thread(DataModel):
         topics = topics.split(':')[-1] if topics else 'Topics'
         self.topics = '%s:%s' % (self.key, 'Topics')
 
-    # def to_json(self):
-    #     dic = Model.to_json(self)
-    #     dic['root'] = dic['root'].to_json()
-    #     if 'document' in dic:
-    #         dic['document'] = str(dic['document'])
-    #     return dic
 
 class Revision(DataModel):
     def __init__(self, text=None, author=None, created=None, up=0, down=0,
@@ -207,30 +175,6 @@ class Revision(DataModel):
         self.created = created if created else time.strftime(TIME_FORMAT)
         self.up = up
         self.down = down
-
-    # def __repr__(self):
-    #     return self.text + '\nUp: %s' % self.up \
-    #                      + '\nDown: %s' % self.down \
-    
-    # def add_fork(self, text, author, created=None):
-    #     '''Creates a fork from the current revision'''
-    #     revision = Revision(text, author, created, thread=self.thread)
-    #     self.children.append(revision)
-    #     return revision
-
-    # def descendants(self):
-    #     '''Returns all descendants of the revision'''
-    #     revs = [self]
-    #     for r in self.children:
-    #         revs += r.descendants()
-    #     return revs
-
-    # def to_json(self):
-    #     dic = Model.to_json(self)
-    #     dic['author'] = str(dic['author'])
-    #     if 'thread' in dic:
-    #         dic['thread'] = str(dic['thread'])
-    #     return dic
 
 
 class User(DataModel):
@@ -247,32 +191,4 @@ class User(DataModel):
         self.authored = '%s:%s' % (self.key, authored.split(':')[-1])
         self.up_voted = '%s:%s' % (self.key, up_voted.split(':')[-1])
         self.down_voted = '%s:%s' % (self.key, down_voted.split(':')[-1])
-
-    # def __repr__(self):
-    #     return self.handle + \
-    #         '\nKey: %s\n' % self.key + \
-    #         '\nHandle: %s\n' % self.handle + \
-    #         '\nCreated: %s' % ('\n '.join(self.created)) + \
-    #         '\nUp: %s' % ('\n '.join(self.up_voted)) + \
-    #         '\nDown: %s' % ('\n '.join(self.down_voted))
-           
-    # def _counts(self, document):
-    #     '''returns number of allocated votes within specified document'''
-    #     count = lambda v,d: len([r for r in v if r.document == d])
-    #     up = count(self.up_voted, document)
-    #     down = count(self.down_voted, document)
-    #     return up, down
-
-    # def vote(self, revision, vote):
-    #     assert(vote == 1 or vote == 0)
-    #     up, down = self._counts(revision.document)
-    #     if vote == 1 & (up <= User.MAX_UP_VOTES):
-    #         self.up_voted.append(revision)
-    #         revision.up += 1
-    #         return 1
-    #     if vote == 0 & (down <= User.MAX_DOWN_VOTES):
-    #         self.down_voted.append(revision)
-    #         revision.down += 1
-    #         return 1
-    #     return 0
-
+        
