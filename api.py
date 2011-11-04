@@ -22,29 +22,6 @@ user = data.User(handle='wonka', name='willie', location='UK', bio='i make choco
 MAX_UP = 3
 MAX_DOWN = 3
 
-# def put_json(key, json):
-#     '''write an object in JSON representation to datastore,
-#     updating parent objects if necessary'''
-#     attrs = json.loads(json)
-#     # ensure object key matches post url
-#     attrs['key'] = key
-#     # check if url has parent
-#     parent_key = ':'.join(key.split(':')[:-2])
-#     if parent_key:
-#         # check that parent reference exists
-#         assert(ds.redis.exists(parent_key))
-#         # ensure parent referenced in object matches url
-#         attrs['parent'] = parent_key
-#         # update children of parent
-#         pobj = ds.get(parent_key)
-#         if not key in pobj.children:
-#             pobj.children.append(key)
-#             # write parent to datastore
-#             ds.put(pobj)
-#     # write object to datastore
-#     ds.put(data.parse(attrs))
-#     return '1'
-
 def put_json(key, attrs):
     '''write an object in dictionary representation to datastore,
     updating parent objects if necessary'''
@@ -206,62 +183,6 @@ def vote(doc_id, thread_id, rev_id, vote):
                 return ds.redis.hset(key, 'down', 1)
             else:
                 return '0'
-
-# @app.route("/document/<docid>/", methods=['POST', 'GET'])
-# def document(docid):
-#     '''Create new threads or get all threads in a document'''
-#     if fl.request.method == 'POST':
-#         rev_id = rnd()
-#         text = fl.request.form['text']    
-#         topics = fl.request.form['topics']
-#         r = Revision(docid, text, rev_id, topics, [], True)
-#         state.setdefault('revisions',{})[rev_id] = r
-#         return str(rev_id)
-#     else:
-#         r = state.get('revisions',{})
-#         d = state['documents'].get(docid,[])
-#         roots = [x for x in r.values() if x.docid==docid and x.root]
-#         roots = map(rankRevisions, roots)
-#         roots = rankThreads(roots)
-#         return render_template('document.html', d=d, r=roots)
-
-
-# @app.route("/revision/<rev_id>/", methods=['POST', 'GET'])
-# def fork(rev_id):
-#     '''Fork a revision or display all descendants of a revision'''
-#     try:
-#         prev = state.get('revisions',{})[rev_id]
-#         docid = prev.docid
-#     except KeyError:
-#         return 'Sorry, the revision with id "%s" does not exist' % rev_id
-#     if fl.request.method == 'POST':
-#         fork_id = rnd()
-#         text = fl.request.form['text']    
-#         topics = fl.request.form['topics']
-#         frev = Revision(docid, text, fork_id, topics, [], False)
-#         frev.inherit(prev)
-#         state['revisions'][fork_id] = frev
-#         prev.children.append(frev)
-#         return str(fork_id)
-#     else:
-#         doc = state['documents'].get(docid,[])
-#         revs = state.get('revisions',{})
-#         return str(doc) + "\n" + str(prev) + "\n" + "\n".join([str(revs[rev_id]) for rev_id in prev.children])
-
-# @app.route("/_debug")
-# def debug():
-#     raise IndexError
-
-# @app.route("/vote/<userev_id>/<rev_id>/<int:vote>/", 
-#     methods=['PUT'])
-# def vote(userev_id, rev_id, vote):
-#     '''Count an (up/down) vote'''
-#     u = state['user'][userev_id]
-#     r = state['revisions'][rev_id]
-#     out = u.vote(r, r.docid, vote)
-#     return str(out) # t/f for success
-
-
 
 if __name__ == "__main__":
     app.debug = True
