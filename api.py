@@ -11,6 +11,7 @@ import logic
 
 # open app instance
 app = fl.Flask(__name__)
+app.debug = True
 
 # open datastore instance (threadsafe)
 ds = data.DataStore()
@@ -22,15 +23,20 @@ user = data.User(handle='wonka', name='willie', location='UK', bio='i make choco
 MAX_UP = 3
 MAX_DOWN = 3
 
-def put_json(key, attrs):
-    '''write an object in dictionary representation to datastore,
-    updating parent objects if necessary'''
+def put(obj_key, attrs):
+    '''write an object in dictionary representation to datastore'''
     # ensure object key matches post url
     obj = data.parse(attrs)
-    obj.key = key
+    obj.key = obj_key
     return ds.put(obj)
 
-def get_json(key):
+def post(col_key, attrs):
+    '''post an object in dictionary representation to datastore'''
+    obj = data.parse(attrs)
+    obj.key = '%s:%s' % (col_key, data.rnd())
+    return ds.put(obj)
+
+def get(key):
     '''retrieve an object in JSON representation from datastore'''
     assert(ds.redis.exists(key))
     return js.dumps(ds.get(key).__dict__)
@@ -45,9 +51,9 @@ def object_handler(request, obj_key):
     * Write to datastore on PUT,
     * Retrieve from datastore on GET'''
     if request.method == 'PUT':
-        return put_json(obj_key, request.json)
+        return put(obj_key, request.json)
     else:
-        json = get_json(obj_key)
+        json = get(obj_key)
         return fl.Response(json, mimetype='application/json')
 
 def collection_handler(request, col_key):
@@ -55,27 +61,31 @@ def collection_handler(request, col_key):
     * Add object with new id to collection on POST,
     * Retrieve list objects in collection on GET'''
     if request.method == 'POST':
-        obj_id = data.rnd()
-        obj_key = '%s:%s' % (col_key, obj_id) 
-        return put_json(obj_key, fl.request.json); 
+        return post(col_key, fl.request.json); 
     else:
         json = list_json(col_key)
         return fl.Response(json, mimetype='application/json')
 
+@app.route('/api/Users',
+            methods=['GET','POST'])
+def documents():
+    key = 'Users'
+    return collection_handler(fl.request, key)
+
 @app.route('/api/Documents',
-            methods=['GET','PUT'])
+            methods=['GET','POST'])
 def documents():
     key = 'Documents'
     return collection_handler(fl.request, key)
 
 @app.route('/api/Documents/<doc_id>/Threads',
-            methods=['GET','PUT'])
+            methods=['GET','POST'])
 def threads(doc_id):
     key = 'Documents:%s:Threads' % doc_id
     return collection_handler(fl.request, key)
 
 @app.route('/api/Documents/<doc_id>/Threads/<thread_id>/Revisions',
-            methods=['GET','PUT'])
+            methods=['GET','POST'])
 def revisions(doc_id, thread_id):
     key = 'Documents:%s:Threads:%s:Revisions' % (doc_id, thread_id)
     return collection_handler(fl.request, key)
@@ -120,9 +130,9 @@ def fork(doc_id, thread_id, rev_id):
             # write out fork
             fkey = 'Documents:%s:Threads:%s:Revision:%s' % (doc_id, thread_id, fork_id)
             json = fl.request.json
-            put_json(key, json)
+            put(key, json)
             # the parent revision needs updating, since 
-            # the fork parent (updated in put_json) is the thread
+            # the fork parent (updated in put) is the thread
             rev = ds.get(rkey)
             if not fkey in rev.children:
                 rev.children.append(fkey)
