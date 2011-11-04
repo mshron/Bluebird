@@ -1,12 +1,8 @@
 '''Data model for collaborative manifesto maker'''
 from random import randrange
 import time
-import json
 import sys
 from redis import Redis
-
-# we only allow gets and puts of these types of objects
-DATA_TYPES = ['Document', 'Thread', 'Revision', 'User']
 
 # this is how times are stored (chosen to be sortable)
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -15,29 +11,39 @@ def rnd():
     '''Generates a random value for usage in keys'''
     return hex(randrange(0,2**64))[2:]
 
-def get_parent(key):
+def obj_id(key):
+    '''Returns id of object'''
+    return key.split(':')[-1]
+
+def parent(key):
     '''Returns key for parent of object'''
     return ':'.join(key.split(':')[:-2])
 
-def get_collection(key):
+def collection(key):
     '''Returns key for collection object is a member of'''
     return ':'.join(key.split(':')[:-1])
+
+# def parse(attrs):
+#     '''Takes a dictionary representation of a DataModel
+#     instance and returns the corresponding object'''
+#     obj_type = attrs['type'].split(':')[-1]
+#     if not obj_type in DATA_TYPES:
+#         raise ValueError('Illegal type for DataModel instance: %s' % obj_type)
+#     # parse lists where necessary
+#     for key in LIST_ATTRS[obj_type]:
+#         if isinstance(attrs[key], basestring):
+#             attrs[key] = attrs[key].strip('[]').split(', ')
+#     # get object class
+#     Obj = globals()[obj_type]
+#     # init new object with specified attributes
+#     return Obj(**attrs)
 
 def parse(attrs):
     '''Takes a dictionary representation of a DataModel
     instance and returns the corresponding object'''
-    obj_type = attrs['type'].split(':')[-1]
-    if not obj_type in DATA_TYPES:
-        raise ValueError('Illegal type for DataModel instance: %s' % obj_type)
-    # parse lists where necessary
-    for key in LIST_ATTRS[obj_type]:
-        if isinstance(attrs[key], basestring):
-            attrs[key] = attrs[key].strip('[]').split(', ')
-    # get object class
-    Obj = globals()[obj_type]
-    # init new object with specified attributes
-    return Obj(**attrs)
-
+    attrs = dict(attrs.items())
+    obj_type = attrs.pop('type')
+    return globals()[obj_type](**attrs)
 
 class DataModel(object):
     '''Base class for DataStore object model. Each DataModel instance
@@ -57,12 +63,12 @@ class DataModel(object):
         either as full key or object id.
 
     :parent:
-        Reference to object parent. Overrides ancestors in key and
-        collection. 
+        Reference to object parent. (only used if key does not
+        contain parent)
          
     :collection: 
-        Reference to object collection. Implicitly defines parent
-        if unspecified and overrides ancestor in key.
+        Name of object collection (only used if not specified
+        in key)
 
     :children: 
         Name of descendant collection, accessible under 
@@ -73,27 +79,27 @@ class DataModel(object):
         along when serialized.
     '''
     def __init__(self, key=None, parent=None, collection=None, children=None):
+        self.type = self.__class__.__name__
         key = key if key else ''
-        # if unspecified, generate random object id
-        obj_id = key.split(':')[-1] if key.split(':')[-1] else rnd()
-        # if unspecified, get collection from key
-        collection = collection if collection \
-                     else ':'.join(key.split(':')[:-1])
-        # if still unspecified, construct it from class name
-        collection = collection if collection \
-                     else self.__class__.__name__ + 's'
-        # if parent is specified, it overrides that of collection and key
-        if parent:
-            # strip collection to last field
-            collection = collection.split(':')[-1]
-            key = '%s:%s:%s' % (parent, collection, obj_id)
-        else:
-            key = '%s:%s' % (collection, obj_id)
+        # check if length of key path implies parent and collection specified
+        if len(key.split(':')) < 3:
+            # use collection from key if possible
+            if len(key.split(':')) == 2:
+                collection = key.split(':')[0]
+            # construct collection name from class name
+            elif not collection:
+                collection = self.__class__.__name__ + 's'
+            # if unspecified, generate random object id
+            obj_id = key.split(':')[-1] if key.split(':')[-1] else rnd()
+            # if parent is specified, prepend it on key
+            if parent:
+                key = '%s:%s:%s' % (parent, collection, obj_id)
+            # otherwise collection name starts key
+            else:
+                key = '%s:%s' % (collection, obj_id)
         # ensure parent of children is key
         children = '%s:%s' % (key, children.split(':')[-1]) if children else ''    
         self.key = key
-        self.parent = parent
-        self.collection = collection
         self.children = children
 
     def __eq__(self, other):
@@ -107,7 +113,7 @@ class DataSet(object):
     '''BaseClass for sets of object references'''
     def __init__(self, key=None, members=()):
         self.key = key if key else ''
-        self.members = members
+        self.members = list(members)
 
     def __eq__(self, other):
         return (self.key == other.key)
@@ -133,19 +139,16 @@ class DataStore(object):
 
     def get(self, key):
         '''Retrieves a DataModel object'''
-        # retrieve object attributes from datastore
         attrs = self.redis.hgetall(key)
-        # parse into corresponding object
-        obj_type = attrs.pop('type')
-        obj = globals()[obj_type](**attrs)
-        return obj
+        return parse(attrs)
 
     def put(self, data):
         '''Writes out a DataModel object'''
         # add object reference to sibling set
-        self.redis.sadd(data.collection, data.key)
+        self.redis.sadd(collection(data.key), data.key)
         # write out dict representation of object
-        return self.redis.hmset(data.key, data.__dict__)
+        success = self.redis.hmset(data.key, data.__dict__)
+        return data.key if success else success
 
 class Document(DataModel):
     def __init__(self, name='', collection='Documents', 
@@ -171,7 +174,7 @@ class Revision(DataModel):
         super(Revision, self).__init__(parent=parent, collection=collection, 
                                        children=children, **kwargs)
         self.text = text
-        self.author = author
+        self.author = '%s' % author
         self.created = created if created else time.strftime(TIME_FORMAT)
         self.up = up
         self.down = down
@@ -191,4 +194,3 @@ class User(DataModel):
         self.authored = '%s:%s' % (self.key, authored.split(':')[-1])
         self.up_voted = '%s:%s' % (self.key, up_voted.split(':')[-1])
         self.down_voted = '%s:%s' % (self.key, down_voted.split(':')[-1])
-        
