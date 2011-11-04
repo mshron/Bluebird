@@ -45,16 +45,20 @@ var RevisionCollection = Backbone.Collection.extend({
     }
 });
 
+window.revisions = new RevisionCollection;
+
 //------------------------------------------------------------------------
 
 var Vote = Backbone.Model.extend({
-    
+    initialize: function () {
+        this.id = window.user.id;
+    }
 });
 
 var VotesUp = Backbone.Collection.extend({
     model: Vote,
     url: function () {
-        return _.sprintf('/api/documents/%{docid}/threads/%{threadid}/revisions/${revision}/upvote', this.toJSON());
+        return _.sprintf('/api/documents/%{docid}/threads/%{threadid}/revisions/${revision}/upvotes', this.toJSON());
     }
 
 });
@@ -62,14 +66,18 @@ var VotesUp = Backbone.Collection.extend({
 var VotesDown = Backbone.Collection.extend({
     model: Vote,
     url: function () {
-        return _.sprintf('/api/documents/%{docid}/threads/%{threadid}/revisions/${revision}/downvote', this.toJSON());
+        return _.sprintf('/api/documents/%{docid}/threads/%{threadid}/revisions/${revision}/downvotes', this.toJSON());
     }
 
 });
 
+window.upvotes = new VotesUp;
+window.downvotes = new VotesDown;
+
 //------------------------------------------------------------------------
 
 var User = Backbone.Model.extend({
+    url: '/api/users'
 });
 
 //------------------------------------------------------------------------
