@@ -1,4 +1,6 @@
+//
 // Backbone Models
+//
 
 //------------------------------------------------------------------------
 
@@ -16,13 +18,19 @@ var Thread = Backbone.Model.extend({
     root: function (rev) {
         this.set({'root': rev.id});
     }
+    initialize: function () {
+        this.revisions = _(window.revisions)
+                        .filter(
+                            function (x) { x.get('threadid') == this.id; }
+                         );
+    }
 });
 
 var ThreadCollection = Backbone.Collection.extend({
     model: Thread,
     url: function () {
         return _.sprintf('/api/documents/%{docid}/threads', this.toJSON());
-    }
+    },
 });
 
 //------------------------------------------------------------------------
@@ -82,4 +90,14 @@ var User = Backbone.Model.extend({
 
 //------------------------------------------------------------------------
 
-window.Revisions = new RevisionCollection();
+//
+// Backbone Views
+//
+
+var ThreadView = Backbone.View.extend({
+    tagName: "li",
+    render: function () {
+        $(this.el).html(_.template("<%= text %>",this.model.toJSON()));
+        return this
+    }
+});
