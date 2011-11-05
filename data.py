@@ -150,6 +150,17 @@ class DataStore(object):
         success = self.redis.hmset(data.key, data.__dict__)
         return data.key if success else success
 
+    def update(self, attrs):
+        '''Writes subset of attributes to specified object'''
+        key = attrs['key']
+        data = self.get(key)
+        for k,v in attrs.items():
+            setattr(data, k, v)
+        # write out dict representation of object
+        success = self.redis.hmset(data.key, data.__dict__)
+        return data.key if success else success
+
+
 class Document(DataModel):
     def __init__(self, name='', collection='Documents', 
                  children='Threads', **kwargs):
