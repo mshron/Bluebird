@@ -96,8 +96,28 @@ var User = Backbone.Model.extend({
 
 var ThreadView = Backbone.View.extend({
     tagName: "li",
+    initialize: () {
+        $(this.el).add('div').addClass('threadhead');
+        this.revisionviews = [];
+        this.revisions = []
+        this.revisionviews = _(this.revisions)
+            .each(
+              function (rev) {
+                $(this.el).add('div').addClass('revision');
+                new RevisionView(rev) 
+              });
+    },
     render: function () {
-        $(this.el).html(_.template("<%= text %>",this.model.toJSON()));
+        $(this.el).html(_.template("<%= topics %>", this.model.toJSON()));
+        _(this.revisions)
+            .each(function (rev) { rev.render(); });
         return this
+    }
+});
+
+var RevisionView = Backbone.View.extend({
+    tagName: "div",
+    render: function() {
+        $(this.el).html(_.template("<% text %>", this.model.toJSON()));
     }
 });

@@ -1,5 +1,15 @@
-Data Model
+Interface
 --
+
+GET revision collection per document
+POST revisions to a collection per document
+POST votes to a revision, including information about the user
+
+GET/POST user data
+
+Backend Data Model
+--
+
 - Revision (have votes for, votes against, text, id, children, creation_time, topics, and some more)
   - fork
   - add votes
