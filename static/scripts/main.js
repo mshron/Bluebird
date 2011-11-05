@@ -15,14 +15,11 @@ var DocumentCollection = Backbone.Collection.extend({
 //------------------------------------------------------------------------
 
 var Thread = Backbone.Model.extend({
-    root: function (rev) {
-        this.set({'root': rev.id});
-    }
     initialize: function () {
-        this.revisions = _(window.revisions)
-                        .filter(
-                            function (x) { x.get('threadid') == this.id; }
-                         );
+        this.revisions = [];
+    },
+    addRevision: function (rev) {
+        this.revisions.push(rev);
     }
 });
 
@@ -31,6 +28,15 @@ var ThreadCollection = Backbone.Collection.extend({
     url: function () {
         return _.sprintf('/api/documents/%{docid}/threads', this.toJSON());
     },
+    comparator: function (th) {
+    },
+    initialize: function () {
+        var that = this;
+        window.revisions.each(function (x) {
+            var th = that.get(x.get('root'));
+            th.addRevision(x);
+          });
+    }
 });
 
 //------------------------------------------------------------------------
@@ -49,11 +55,29 @@ var Revision = Backbone.Model.extend({
 var RevisionCollection = Backbone.Collection.extend({
     model: Revision,
     url: function () {
-        return _.sprintf('/api/documents/%{docid}/threads/%{threadid}/revisions', this.toJSON());
+        return '/api/documents/0/revisions'
+    },
+    initialize: function () {
+        this.bind('add', function(x) {console.log(x)});
+    },
+    genThreads: function () {
+        window.threads = new ThreadCollection(
+            this.chain()
+                .filter(function (x) {return x.id == x.get('root')})
+                .map(function (x) { return {id: x.id} } )
+                .value()
+          );
+    },
+    comparator: function (rev) {
+        return rev.get('score');
     }
 });
 
-window.revisions = new RevisionCollection;
+window.revisions = new RevisionCollection([{"parent": 0, "text": "hello world", "downvotes": 0, "score": 0.6, "upvotes": 1, "root": 0, "id": 0}, {"parent": 0, "text": "hello cruel world", "downvotes": 1, "score": 0.4, "upvotes": 1, "root": 0, "id": 1}, {"parent": 1, "text": "hello cruel cruel world", "downvotes": 0, "score": 0.8, "upvotes": 2, "root": 0, "id": 2}, {"parent": 3, "text": "I like ponies", "downvotes": 0, "score": 0.6, "upvotes": 1, "root": 3, "id": 3}]);
+
+
+window.revisions.genThreads();
+
 
 //------------------------------------------------------------------------
 
@@ -96,17 +120,6 @@ var User = Backbone.Model.extend({
 
 var ThreadView = Backbone.View.extend({
     tagName: "li",
-    initialize: () {
-        $(this.el).add('div').addClass('threadhead');
-        this.revisionviews = [];
-        this.revisions = []
-        this.revisionviews = _(this.revisions)
-            .each(
-              function (rev) {
-                $(this.el).add('div').addClass('revision');
-                new RevisionView(rev) 
-              });
-    },
     render: function () {
         $(this.el).html(_.template("<%= topics %>", this.model.toJSON()));
         _(this.revisions)
