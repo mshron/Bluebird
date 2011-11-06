@@ -11,6 +11,7 @@ import logic
 
 # open app instance
 app = fl.Flask(__name__)
+app.debug = True
 
 # open datastore instance (threadsafe)
 ds = data.DataStore()
@@ -22,38 +23,20 @@ user = data.User(handle='wonka', name='willie', location='UK', bio='i make choco
 MAX_UP = 3
 MAX_DOWN = 3
 
-# def put_json(key, json):
-#     '''write an object in JSON representation to datastore,
-#     updating parent objects if necessary'''
-#     attrs = json.loads(json)
-#     # ensure object key matches post url
-#     attrs['key'] = key
-#     # check if url has parent
-#     parent_key = ':'.join(key.split(':')[:-2])
-#     if parent_key:
-#         # check that parent reference exists
-#         assert(ds.redis.exists(parent_key))
-#         # ensure parent referenced in object matches url
-#         attrs['parent'] = parent_key
-#         # update children of parent
-#         pobj = ds.get(parent_key)
-#         if not key in pobj.children:
-#             pobj.children.append(key)
-#             # write parent to datastore
-#             ds.put(pobj)
-#     # write object to datastore
-#     ds.put(data.parse(attrs))
-#     return '1'
-
-def put_json(key, attrs):
-    '''write an object in dictionary representation to datastore,
-    updating parent objects if necessary'''
+def put(obj_key, attrs):
+    '''write an object in dictionary representation to datastore'''
     # ensure object key matches post url
     obj = data.parse(attrs)
-    obj.key = key
+    obj.key = obj_key
     return ds.put(obj)
 
-def get_json(key):
+def post(col_key, attrs):
+    '''post an object in dictionary representation to datastore'''
+    obj = data.parse(attrs)
+    obj.key = '%s:%s' % (col_key, data.rnd())
+    return ds.put(obj)
+
+def get(key):
     '''retrieve an object in JSON representation from datastore'''
     assert(ds.redis.exists(key))
     return js.dumps(ds.get(key).__dict__)
@@ -68,9 +51,9 @@ def object_handler(request, obj_key):
     * Write to datastore on PUT,
     * Retrieve from datastore on GET'''
     if request.method == 'PUT':
-        return put_json(obj_key, request.json)
+        return put(obj_key, request.json)
     else:
-        json = get_json(obj_key)
+        json = get(obj_key)
         return fl.Response(json, mimetype='application/json')
 
 def collection_handler(request, col_key):
@@ -78,27 +61,31 @@ def collection_handler(request, col_key):
     * Add object with new id to collection on POST,
     * Retrieve list objects in collection on GET'''
     if request.method == 'POST':
-        obj_id = data.rnd()
-        obj_key = '%s:%s' % (col_key, obj_id) 
-        return put_json(obj_key, fl.request.json); 
+        return post(col_key, fl.request.json); 
     else:
         json = list_json(col_key)
         return fl.Response(json, mimetype='application/json')
 
+@app.route('/api/Users',
+            methods=['GET','POST'])
+def documents():
+    key = 'Users'
+    return collection_handler(fl.request, key)
+
 @app.route('/api/Documents',
-            methods=['GET','PUT'])
+            methods=['GET','POST'])
 def documents():
     key = 'Documents'
     return collection_handler(fl.request, key)
 
 @app.route('/api/Documents/<doc_id>/Threads',
-            methods=['GET','PUT'])
+            methods=['GET','POST'])
 def threads(doc_id):
     key = 'Documents:%s:Threads' % doc_id
     return collection_handler(fl.request, key)
 
 @app.route('/api/Documents/<doc_id>/Threads/<thread_id>/Revisions',
-            methods=['GET','PUT'])
+            methods=['GET','POST'])
 def revisions(doc_id, thread_id):
     key = 'Documents:%s:Threads:%s:Revisions' % (doc_id, thread_id)
     return collection_handler(fl.request, key)
@@ -143,9 +130,9 @@ def fork(doc_id, thread_id, rev_id):
             # write out fork
             fkey = 'Documents:%s:Threads:%s:Revision:%s' % (doc_id, thread_id, fork_id)
             json = fl.request.json
-            put_json(key, json)
+            put(key, json)
             # the parent revision needs updating, since 
-            # the fork parent (updated in put_json) is the thread
+            # the fork parent (updated in put) is the thread
             rev = ds.get(rkey)
             if not fkey in rev.children:
                 rev.children.append(fkey)
@@ -206,62 +193,6 @@ def vote(doc_id, thread_id, rev_id, vote):
                 return ds.redis.hset(key, 'down', 1)
             else:
                 return '0'
-
-# @app.route("/document/<docid>/", methods=['POST', 'GET'])
-# def document(docid):
-#     '''Create new threads or get all threads in a document'''
-#     if fl.request.method == 'POST':
-#         rev_id = rnd()
-#         text = fl.request.form['text']    
-#         topics = fl.request.form['topics']
-#         r = Revision(docid, text, rev_id, topics, [], True)
-#         state.setdefault('revisions',{})[rev_id] = r
-#         return str(rev_id)
-#     else:
-#         r = state.get('revisions',{})
-#         d = state['documents'].get(docid,[])
-#         roots = [x for x in r.values() if x.docid==docid and x.root]
-#         roots = map(rankRevisions, roots)
-#         roots = rankThreads(roots)
-#         return render_template('document.html', d=d, r=roots)
-
-
-# @app.route("/revision/<rev_id>/", methods=['POST', 'GET'])
-# def fork(rev_id):
-#     '''Fork a revision or display all descendants of a revision'''
-#     try:
-#         prev = state.get('revisions',{})[rev_id]
-#         docid = prev.docid
-#     except KeyError:
-#         return 'Sorry, the revision with id "%s" does not exist' % rev_id
-#     if fl.request.method == 'POST':
-#         fork_id = rnd()
-#         text = fl.request.form['text']    
-#         topics = fl.request.form['topics']
-#         frev = Revision(docid, text, fork_id, topics, [], False)
-#         frev.inherit(prev)
-#         state['revisions'][fork_id] = frev
-#         prev.children.append(frev)
-#         return str(fork_id)
-#     else:
-#         doc = state['documents'].get(docid,[])
-#         revs = state.get('revisions',{})
-#         return str(doc) + "\n" + str(prev) + "\n" + "\n".join([str(revs[rev_id]) for rev_id in prev.children])
-
-# @app.route("/_debug")
-# def debug():
-#     raise IndexError
-
-# @app.route("/vote/<userev_id>/<rev_id>/<int:vote>/", 
-#     methods=['PUT'])
-# def vote(userev_id, rev_id, vote):
-#     '''Count an (up/down) vote'''
-#     u = state['user'][userev_id]
-#     r = state['revisions'][rev_id]
-#     out = u.vote(r, r.docid, vote)
-#     return str(out) # t/f for success
-
-
 
 if __name__ == "__main__":
     app.debug = True
