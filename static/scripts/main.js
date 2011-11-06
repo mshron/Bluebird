@@ -38,7 +38,13 @@ var Revision = Backbone.Model.extend({
     downVote: function() {
         this.set({downVotes: this.get('downvotes') + 1});
         return this.downVotes
+    },
+    fork: function () {
+        var f = this.clone();
+        f.set({'parent': this.get('id')});
+        this.trigger('register', f);
     }
+
 });
 
 var RevisionCollection = Backbone.Collection.extend({
@@ -47,15 +53,21 @@ var RevisionCollection = Backbone.Collection.extend({
         return '/api/documents/0/revisions'
     },
     initialize: function () {
+       this.bind('register', this.register, this);
     },
     genThreads: function () {
         window.threads = new ThreadCollection(
             this.chain()
                 .groupBy(function (x) {return x.get('root')})
-                .map(function (xs) {return {'revisions': new RevisionsInAThread(xs)}})
+                .map(function (xs) {
+                  return {'revisions': new RevisionsInAThread(xs), 
+                          'id': xs[0].get('root') }})
                 .value()
           );
     },
+    register: function (rev) {
+        this.add(rev);
+    }
 });
 
 var RevisionsInAThread = Backbone.Collection.extend({
@@ -71,6 +83,13 @@ var RevisionsInAThread = Backbone.Collection.extend({
                   .reduce(function (memo,num) { return memo+num }, 0)
                   .value();
         return down-up;
+    },
+    initialize: function () {
+       this.bind('register', this.register, this);
+       this.root = this.first().get('root');
+    },
+    register: function (rev) {
+        this.add(rev);
     }
 });
 
@@ -118,6 +137,12 @@ var RevisionView = Backbone.View.extend({
     },
     initialize: function () {
         this.model.bind('all', this.render, this);
+    },
+    doFork: function () {
+        this.model.fork();        
+    },
+    events: {
+        "click .text": "doFork"
     }
 });
 
