@@ -90,6 +90,7 @@ var RevisionsInAThread = Backbone.Collection.extend({
     },
     register: function (rev) {
         this.add(rev);
+        window.threads.get(this.root).trigger('addrevision',rev);
     }
 });
 
@@ -111,6 +112,7 @@ var ThreadView = Backbone.View.extend({
     addRevision: function (rev) {
        var rv = new RevisionView({model: rev});
        this.rvs.push(rv);
+       rv.render();
     },
     render: function () {
         $(this.el).html(this.template(this.model.toJSON()));
@@ -126,6 +128,7 @@ var ThreadView = Backbone.View.extend({
         this.model.get('revisions')
          .each(function (rev) { that.addRevision(rev) });
         this.model.bind('all', this.render, this);
+        this.model.bind('addrevision', this.addRevision, this);
     }
 });
 
@@ -157,4 +160,3 @@ window.threadViews = window.threads
                         .map(function (th) {return new ThreadView({model: th})});
 
 window.threads.map(function (th) {th.trigger('go')});
-window.revisions.map(function (rev) {rev.trigger('go')});
