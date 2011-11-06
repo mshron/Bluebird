@@ -109,26 +109,22 @@ var User = Backbone.Model.extend({
 var ThreadView = Backbone.View.extend({
     tagName: "li",
     template: _.template($('#thread-template').html()),
-    addRevision: function (rev) {
-       var rv = new RevisionView({model: rev});
-       this.rvs.push(rv);
-       rv.render();
-    },
     render: function () {
         $(this.el).html(this.template(this.model.toJSON()));
         var that = this;
-        _(this.rvs).each(function (rv) {
-            that.$('.revisions').append(rv.el)
-        });
+        this.model.get('revisions')
+            .each(function (rev) {
+                console.log(rev.get('id'))
+                that.$('.revisions')
+                    .append(new RevisionView({model: rev}).render().el);
+            }); 
+        return this
     },
     initialize: function () {
         this.rvs = [];
         var that = this;
         $('#threads').append(this.el);
-        this.model.get('revisions')
-         .each(function (rev) { that.addRevision(rev) });
         this.model.bind('all', this.render, this);
-        this.model.bind('addrevision', this.addRevision, this);
     }
 });
 
@@ -137,6 +133,7 @@ var RevisionView = Backbone.View.extend({
     template: _.template($('#revision-template').html()),
     render: function() {
         $(this.el).html(this.template(this.model.toJSON()));
+        return this;
     },
     initialize: function () {
         this.model.bind('all', this.render, this);
