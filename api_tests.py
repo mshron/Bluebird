@@ -14,65 +14,87 @@ class ApiTestCases(unittest.TestCase):
                               location='US', 
                               bio='Come ride my pony')
         self.doc = data.Document(name='Ponies and Horses')
-        self.thread = data.Thread(parent=self.doc)
         self.rev = data.Revision(text='We need more Ponies', 
                                  author=self.user, 
-                                 parent=self.thread)
+                                 document=self.doc)
+        self.fork = data.Revision(text='We need more Horses', 
+                                  author=self.user, 
+                                  document=self.doc,
+                                  parent=self.rev,
+                                  root=self.rev)
 
-    def put_obj(self, obj):
-        url = '/api/%s' % '/'.join(obj.key.split(':'))
-        r_put = self.app.put(path=url,
+    def assert_resp(self, resp, code):
+        self.assertEqual(resp.status_code, code,
+                         'Request returned status: %s (expected: %s)' 
+                         % (resp.status, code))
+
+    def post(self, col, obj):
+        url = '/api/%s' % col
+        print 'POST to: %s' % url
+        resp = self.app.post(path=url,
                              data=json.dumps(obj.__dict__), 
                              content_type='application/json')
-        self.assertEqual(r_put.status_code, 200,
-                         'PUT request on URL=%s returned status: %s' 
-                         % (url, r_put.status))
-        self.assertEqual(obj.key, r_put.data,
+        self.assert_resp(resp, 200)
+        self.assertEqual(obj.key, resp.data,
                          'Key returned by server not equal to key requested in url:\n'
                          + '  request: %s\n' % obj.key
-                         + '  returned: %s' % r_put.data)
+                         + '  returned: %s' % resp.data)
+        return resp
 
-    def post_obj(self, obj):
-        url = '/api/%s' % '/'.join(data.collection(obj.key).split(':'))
-        r_post = self.app.post(path=url,
-                               data=json.dumps(obj.__dict__), 
-                               content_type='application/json')
-        self.assertEqual(r_post.status_code, 200,
-                         'POST request on URL=%s returned status: %s' 
-                         % (url, r_post.status))
-        self.assertNotEqual(obj.key, r_post.data)
-
-    def get_obj(self, obj):
-        url = '/api/%s' % '/'.join(obj.key.split(':'))
-        r_get = self.app.get(path=url)
-        self.assertEqual(r_get.status_code, 200,
+    def vote(self, rev, user, vote):
+        dat = {'user':str(user), 'vote':vote}
+        url = '/api/documents/%s/revisions/%s/vote' \
+               % (data.Key(rev.document).id(), self.rev.key.id())
+        print 'PUT to: %s' % url
+        resp = self.app.put(path=url, data=json.dumps(dat), content_type='application/json')
+        return resp
+            
+    def get_all(self, col):
+        url = '/api/%s' % col
+        print 'GET from: %s' % url
+        resp = self.app.get(path=url)
+        self.assertEqual(resp.status_code, 200,
                          'GET request on URL=%s returned status: %s' 
-                         % (url, r_get.status))
-        attrs = json.loads(r_get.data)
-        self.assertEqual(obj.key, attrs['key'],
-                         'Key returned by server not equal to key requested in url:\n'
-                         + '  request: %s\n' % obj.key
-                         + '  returned: %s' % attrs['key'])
+                         % (url, resp.status))
+        attrs_list = json.loads(resp.data)
+        obj_list = [data.parse(a) for a in attrs_list]
+        return obj_list
     
-    def test_doc(self):
-        self.put_obj(self.doc)
-        self.post_obj(self.doc)
-        self.get_obj(self.doc)
-
-    def test_thread(self):
-        self.put_obj(self.thread)
-        self.post_obj(self.thread)
-        self.get_obj(self.thread)
-
-    def test_rev(self):
-        self.put_obj(self.rev)
-        self.post_obj(self.rev)
-        self.get_obj(self.rev)
-
-    def test_user(self):
-        self.put_obj(self.user)
-        self.post_obj(self.user)
-        self.get_obj(self.user)
+    def test_api(self):
+        # test posting
+        self.post('users', self.user)
+        self.post('documents', self.doc)
+        self.post('documents/%s/revisions' % self.doc.key.id(), self.rev)
+        self.post('documents/%s/revisions' % self.doc.key.id(), self.fork)
+        # check whether objects are in collections
+        self.assertTrue(self.user in self.get_all('users'),
+                        '%s not in %s'  % (self.user, self.get_all('users')))
+        self.assertTrue(self.doc in self.get_all('documents'))
+        self.assertTrue(self.rev in self.get_all('documents/%s/revisions' % self.doc.key.id()))
+        self.assertTrue(self.fork in self.get_all('documents/%s/revisions' % self.doc.key.id()))
+        # vote up 
+        resp = self.vote(self.rev, self.user, 1)
+        self.assert_resp(resp, 200)
+        self.assertTrue(self.rev.key in api.ds.members('%s:up_voted' % self.user.key))
+        # blank vote
+        resp = self.vote(self.rev, self.user, 0)
+        self.assert_resp(resp, 200)
+        self.assertFalse(self.rev.key in api.ds.members('%s:up_voted' % self.user.key))
+        # vote down
+        resp = self.vote(self.rev, self.user, -1)
+        self.assert_resp(resp, 200)
+        self.assertTrue(self.rev.key in api.ds.members('%s:down_voted' % self.user.key))
+        # this should fail (not allowed to vote twice)
+        resp = self.vote(self.rev, self.user, -1)
+        self.assert_resp(resp, 403)
+        # this should fail (already voted in thread)
+        resp = self.vote(self.fork, self.user, -1)
+        self.assert_resp(resp, 403)
+        # after blanking vote this should work
+        resp = self.vote(self.rev, self.user, 0)
+        self.assert_resp(resp, 200)
+        resp = self.vote(self.fork, self.user, -1)
+        self.assert_resp(resp, 200)
 
 if __name__ == '__main__':
     unittest.main()
