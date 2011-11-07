@@ -12,7 +12,7 @@ TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 def rnd():
     '''Generates a random value for usage in keys'''
-    return hex(randrange(0,2**64))[2:]
+    return hex(randrange(0,2**32))[2:]
 
 # def parse(attrs):
 #     '''Takes a dictionary representation of a DataModel

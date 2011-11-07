@@ -1,4 +1,12 @@
 //
+// Convenience functions
+//
+
+function rnd () {
+    return parseInt(Math.random()*(Math.pow(2,32))).toString('16');
+}
+
+//
 // Backbone Models
 //
 
@@ -32,16 +40,16 @@ var ThreadCollection = Backbone.Collection.extend({
 
 var Revision = Backbone.Model.extend({
     upVote: function() {
-        this.set({upVotes: this.get('upvotes') + 1});
+        this.set({upVotes: this.get('up') + 1});
         return this.upVotes
     },
     downVote: function() {
-        this.set({downVotes: this.get('downvotes') + 1});
+        this.set({downVotes: this.get('down') + 1});
         return this.downVotes
     },
     fork: function () {
         var f = this.clone();
-        f.set({'parent': this.get('id')});
+        f.set({'parent': this.id, 'id': rnd()});
         this.trigger('register', f);
     }
 
@@ -50,7 +58,7 @@ var Revision = Backbone.Model.extend({
 var RevisionCollection = Backbone.Collection.extend({
     model: Revision,
     url: function () {
-        return '/api/documents/0/revisions'
+        return '/api/documents/48e57d25f4b2d4c8/revisions'
     },
     initialize: function () {
        this.bind('register', this.register, this);
@@ -75,11 +83,11 @@ var RevisionsInAThread = Backbone.Collection.extend({
     comparator: function (rev) {return -rev.get('score')},
     count: function () {
         var up =  this.chain()
-                  .map(function (rev) { return rev.get('upvotes') })
+                  .map(function (rev) { return rev.get('up') })
                   .reduce(function (memo,num) { return memo+num }, 0)
                   .value();
         var down = this.chain()
-                  .map(function (rev) { return rev.get('downvotes') })
+                  .map(function (rev) { return rev.get('down') })
                   .reduce(function (memo,num) { return memo+num }, 0)
                   .value();
         return down-up;
@@ -149,7 +157,10 @@ var RevisionView = Backbone.View.extend({
 
 //------------------------------------------------------------------------
 
-window.revisions = new RevisionCollection([{"parent": 0, "text": "hello world", "downvotes": 0, "score": 0.6, "upvotes": 1, "root": 0, "id": 0}, {"parent": 0, "text": "hello cruel world", "downvotes": 1, "score": 0.4, "upvotes": 1, "root": 0, "id": 1}, {"parent": 1, "text": "hello cruel cruel world", "downvotes": 0, "score": 0.8, "upvotes": 2, "root": 0, "id": 2}, {"parent": 3, "text": "I like ponies", "downvotes": 0, "score": 0.6, "upvotes": 1, "root": 3, "id": 3}]);
+//window.revisions = new RevisionCollection([{"parent": 0, "text": "hello world", "downvotes": 0, "score": 0.6, "upvotes": 1, "root": 0, "id": 0}, {"parent": 0, "text": "hello cruel world", "downvotes": 1, "score": 0.4, "upvotes": 1, "root": 0, "id": 1}, {"parent": 1, "text": "hello cruel cruel world", "downvotes": 0, "score": 0.8, "upvotes": 2, "root": 0, "id": 2}, {"parent": 3, "text": "I like ponies", "downvotes": 0, "score": 0.6, "upvotes": 1, "root": 3, "id": 3}]);
+window.revisions = new RevisionCollection();
+
+window.revisions.fetch();
 
 window.revisions.genThreads();
 
