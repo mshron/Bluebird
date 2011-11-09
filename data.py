@@ -36,7 +36,6 @@ def parse(attrs):
     obj_type = Key(attrs['key']).type()
     return globals()[obj_type](**attrs)
 
-
 class DataStore(object):
     '''Interface with redis datastore'''
 
@@ -168,7 +167,7 @@ class DataModel(object):
         Reference to object in dataset. Can be specified
         either as full key or object id.
     '''
-    def __init__(self, key=None, parent=None):
+    def __init__(self, key=None):
         key = key if key else ''
         if len(key.split(':')) < 2:
             key = '%s:%s' % (self.__class__.__name__, key if key else rnd())
@@ -187,17 +186,16 @@ class DataEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 class Document(DataModel):
-    def __init__(self, name='', created=None, **kwargs):
-        super(Document, self).__init__(**kwargs)
+    def __init__(self, name='', created=None, key=None):
+        super(Document, self).__init__(key=key)
         self.name = name
         self.created = created if created else time.strftime(TIME_FORMAT)
-
 
 class Revision(DataModel):
     def __init__(self, text=None, author=None, created=None, 
                  topic='', up=0, down=0, score=0,
-                 parent=None, root=None, document=None, **kwargs):
-        super(Revision, self).__init__(parent=parent, **kwargs)
+                 parent=None, root=None, document=None, key=None):
+        super(Revision, self).__init__(key=key)
         self.text = text
         self.author = Key(author) if author else ''
         self.root = Key(root) if root else self.key
@@ -209,12 +207,11 @@ class Revision(DataModel):
         self.down = int(down)
         self.score = float(score)
 
-
 class User(DataModel):
     def __init__(self, handle=None, name=None, 
                  created=None, location=None, bio=None, 
-                 authored=[], up_voted=[], down_voted=[], **kwargs):
-        super(User, self).__init__(**kwargs)
+                 authored=[], up_voted=[], down_voted=[], key=None):
+        super(User, self).__init__(key=key)
         self.handle = handle
         self.name = name
         self.location = location
