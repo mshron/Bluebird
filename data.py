@@ -60,21 +60,23 @@ class DataStore(object):
         keys = self.members(set_key)
         return [self.get(k) for k in keys]
 
-    def get_tree(self, rev_key, revisions={}):
+    def get_tree(self, rev_key):
         '''Returns a populated revision tree'''
         rev = self.get(rev_key)
         forks = self.members('%s:forks' % rev_key)
         rev.forks = [self.get_tree(k) for k in forks]
+        for r in rev.forks:
+            r.parent = rev
         return rev
 
     def get(self, obj_key):
         '''Retrieves a DataModel object'''
         attrs = self.redis.hgetall(obj_key)
-        if Key(obj_key).type == 'User':
+        if Key(obj_key).type() == 'User':
             # retrieve set members separately
             for k in ['authored', 'up_voted', 'down_voted']:
                 attrs[k] = self.members('%s:%s' % (obj_key, k)) 
-        if Key(obj_key).type == 'Revision':
+        if Key(obj_key).type() == 'Revision':
             attrs['forks'] = self.members('%s:%s' % (obj_key, 'forks')) 
         return parse(attrs)
 
@@ -122,30 +124,53 @@ class DataStore(object):
             return data.key if success else success
         else:
             return 0
+
+    def update_scores(self, key, parent=None, base_up=0, base_down=0):
+        '''re-calculates scores for tree under specified revision'''
+        rev = self.get(key)
+        rev.tot_up = rev.up
+        rev.tot_down = rev.down
+        if not parent and rev.parent:
+            parent = self.get(rev.parent)
+        if parent:
+            rev.tot_up += parent.tot_up 
+            rev.tot_down += parent.tot_down
+        else:
+            rev.tot_up += base_up
+            rev.tot_down += base_down
+        rev.score = (rev.tot_up + 1.) / (rev.tot_up + rev.tot_down + 2.)
+        self.put(rev)
+        for r in rev.forks:
+            self.update_scores(r, parent=rev)
             
     def vote(self, user_key, rev_key, vote):
         '''Votes up, down or blank on specified revision, and update
         user records'''
-        # vote zero means blanking
+        dirty = False
+        # vote 0 means blanking
         if vote == 0:
             if self.ismember('%s:up_voted' % user_key, rev_key):
                 self.redis.srem('%s:up_voted' % user_key, rev_key)
                 self.redis.hincrby(rev_key, 'up', -1)
-                return True
-            if self.ismember('%s:down_voted' % user_key, rev_key):
+                dirty = True
+            elif self.ismember('%s:down_voted' % user_key, rev_key):
                 self.redis.srem('%s:down_voted' % user_key, rev_key)
                 self.redis.hincrby(rev_key, 'down', -1)
-                return True
+                dirty = True
         # vote 1 means upvote
         if vote == 1 and not self.ismember('%s:up_voted' % user_key, rev_key):
                 self.redis.sadd('%s:up_voted' % user_key, rev_key)
                 self.redis.hincrby(rev_key, 'up', 1)
-                return True
+                dirty = True
         # vote -1 means downvote
-        if vote == -1 and not self.ismember('%s:down_voted' % user_key, rev_key):
+        elif vote == -1 and not self.ismember('%s:down_voted' % user_key, rev_key):
                 self.redis.sadd('%s:down_voted' % user_key, rev_key)
-                self.redis.hincrby(rev_key, 'up', 1)
-                return True
+                self.redis.hincrby(rev_key, 'down', 1)
+                dirty = True
+        # update scores
+        if dirty:
+            self.update_scores(rev_key)
+            return True
         return False
 
 class Key(str):
@@ -205,7 +230,8 @@ class Document(DataModel):
 
 class Revision(DataModel):
     def __init__(self, text=None, author=None, created=None, 
-                 topic='', up=0, down=0, score=0, forks=[],
+                 topic='', score=0, forks=[],
+                 up=0, down=0, tot_up=0, tot_down=0, 
                  parent=None, root=None, document=None, key=None):
         super(Revision, self).__init__(key=key)
         self.text = text
@@ -218,7 +244,10 @@ class Revision(DataModel):
         self.topic = topic
         self.up = int(up)
         self.down = int(down)
+        self.tot_up = int(tot_up)
+        self.tot_down = int(tot_down)
         self.score = float(score)
+    
 
 # class Thread(DataModel):
 #     def __init__(self, root=None, revisions=[], **kwargs):
