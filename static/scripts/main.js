@@ -50,6 +50,8 @@ var Revision = Backbone.Model.extend({
     fork: function () {
         var f = this.clone();
         f.set({'parent': this.id, 'id': rnd()});
+        f.set({'score': this.get('score')*.9999});
+        f.forking = true;
         this.trigger('register', f);
     }
 
@@ -130,7 +132,6 @@ var ThreadView = Backbone.View.extend({
     },
     initialize: function () {
         this.rvs = [];
-        var that = this;
         $('#threads').append(this.el);
         this.model.bind('all', this.render, this);
     }
@@ -145,22 +146,41 @@ var RevisionView = Backbone.View.extend({
     },
     initialize: function () {
         this.model.bind('all', this.render, this);
+        if (this.model.forking == true) {
+            this.editing();
+        }
     },
     doFork: function () {
         this.model.fork();        
     },
     events: {
-        "click .text": "doFork"
+        "click .text": "doFork",
+        "click .done": "endEditing",
+        "keypress .edit-text": "pressenter"
+    },
+    editing: function () {
+        $(this.el).addClass('editing');
+    },
+    pressenter: function (e) {
+        if (e.keyCode == 13) {
+            this.endEditing();
+        }
+    },
+    endEditing: function () {
+        $(this.el).removeClass('editing');
+        this.model.forking = false;
+        this.model.set({'text': this.$('.edit-text').val()});
+        this.model.save();
     }
 });
 
-
 //------------------------------------------------------------------------
 
-//window.revisions = new RevisionCollection([{"parent": 0, "text": "hello world", "downvotes": 0, "score": 0.6, "upvotes": 1, "root": 0, "id": 0}, {"parent": 0, "text": "hello cruel world", "downvotes": 1, "score": 0.4, "upvotes": 1, "root": 0, "id": 1}, {"parent": 1, "text": "hello cruel cruel world", "downvotes": 0, "score": 0.8, "upvotes": 2, "root": 0, "id": 2}, {"parent": 3, "text": "I like ponies", "downvotes": 0, "score": 0.6, "upvotes": 1, "root": 3, "id": 3}]);
-window.revisions = new RevisionCollection();
+window.revisions = new RevisionCollection([{"parent": 0, "text": "hello world", "down": 0, "score": 0.6, "up": 1, "root": 0, "id": 0}, {"parent": 0, "text": "hello cruel world", "down": 1, "score": 0.4, "up": 1, "root": 0, "id": 1}, {"parent": 1, "text": "hello cruel cruel world", "down": 0, "score": 0.8, "up": 2, "root": 0, "id": 2}, {"parent": 3, "text": "I like ponies", "down": 0, "score": 0.6, "up": 1, "root": 3, "id": 3}]);
 
-window.revisions.fetch();
+//window.revisions = new RevisionCollection();
+
+//window.revisions.fetch();
 
 window.revisions.genThreads();
 
