@@ -60,6 +60,13 @@ class DataStore(object):
         keys = self.members(set_key)
         return [self.get(k) for k in keys]
 
+    def get_tree(self, rev_key, revisions={}):
+        '''Returns a populated revision tree'''
+        rev = self.get(rev_key)
+        forks = self.members('%s:forks' % rev_key)
+        rev.forks = [self.get_tree(k) for k in forks]
+        return rev
+
     def get(self, obj_key):
         '''Retrieves a DataModel object'''
         attrs = self.redis.hgetall(obj_key)
@@ -67,6 +74,8 @@ class DataStore(object):
             # retrieve set members separately
             for k in ['authored', 'up_voted', 'down_voted']:
                 attrs[k] = self.members('%s:%s' % (obj_key, k)) 
+        if Key(obj_key).type == 'Revision':
+            attrs['forks'] = self.members('%s:%s' % (obj_key, 'forks')) 
         return parse(attrs)
 
     def put(self, data):
@@ -174,7 +183,10 @@ class DataModel(object):
         self.key = Key(key)
 
     def __eq__(self, other):
-        return (self.key == other.key)
+        if hasattr(other, 'key'):
+            return (self.key == other.key)
+        else:
+            return False
 
     def __repr__(self):
         return self.key
@@ -193,7 +205,7 @@ class Document(DataModel):
 
 class Revision(DataModel):
     def __init__(self, text=None, author=None, created=None, 
-                 topic='', up=0, down=0, score=0,
+                 topic='', up=0, down=0, score=0, forks=[],
                  parent=None, root=None, document=None, key=None):
         super(Revision, self).__init__(key=key)
         self.text = text
@@ -201,11 +213,28 @@ class Revision(DataModel):
         self.root = Key(root) if root else self.key
         self.parent = Key(parent) if parent else ''
         self.document = Key(document) if document else ''
+        self.forks = forks
         self.created = created if created else time.strftime(TIME_FORMAT)
         self.topic = topic
         self.up = int(up)
         self.down = int(down)
         self.score = float(score)
+
+# class Thread(DataModel):
+#     def __init__(self, root=None, revisions=[], **kwargs):
+#         super(Revision, self).__init__(**kwargs)
+    
+#     def tree(self, root=None):
+#         '''recursively populate references in revision tree'''
+#         children = []
+#         for child in root.children:
+#             children.append(self.tree(root=child))
+        
+#         return 
+
+#     def scores(self):
+#         '''get score for each revision'''
+
 
 class User(DataModel):
     def __init__(self, handle=None, name=None, 
