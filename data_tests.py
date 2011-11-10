@@ -91,13 +91,27 @@ class DataTestCases(unittest.TestCase):
         # test downvoting
         self.assertTrue(self.ds.vote(self.user, self.rev, -1))
         self.assertTrue(self.ds.ismember('%s:down_voted' % self.user, self.rev))
-        # # check that double-voting fails
-        # self.assertFalse(self.ds.vote(self.user, self.rev, -1))
-        # # check that double-voting within thread fails
-        # self.assertFalse(self.ds.vote(self.user, self.fork, -1))
-        # # check that it succeeds one previous vote has been blanked
-        # self.assertTrue(self.ds.vote(self.user, self.rev, 0))
-        # self.assertTrue(self.ds.vote(self.user, self.fork, -1))
+        # test scoring
+        for r in [self.rev, self.fork]:
+            for v in [-1, 1]:
+                u = data.User(**self.user.__dict__)
+                self.ds.put(u)
+                self.ds.vote(u, r, v)
+        r = self.ds.get(self.rev.key)
+        self.assertTrue(r.tot_up == 1, 
+                        'r.tot_up = %d (expected: %d)' % (r.tot_up, 1))
+        self.assertTrue(r.tot_down == 2,
+                        'r.tot_down = %d (expected: %d)' % (r.tot_down, 2))
+        self.assertTrue(r.score == 2. / 5.,
+                        'r.score = %.2f (expected: %.2f)' % (r.score, 2./5.))
+        f = self.ds.get(self.fork.key)
+        self.assertTrue(f.tot_up == 2, 
+                        'f.tot_up = %d (expected: %d)' % (f.tot_up, 2))
+        self.assertTrue(f.tot_down == 3,
+                        'f.tot_down = %d (expected: %d)' % (f.tot_down, 3))
+        self.assertTrue((f.score - 3. / 7.)**2 < 1e-5,
+                        'f.score = %.2f (expected: %.2f)' % (f.score, 3./7.))
+
 
 if __name__ == '__main__':
     unittest.main()
