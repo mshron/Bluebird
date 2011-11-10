@@ -1,5 +1,16 @@
 <!doctype html>
 <html>
+<style type='text/css'>
+div.edit-visible {
+    display: none;
+}
+div.editing .text {
+    display: none;
+}
+div.editing .edit-visible {
+    display: block;
+}
+</style>
 <body>
 <div id="threads"></div>
 <script type='text/template' id='thread-template'>
@@ -8,8 +19,13 @@
 
 <script type='text/template' id='revision-template'>
     <div class='text'><%= text %></div>
+    <div class='edit-visible'>
+        <input class='edit-text' type='text' value="<%= text %>"></input>
+        <div class='done'>Save</div>
+    </div>
     <div><%= up %> <%= down %></div>
 </script>
+
 
 <script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js'></script>
 <script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/underscore.string/1.1.6/underscore.string.min.js'></script>
