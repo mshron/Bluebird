@@ -1,6 +1,7 @@
 Interface
 --
 
+
 GET revision collection per document
 POST revisions to a collection per document
 POST votes to a revision, including information about the user
