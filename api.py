@@ -22,10 +22,13 @@ user = data.User(handle='wonka', name='willie', location='UK', bio='i make choco
 MAX_UP = 3
 MAX_DOWN = 3
 
-def put(attrs):
+def put(attrs, obj_type=None):
     '''write an object in dictionary representation to datastore'''
+    if obj_type:
+        attrs['type'] = obj_type
     obj = data.parse(attrs)
-    return ds.put(obj)
+    key = ds.put(obj)
+    return key.id() if key else ''
 
 # def get(key):
 #     '''retrieve an object in JSON representation from datastore'''
@@ -37,12 +40,12 @@ def get_all(key):
     assert(ds.redis.exists(key))
     return ds.get_all(key)
 
-def collection_handler(request, col_key):
+def collection_handler(request, col_key, obj_type=None):
     '''Default handling for fl.requests on object urls:
     * Write object on post,
     * Retrieve list objects in collection on GET'''
     if request.method in ['POST','PUT']:
-        return put(fl.request.json); 
+        return put(fl.request.json, obj_type=obj_type); 
     else:
         return fl.Response(js.dumps(get_all(col_key), cls=data.DataEncoder), mimetype='application/json')
 
@@ -50,25 +53,25 @@ def collection_handler(request, col_key):
             methods=['GET','POST'])
 def users():
     key = 'users'
-    return collection_handler(fl.request, key)
+    return collection_handler(fl.request, key, obj_type='User')
 
 @app.route('/api/documents',
             methods=['GET','POST'])
 def documents():
     key = 'documents'
-    return collection_handler(fl.request, key)
+    return collection_handler(fl.request, key, obj_type='Document')
 
 @app.route('/api/documents/<doc_id>/revisions',
             methods=['GET','POST'])
 def threads(doc_id):
     key = 'Document:%s:revisions' % doc_id
-    return collection_handler(fl.request, key)
+    return collection_handler(fl.request, key, obj_type='Revision')
 
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>',
             methods=['PUT'])
 def revision(doc_id, rev_id):
     key = 'Document:%s:revisions' % doc_id
-    return collection_handler(fl.request, key)
+    return collection_handler(fl.request, key, obj_type='Revision')
 
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>/vote', 
             methods=['PUT'])

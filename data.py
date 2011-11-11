@@ -33,7 +33,17 @@ def parse(attrs):
     '''Takes a dictionary representation of a DataModel
     instance and returns the corresponding object'''
     attrs = dict(attrs.items())
-    obj_type = Key(attrs['key']).type()
+    obj_type = ''
+    if 'key' in attrs:
+        obj_type = Key(attrs['key']).type()   
+    if 'type' in attrs:
+        obj_type = attrs.pop('type')
+    if not obj_type:
+        raise ValueError('Cannot determine object type from attrs.'
+                         + ' Needs to define either "key" or "type".')
+    if 'id' in attrs:
+        obj_id = attrs.pop('id')
+        attrs['key'] = Key('%s:%s' % (obj_type, obj_id))
     return globals()[obj_type](**attrs)
 
 class DataStore(object):
@@ -177,11 +187,11 @@ class Key(str):
     '''BaseClass for datastore keys'''
     def type(self):
         '''Returns object type of key'''
-        return self.split(':')[-2]
+        return self.split(':')[0]
 
     def id(self):
         '''Returns id of object'''
-        return self.split(':')[-1]
+        return self.split(':')[1]
 
 class KeyList(list):
     '''BaseClass for sets of datastore references'''
@@ -219,7 +229,12 @@ class DataModel(object):
 class DataEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, DataModel):
-            return obj.__dict__
+            attrs = dict(obj.__dict__.items()) 
+            # split key to type and id
+            attrs.pop('key')
+            attrs['type'] = obj.key.type()
+            attrs['id'] = obj.key.id()
+            return attrs
         return json.JSONEncoder.default(self, obj)
 
 class Document(DataModel):
