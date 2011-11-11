@@ -183,6 +183,22 @@ var MainView = Backbone.View.extend({
     id: 'main',
     initialize: function () {
     },
+    go:  function () {
+        window.threads = new ThreadCollection(
+                    window.revisions
+                    .chain()
+                        .groupBy(function (x) {return x.get('root')})
+                        .map(function (xs) {
+                          return {'revisions': new RevisionsInAThread(xs), 
+                            'id': xs[0].get('root') }
+                         }).value());
+        window.threadViews = window.threads
+                                .map(
+                                  function (th) {
+                                    return new ThreadView({model: th})
+                                 });
+        window.threads.map(function (th) {th.trigger('go')});
+    },
     events: {
         "click .done": "newThread",
         "keypress .new-text": "pressenter",
@@ -214,20 +230,5 @@ var MainView = Backbone.View.extend({
 });
 
 window.Main = new MainView;
-window.threads = new ThreadCollection(
-            window.revisions
-            .chain()
-                .groupBy(function (x) {return x.get('root')})
-                .map(function (xs) {
-                  return {'revisions': new RevisionsInAThread(xs), 
-                    'id': xs[0].get('root') }
-                 }).value());
-window.threadViews = window.threads
-                        .map(
-                          function (th) {
-                            return new ThreadView({model: th})
-                         });
-window.threads.map(function (th) {th.trigger('go')});
-
 
 }); // I open at the close (of DOM rendering).
