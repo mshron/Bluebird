@@ -1,3 +1,5 @@
+$(function () {
+
 //
 // Convenience functions
 //
@@ -49,10 +51,21 @@ var Revision = Backbone.Model.extend({
     },
     fork: function () {
         var f = this.clone();
-        f.set({'parent': this.id, 'id': rnd()});
+        f.set({'parent': this.id});
+        f.unset('id');
         f.set({'score': this.get('score')*.9999});
         f.forking = true;
         this.trigger('register', f);
+    },
+    defaults: {
+        "up": 0,
+        "down": 0
+    },
+    initialize: function () {
+        this.set({'id': rnd()});
+        if (!this.get('parent')) {
+            this.set({'root': this.get('id')});
+        }
     }
 
 });
@@ -60,20 +73,11 @@ var Revision = Backbone.Model.extend({
 var RevisionCollection = Backbone.Collection.extend({
     model: Revision,
     url: function () {
-        return '/api/documents/48e57d25f4b2d4c8/revisions'
+        return '/api/documents/' + this.documentid + '/revisions'
     },
     initialize: function () {
        this.bind('register', this.register, this);
-    },
-    genThreads: function () {
-        window.threads = new ThreadCollection(
-            this.chain()
-                .groupBy(function (x) {return x.get('root')})
-                .map(function (xs) {
-                  return {'revisions': new RevisionsInAThread(xs), 
-                          'id': xs[0].get('root') }})
-                .value()
-          );
+       this.documentid = this.first().get('document').split(':')[1];
     },
     register: function (rev) {
         this.add(rev);
@@ -176,15 +180,56 @@ var RevisionView = Backbone.View.extend({
 
 //------------------------------------------------------------------------
 
-window.revisions = new RevisionCollection([{"parent": 0, "text": "hello world", "down": 0, "score": 0.6, "up": 1, "root": 0, "id": 0}, {"parent": 0, "text": "hello cruel world", "down": 1, "score": 0.4, "up": 1, "root": 0, "id": 1}, {"parent": 1, "text": "hello cruel cruel world", "down": 0, "score": 0.8, "up": 2, "root": 0, "id": 2}, {"parent": 3, "text": "I like ponies", "down": 0, "score": 0.6, "up": 1, "root": 3, "id": 3}]);
+var MainView = Backbone.View.extend({
+    id: 'main',
+    initialize: function () {
+    },
+    events: {
+        "click .done": "newThread",
+        "keypress .new-text": "pressenter",
+        "click .refresh": "refresh"
+    },
+    pressenter: function (e) {
+        if (e.keyCode == 13) {
+            this.newThread();
+        }
+    },
+    refresh: function () {
+        window.revisions.fetch();
+    },
+    newThread: function () {
+        var rev = new Revision(
+            {'text': this.$('.edit-text').val()}
+            );
+        window.revisions.add(rev);
+        var th = new Thread(
+            {'revisions': [rev],
+             'id': rev.get('root')}
+             );
+        window.threads.add(th);
+        var tv = new ThreadView({model: th});
+        this.threadViews.push(tv);
+        tv.trigger('go');
+    }
 
-//window.revisions = new RevisionCollection();
+});
 
-//window.revisions.fetch();
-
-window.revisions.genThreads();
-
+window.Main = new MainView;
+window.revisions = new RevisionCollection([{"down": 0, "tot_down": 1, "parent": "Revision:1b632572", "author": "User:f2f75bb4", "text": "We need more Horses", "created": "2011-11-10 00:12:40", "up": 0, "topic": "", "score": 0.333333333333, "tot_up": 0, "key": "Revision:d8ca3222", "forks": [], "document": "Document:5ec24150", "root": "Revision:1b632572"}, {"down": 1, "tot_down": 1, "parent": "", "author": "User:f2f75bb4", "text": "We need more Ponies", "created": "2011-11-10 00:12:40", "up": 0, "topic": "", "score": 0.333333333333, "tot_up": 0, "key": "Revision:1b632572", "forks": ["Revision:d8ca3222"], "document": "Document:5ec24150", "root": "Revision:1b632572"}]);
+window.threads = new ThreadCollection(
+            window.revisions
+            .chain()
+                .groupBy(function (x) {return x.get('root')})
+                .map(function (xs) {
+                  return {'revisions': new RevisionsInAThread(xs), 
+                    'id': xs[0].get('root') }
+                 }).value());
 window.threadViews = window.threads
-                        .map(function (th) {return new ThreadView({model: th})});
-
+                        .map(
+                          function (th) {
+                            return new ThreadView({model: th})
+                         });
 window.threads.map(function (th) {th.trigger('go')});
+
+
+}); // I open at the close (of DOM rendering).

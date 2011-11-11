@@ -41,7 +41,7 @@ def collection_handler(request, col_key):
     '''Default handling for fl.requests on object urls:
     * Write object on post,
     * Retrieve list objects in collection on GET'''
-    if request.method == 'POST':
+    if request.method in ['POST','PUT']:
         return put(fl.request.json); 
     else:
         return fl.Response(get_all(col_key), mimetype='application/json')
@@ -61,6 +61,12 @@ def documents():
 @app.route('/api/documents/<doc_id>/revisions',
             methods=['GET','POST'])
 def threads(doc_id):
+    key = 'Document:%s:revisions' % doc_id
+    return collection_handler(fl.request, key)
+
+@app.route('/api/documents/<doc_id>/revisions/<rev_id>',
+            methods=['PUT'])
+def revision(doc_id, rev_id):
     key = 'Document:%s:revisions' % doc_id
     return collection_handler(fl.request, key)
 
@@ -95,6 +101,11 @@ def vote(doc_id, rev_id):
             else:
                 fl.abort(403)
         return fl.Response('Succes')
+
+#@app.route('/documents/<doc_id>')
+#def dochtml(doc_id):
+  
+     
 
 if __name__ == "__main__":
     app.debug = True
