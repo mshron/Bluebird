@@ -35,7 +35,7 @@ def put(attrs):
 def get_all(key):
     '''retrieve a set of object in JSON representation from datastore'''
     assert(ds.redis.exists(key))
-    return js.dumps(ds.get_all(key), cls=data.DataEncoder)
+    return ds.get_all(key)
 
 def collection_handler(request, col_key):
     '''Default handling for fl.requests on object urls:
@@ -44,7 +44,7 @@ def collection_handler(request, col_key):
     if request.method in ['POST','PUT']:
         return put(fl.request.json); 
     else:
-        return fl.Response(get_all(col_key), mimetype='application/json')
+        return fl.Response(js.dumps(get_all(col_key), cls=data.DataEncoder), mimetype='application/json')
 
 @app.route('/api/users',
             methods=['GET','POST'])
@@ -102,8 +102,10 @@ def vote(doc_id, rev_id):
                 fl.abort(403)
         return fl.Response('Succes')
 
-#@app.route('/documents/<doc_id>')
-#def dochtml(doc_id):
+@app.route('/documents/<doc_id>')
+def dochtml(doc_id):
+    ddata = [obj.__dict__ for obj in get_all('Document:%s:revisions'%doc_id)]
+    return fl.render_template('test.html', data=ddata) #FIXME
   
      
 

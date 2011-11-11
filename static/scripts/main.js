@@ -52,7 +52,6 @@ var Revision = Backbone.Model.extend({
     fork: function () {
         var f = this.clone();
         f.set({'parent': this.id});
-        f.unset('id');
         f.set({'score': this.get('score')*.9999});
         f.forking = true;
         this.trigger('register', f);
@@ -215,7 +214,6 @@ var MainView = Backbone.View.extend({
 });
 
 window.Main = new MainView;
-window.revisions = new RevisionCollection([{"down": 0, "tot_down": 1, "parent": "Revision:1b632572", "author": "User:f2f75bb4", "text": "We need more Horses", "created": "2011-11-10 00:12:40", "up": 0, "topic": "", "score": 0.333333333333, "tot_up": 0, "key": "Revision:d8ca3222", "forks": [], "document": "Document:5ec24150", "root": "Revision:1b632572"}, {"down": 1, "tot_down": 1, "parent": "", "author": "User:f2f75bb4", "text": "We need more Ponies", "created": "2011-11-10 00:12:40", "up": 0, "topic": "", "score": 0.333333333333, "tot_up": 0, "key": "Revision:1b632572", "forks": ["Revision:d8ca3222"], "document": "Document:5ec24150", "root": "Revision:1b632572"}]);
 window.threads = new ThreadCollection(
             window.revisions
             .chain()
