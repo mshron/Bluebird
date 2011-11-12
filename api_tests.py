@@ -35,9 +35,9 @@ class ApiTestCases(unittest.TestCase):
                              data=json.dumps(obj.__dict__), 
                              content_type='application/json')
         self.assert_resp(resp, 200)
-        self.assertEqual(obj.key, resp.data,
+        self.assertEqual(obj.key.id(), resp.data,
                          'Key returned by server not equal to key requested in url:\n'
-                         + '  request: %s\n' % obj.key
+                         + '  request: %s\n' % obj.key.id()
                          + '  returned: %s' % resp.data)
         return resp
 

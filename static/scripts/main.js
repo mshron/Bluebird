@@ -1,4 +1,4 @@
-$(function () {
+//$(function () {
 
 //
 // Convenience functions
@@ -26,13 +26,16 @@ var DocumentCollection = Backbone.Collection.extend({
 
 var Thread = Backbone.Model.extend({
     initialize: function () {
+    },
+    add: function (rev) {
+        this.get('revisions').add(rev);
     }
 });
 
 var ThreadCollection = Backbone.Collection.extend({
     model: Thread,
     comparator: function (th) {
-        return th.get('revisions').count()
+    //    return th.get('revisions').count()
     },
     initialize: function () {
     }
@@ -76,10 +79,13 @@ var RevisionCollection = Backbone.Collection.extend({
     },
     initialize: function () {
        this.bind('register', this.register, this);
-       this.documentid = this.first().get('document').split(':')[1];
+       this.bind('reset', this.setdoc, this);
     },
     register: function (rev) {
         this.add(rev);
+    },
+    setdoc: function (revs) {
+       this.documentid = revs.first().get('document').split(':')[1];
     }
 });
 
@@ -180,24 +186,36 @@ var RevisionView = Backbone.View.extend({
 //------------------------------------------------------------------------
 
 var MainView = Backbone.View.extend({
-    id: 'main',
+    el: '#main',
     initialize: function () {
+        this.el = $('#main');
+        window.revisions = new RevisionCollection;
+        window.revisions.bind('add', this.addRevision, this);
+        window.revisions.bind('reset', this.reset, this);
     },
-    go:  function () {
-        window.threads = new ThreadCollection(
-                    window.revisions
-                    .chain()
-                        .groupBy(function (x) {return x.get('root')})
-                        .map(function (xs) {
-                          return {'revisions': new RevisionsInAThread(xs), 
-                            'id': xs[0].get('root') }
-                         }).value());
-        window.threadViews = window.threads
-                                .map(
-                                  function (th) {
-                                    return new ThreadView({model: th})
-                                 });
-        window.threads.map(function (th) {th.trigger('go')});
+    reset: function (revs) {
+        this.threads = new ThreadCollection;
+        var that = this;
+        revs.each(function (rev) {that.addRevision(rev)} );
+        this.render();
+    },
+    addRevision: function (rev) {
+        var t = this.threads.get(rev.get('root'));
+        if (t) {
+           t.add(rev); 
+        } else {
+            this.threads.add({'revisions': new RevisionsInAThread([rev]),
+                              'id': rev.get('root')});
+        }
+        var t = this.threads.get(rev.get('root'));
+    },
+    render:  function () {
+        this.$('#threads').html('');
+        var that = this;
+        this.threads.each(function (th) {
+                            that.$('#threads')
+                                .append(new ThreadView({model: th}).render().el)
+                          });
     },
     events: {
         "click .done": "newThread",
@@ -213,22 +231,13 @@ var MainView = Backbone.View.extend({
         window.revisions.fetch();
     },
     newThread: function () {
-        var rev = new Revision(
-            {'text': this.$('.edit-text').val()}
-            );
-        window.revisions.add(rev);
-        var th = new Thread(
-            {'revisions': [rev],
-             'id': rev.get('root')}
-             );
-        window.threads.add(th);
-        var tv = new ThreadView({model: th});
-        this.threadViews.push(tv);
-        tv.trigger('go');
+        window.revisions.add({'text': this.$('.new-text').val()});
+        this.$('.new-text').val('');
+        this.render();
     }
 
 });
 
 window.Main = new MainView;
 
-}); // I open at the close (of DOM rendering).
+//}); // I open at the close (of DOM rendering).
