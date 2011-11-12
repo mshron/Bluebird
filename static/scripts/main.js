@@ -63,11 +63,8 @@ var RevisionCollection = Backbone.Collection.extend({
         return '/api/documents/' + this.documentid + '/revisions'
     },
     initialize: function () {
-       this.bind('register', this.register, this);
+       this.bind('register', this.add, this);
        this.bind('reset', this.setdoc, this);
-    },
-    register: function (rev) {
-        this.add(rev);
     },
     setdoc: function (revs) {
        this.documentid = revs.first().get('document').split(':')[1];
@@ -89,12 +86,10 @@ var RevisionsInAThread = Backbone.Collection.extend({
         return down-up;
     },
     initialize: function () {
-       this.bind('register', this.register, this);
+       this.bind('register', this.add, this);
        this.root = this.first().get('root');
+       console.log(this.root);
     },
-    register: function (rev) {
-        this.add(rev);
-    }
 });
 
 //------------------------------------------------------------------------
@@ -193,7 +188,6 @@ var MainView = Backbone.View.extend({
         }
     },
     render:  function () {
-        console.log('foo');
         this.$('#threads').html('');
         var that = this;
         _(this.threads).each(function (th) {
