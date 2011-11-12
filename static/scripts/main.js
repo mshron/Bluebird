@@ -26,6 +26,9 @@ var DocumentCollection = Backbone.Collection.extend({
 
 var Thread = Backbone.Model.extend({
     initialize: function () {
+    },
+    add: function (rev) {
+        this.get('revisions').add(rev);
     }
 });
 
@@ -55,6 +58,7 @@ var Revision = Backbone.Model.extend({
         q = f;
         f.set({'parent': this.id});
         f.set({'score': this.get('score')*.9999});
+        f.set({'id': rnd()});
         f.forking = true;
         this.trigger('register', f);
     },
@@ -63,9 +67,10 @@ var Revision = Backbone.Model.extend({
         "down": 0
     },
     initialize: function () {
-        this.set({'id': rnd()});
-        if (!this.get('parent')) {
+        if (this.get('parent')=='') {
+            this.set({'id': rnd()});
             this.set({'root': this.get('id')});
+            this.set({'parent': this.get('id')});
         }
     }
 
@@ -187,26 +192,24 @@ var MainView = Backbone.View.extend({
     initialize: function () {
         this.el = $('#main');
         window.revisions = new RevisionCollection;
-        window.revisions.bind('add', this.addRevision, this);
+        window.revisions.bind('add', this.addRevisionToThread, this);
         window.revisions.bind('reset', this.reset, this);
+        window.revisions.bind('done', this.render, this);
     },
     reset: function (revs) {
         this.threads = new ThreadCollection;
         var that = this;
-        revs.each(function (rev) {that.addRevision(rev)} );
+        revs.each(function (rev) {that.addRevisionToThread(rev)} );
         this.render();
     },
-    addRevision: function (rev) {
+    addRevisionToThread: function (rev) {
         var t = this.threads.get(rev.get('root'));
-        if (t) {
-           t.add(rev); 
-        } else {
-            this.threads.add({'revisions': new RevisionsInAThread([rev]),
-                              'id': rev.get('root')});
+        if (!t) {
+            this.threads.add({'revisions': new RevisionsInAThread([rev]), 'id': rev.get('root')});
         }
-        var t = this.threads.get(rev.get('root'));
     },
     render:  function () {
+        console.log('foo');
         this.$('#threads').html('');
         var that = this;
         this.threads.each(function (th) {
@@ -228,7 +231,9 @@ var MainView = Backbone.View.extend({
         window.revisions.fetch();
     },
     newThread: function () {
-        window.revisions.add({'text': this.$('.new-text').val()});
+        var rev = {'text': this.$('.new-text').val(), 'parent': ''}
+        window.revisions.add(rev);
+        this.addRevisionToThread(rev);
         this.$('.new-text').val('');
         this.render();
     }
