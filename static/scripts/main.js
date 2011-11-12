@@ -26,9 +26,6 @@ var DocumentCollection = Backbone.Collection.extend({
 
 var Thread = Backbone.Model.extend({
     initialize: function () {
-    },
-    add: function (rev) {
-        this.get('revisions').add(rev);
     }
 });
 
@@ -54,6 +51,8 @@ var Revision = Backbone.Model.extend({
     },
     fork: function () {
         var f = this.clone();
+        s = this;
+        q = f;
         f.set({'parent': this.id});
         f.set({'score': this.get('score')*.9999});
         f.forking = true;
@@ -109,7 +108,6 @@ var RevisionsInAThread = Backbone.Collection.extend({
     },
     register: function (rev) {
         this.add(rev);
-        window.threads.get(this.root).trigger('addrevision',rev);
     }
 });
 
@@ -133,7 +131,6 @@ var ThreadView = Backbone.View.extend({
         var that = this;
         this.model.get('revisions')
             .each(function (rev) {
-                console.log(rev.get('id'))
                 that.$('.revisions')
                     .append(new RevisionView({model: rev}).render().el);
             }); 
