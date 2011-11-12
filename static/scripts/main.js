@@ -109,7 +109,7 @@ var User = Backbone.Model.extend({
 // Backbone Views
 //
 
-var ThreadView = Backbone.View.extend({
+var RevisionsInAThreadView = Backbone.View.extend({
     tagName: "li",
     template: _.template($('#thread-template').html()),
     render: function () {
@@ -198,7 +198,7 @@ var MainView = Backbone.View.extend({
         var that = this;
         _(this.threads).each(function (th) {
                             that.$('#threads')
-                                .append(new ThreadView({model: th}).render().el)
+                                .append(new RevisionsInAThreadView({model: th}).render().el)
                           });
     },
     events: {
