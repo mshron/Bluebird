@@ -27,6 +27,7 @@ def put(attrs, obj_type=None):
     if obj_type:
         attrs['type'] = obj_type
     obj = data.parse(attrs)
+    print obj
     key = ds.put(obj)
     return key.id() if key else ''
 

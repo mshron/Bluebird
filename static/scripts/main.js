@@ -45,14 +45,15 @@ var Revision = Backbone.Model.extend({
     },
     defaults: {
         "up": 0,
-        "down": 0
+        "down": 0,
+        "score": 0
     },
     initialize: function () {
-        if (this.get('parent')=='') {
+/*        if (!this.get('parent')) {
             this.set({'id': rnd()});
             this.set({'root': this.get('id')});
             this.set({'parent': this.get('id')});
-        }
+        }*/
     }
 
 });
@@ -65,9 +66,16 @@ var RevisionCollection = Backbone.Collection.extend({
     initialize: function () {
        this.bind('register', this.add, this);
        this.bind('reset', this.setdoc, this);
+       this.bind('save', this.save, this);
     },
     setdoc: function (revs) {
        this.documentid = revs.first().get('document').split(':')[1];
+    },
+    save: function (rev) {
+        rev.save();
+    },
+    register: function(rev) {
+        this.add(rev);
     }
 });
 
@@ -86,9 +94,7 @@ var RevisionsInAThread = Backbone.Collection.extend({
         return down-up;
     },
     initialize: function () {
-       this.bind('register', this.add, this);
        this.root = this.first().get('root');
-       console.log(this.root);
     },
 });
 
@@ -108,8 +114,9 @@ var RevisionsInAThreadView = Backbone.View.extend({
     tagName: "li",
     template: _.template($('#thread-template').html()),
     render: function () {
-        $(this.el).html(this.template(this.model.toJSON()));
         var that = this;
+        this.$('.top-text').html(that.model.first().get('text'));
+        this.$('.revisions').html('');
         this.model
             .each(function (rev) {
                 that.$('.revisions')
@@ -120,7 +127,21 @@ var RevisionsInAThreadView = Backbone.View.extend({
     initialize: function () {
         this.rvs = [];
         $('#threads').append(this.el);
-        this.model.bind('all', this.render, this);
+        this.model.bind('add', this.render, this);
+        this.improve = false;
+        $(this.el).html(this.template({}));
+    },
+    events: {
+        'click .improve': 'improve'
+    },
+    improve: function () {
+        if (this.improve) {
+            this.$('.revisions').addClass('noimprove');
+            this.improve = false;
+        } else {
+            this.$('.revisions').removeClass('noimprove');
+            this.improve = true;
+        }
     }
 });
 
@@ -141,7 +162,7 @@ var RevisionView = Backbone.View.extend({
         this.model.fork();        
     },
     events: {
-        "click .text": "doFork",
+        "click .fork": "doFork",
         "click .done": "endEditing",
         "keypress .edit-text": "pressenter"
     },
@@ -157,7 +178,7 @@ var RevisionView = Backbone.View.extend({
         $(this.el).removeClass('editing');
         this.model.forking = false;
         this.model.set({'text': this.$('.edit-text').val()});
-        this.model.save();
+        this.model.trigger('save', this.model);
     }
 });
 
@@ -178,6 +199,7 @@ var MainView = Backbone.View.extend({
         revs.each(function (rev) {that.addRevisionToThread(rev)} );
         this.render();
         window.revisions.bind('add', this.addRevisionToThread, this);
+        this.documentid = window.revisions.first().get('document');
     },
     addRevisionToThread: function (rev) {
         var root = rev.get('root');
@@ -185,6 +207,8 @@ var MainView = Backbone.View.extend({
                  .find(function (th) {return th.root == root });
         if (!t) {
             this.threads.push(new RevisionsInAThread([rev]));
+        } else {
+            t.add(rev);
         }
     },
     render:  function () {
@@ -209,9 +233,10 @@ var MainView = Backbone.View.extend({
         window.revisions.fetch();
     },
     newThread: function () {
-        var rev = new Revision({'text': this.$('.new-text').val(), 'parent': ''});
+        var rev = new Revision({'text': this.$('.new-text').val(), 
+                                'parent': '', 'document': this.documentid});
         window.revisions.add(rev);
-        this.addRevisionToThread(rev);
+        window.revisions.trigger('save', rev);
         this.$('.new-text').val('');
         this.render();
     }
