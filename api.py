@@ -4,23 +4,35 @@
 # the datastore will be in an inconsistent state. -- JWM 
 
 import flask as fl
+from flaskext.oauth import OAuth
 import json as js
 import data
 import logic
 
+# configuration
+SECRET_KEY = 'abcdef'
+DEBUG = True
+MAX_UP = 3
+MAX_DOWN = 3
+
 # open app instance
 app = fl.Flask(__name__)
-app.debug = True
+app.debug = DEBUG
+app.secret_key = SECRET_KEY
 
 # open datastore instance (threadsafe)
 ds = data.DataStore()
 
-# initialize dummy user (no authentication implemented yet)
-user = data.User(handle='wonka', name='willie', location='UK', bio='i make chocolate')
-
-# define maximum up and down votes (not sure where this should live yet)
-MAX_UP = 3
-MAX_DOWN = 3
+# set up oauth authentication with twitter
+oauth = OAuth()
+twitter = oauth.remote_app('twitter',
+    base_url='http://api.twitter.com/1/',
+    request_token_url='http://api.twitter.com/oauth/request_token',
+    access_token_url='http://api.twitter.com/oauth/access_token',
+    authorize_url='http://api.twitter.com/oauth/authenticate',
+    consumer_key='<your key here>',
+    consumer_secret='<your secret here>'
+)
 
 def put(attrs, obj_type=None):
     '''write an object in dictionary representation to datastore'''
@@ -30,11 +42,6 @@ def put(attrs, obj_type=None):
     print obj
     key = ds.put(obj)
     return key.id() if key else ''
-
-# def get(key):
-#     '''retrieve an object in JSON representation from datastore'''
-#     assert(ds.redis.exists(key))
-#     return js.dumps(ds.get(key).__dict__)
 
 def get_all(key):
     '''retrieve a set of object in JSON representation from datastore'''
@@ -49,6 +56,62 @@ def collection_handler(request, col_key, obj_type=None):
         return put(fl.request.json, obj_type=obj_type); 
     else:
         return fl.Response(js.dumps(get_all(col_key), cls=data.DataEncoder), mimetype='application/json')
+
+
+@app.before_request
+def before_request():
+    fl.g.user = None
+    if 'user_id' in fl.session:
+        user_key = '%s:%s' ('User', fl.session['user_id'])
+        fl.g.user = ds.get(user_key)
+
+@twitter.tokengetter
+def get_twitter_token():
+    user = fl.g.user
+    if user is not None:
+        return user.oauth_token, user.oauth_secret
+
+@app.route('/login')
+def login():
+    """Calling into authorize will cause the OpenID auth machinery to kick
+in. When all worked out as expected, the remote application will
+redirect back to the callback URL provided.
+"""
+    return twitter.authorize(callback=fl.url_for('oauth_authorized',
+        next=fl.request.args.get('next') or fl.request.referrer or None))
+
+@app.route('/logout')
+def logout():
+    fl.session.pop('user_id', None)
+    fl.flash('You were signed out')
+    return fl.redirect(fl.request.referrer or fl.url_for('index'))
+
+@app.route('/oauth-authorized')
+@twitter.authorized_handler
+def oauth_authorized(resp):
+    next_url = fl.request.args.get('next') or fl.url_for('index')
+    if resp is None:
+        fl.flash(u'You denied the request to sign in.')
+        return fl.redirect(next_url)
+    
+    user_key = 'User:twitter_%s' % resp['screen_name']
+    user = ds.get(user_key)
+
+    # user never signed on
+    if user is None:
+        user = data.User(key=user_key)
+        ds.put(user)
+
+    # # in any case we update the authenciation token in the db
+    # # In case the user temporarily revoked access we will have
+    # # new tokens here.
+    # user.oauth_token = resp['oauth_token']
+    # user.oauth_secret = resp['oauth_token_secret']
+    # db_session.commit()
+
+    fl.session['user_id'] = user.key.id()
+    fl.flash('You were signed in')
+    return redirect(next_url)
 
 @app.route('/api/users',
             methods=['GET','POST'])
@@ -109,10 +172,9 @@ def vote(doc_id, rev_id):
 @app.route('/documents/<doc_id>')
 def dochtml(doc_id):
     ddata = [obj.__dict__ for obj in get_all('Document:%s:revisions'%doc_id)]
-    return fl.render_template('test.html', data=ddata) #FIXME
+    return fl.render_template('document.html', data=ddata) #FIXME
   
      
 
 if __name__ == "__main__":
-    app.debug = True
     app.run()
