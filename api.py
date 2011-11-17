@@ -30,8 +30,8 @@ twitter = oauth.remote_app('twitter',
     request_token_url='http://api.twitter.com/oauth/request_token',
     access_token_url='http://api.twitter.com/oauth/access_token',
     authorize_url='http://api.twitter.com/oauth/authenticate',
-    consumer_key='<your key here>',
-    consumer_secret='<your secret here>'
+    consumer_key='QzW7VFbwH2uhUrVqdtwrA',
+    consumer_secret='Wxij3J8N0jkcDoCBVRPxPGEsm1JXw4JUY27atr4ZjE'
 )
 
 def put(attrs, obj_type=None):
@@ -100,14 +100,13 @@ def oauth_authorized(resp):
     # user never signed on
     if user is None:
         user = data.User(key=user_key)
-        ds.put(user)
 
-    # # in any case we update the authenciation token in the db
-    # # In case the user temporarily revoked access we will have
-    # # new tokens here.
-    # user.oauth_token = resp['oauth_token']
-    # user.oauth_secret = resp['oauth_token_secret']
-    # db_session.commit()
+    # in any case we update the authenciation token in the db
+    # In case the user temporarily revoked access we will have
+    # new tokens here.
+    user.oauth_token = resp['oauth_token']
+    user.oauth_secret = resp['oauth_token_secret']
+    ds.put(user)
 
     fl.session['user_id'] = user.key.id()
     fl.flash('You were signed in')
@@ -172,9 +171,7 @@ def vote(doc_id, rev_id):
 @app.route('/documents/<doc_id>')
 def dochtml(doc_id):
     ddata = [obj.__dict__ for obj in get_all('Document:%s:revisions'%doc_id)]
-    return fl.render_template('document.html', data=ddata) #FIXME
-  
-     
+        return fl.render_template('test.html', data=ddata) #FIXME
 
 if __name__ == "__main__":
     app.run()
