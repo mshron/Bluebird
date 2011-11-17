@@ -82,13 +82,16 @@ class DataStore(object):
     def get(self, obj_key):
         '''Retrieves a DataModel object'''
         attrs = self.redis.hgetall(obj_key)
-        if Key(obj_key).type() == 'User':
-            # retrieve set members separately
-            for k in ['authored', 'up_voted', 'down_voted']:
-                attrs[k] = self.members('%s:%s' % (obj_key, k)) 
-        if Key(obj_key).type() == 'Revision':
-            attrs['forks'] = self.members('%s:%s' % (obj_key, 'forks')) 
-        return parse(attrs)
+        if attrs:
+            if Key(obj_key).type() == 'User':
+                # retrieve set members separately
+                for k in ['authored', 'up_voted', 'down_voted']:
+                    attrs[k] = self.members('%s:%s' % (obj_key, k)) 
+            if Key(obj_key).type() == 'Revision':
+                attrs['forks'] = self.members('%s:%s' % (obj_key, 'forks')) 
+            return parse(attrs)
+        else:
+            return None
 
     def put(self, data):
         '''Writes out a DataModel object'''
@@ -281,12 +284,12 @@ class Revision(DataModel):
 
 
 class User(DataModel):
-    def __init__(self, handle=None, name=None, 
+    def __init__(self, screen_name=None, real_name=None, 
                  created=None, location=None, bio=None, 
                  authored=[], up_voted=[], down_voted=[], key=None):
         super(User, self).__init__(key=key)
-        self.handle = handle
-        self.name = name
+        self.screen_name = screen_name
+        self.real_name = real_name
         self.location = location
         self.bio = bio
         self.created = created if created else time.strftime(TIME_FORMAT)
