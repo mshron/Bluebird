@@ -53,9 +53,9 @@ class DataStore(object):
         self.redis = Redis(*args, **kwargs)
 
     def members(self, set_key):
-        '''Returns a KeyList of references under key'''
+        '''Returns a list of references under key'''
         members = self.redis.smembers(set_key)
-        return KeyList(key=set_key, members=members)
+        return [Key(m) for m in members]
 
     def ismember(self, set_key, obj_key):
         '''Check whether key in set'''
@@ -119,9 +119,12 @@ class DataStore(object):
         # (these are stored separately)
         attrs = dict(data.__dict__.items())
         if isinstance(data, User):
-            for k in ['authored', 'up_voted', 'down_voted']:
-                self.redis.delete('%s:%s' % (data.key, k))
-                self.redis.sadd('%s:%s' % (data.key, k), attrs.pop(k))
+            for s in ['authored', 'up_voted', 'down_voted']:
+                if s in attrs:
+                    self.redis.delete('%s:%s' % (data.key, s))
+                    keys = attrs.pop(s, [])
+                    if keys:
+                        print self.redis.sadd('%s:%s' % (data.key, s), *keys)
         success = self.redis.hmset(data.key, attrs)
         return data.key if success else success
 
@@ -196,11 +199,11 @@ class Key(str):
         '''Returns id of object'''
         return self.split(':')[1]
 
-class KeyList(list):
-    '''BaseClass for sets of datastore references'''
-    # this is just here so you can use isinstance(object.attr, KeyList)
-    def __init__(self, key=None, members=()):
-        super(KeyList, self).__init__(members)
+# class KeyList(list):
+#     '''BaseClass for sets of datastore references'''
+#     # this is just here so you can use isinstance(object.attr, KeyList)
+#     def __init__(self, members=(), key=None):
+#         super(KeyList, self).__init__(members)
 
 
 class DataModel(object):
@@ -286,13 +289,16 @@ class Revision(DataModel):
 class User(DataModel):
     def __init__(self, screen_name=None, real_name=None, 
                  created=None, location=None, bio=None, 
-                 authored=[], up_voted=[], down_voted=[], key=None):
+                 authored=[], up_voted=[], down_voted=[], 
+                 oauth_token=None, oauth_secret=None, key=None):
         super(User, self).__init__(key=key)
         self.screen_name = screen_name
         self.real_name = real_name
         self.location = location
         self.bio = bio
         self.created = created if created else time.strftime(TIME_FORMAT)
-        self.authored = KeyList([Key(rev) for rev in authored])
-        self.up_voted = KeyList([Key(rev) for rev in up_voted])
-        self.down_voted = KeyList([Key(rev) for rev in down_voted])
+        self.authored = [Key(rev) for rev in authored]
+        self.up_voted = [Key(rev) for rev in up_voted]
+        self.down_voted = [Key(rev) for rev in down_voted]
+        self.oauth_token = oauth_token
+        self.oauth_secret = oauth_secret
