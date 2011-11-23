@@ -22,17 +22,32 @@ a {
 a:hover {
 	color: #6388f0;
 }
+.button {
+	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;
+	padding: 5px 13px;
+	line-height: 28px;
+	height: 30px;
+	color: #ddd;
+	text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
+	border: 1px solid #3C3C3C;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
 div#header-bar {
 	background: url(../images/header-bg.png) repeat-x #555b61;
 	height: 61px;
 	border-bottom: 1px solid #323232;
 	box-shadow: 0 0 5px rgba(0,0,0,0.7);
 	position: fixed;
+	top: 0;
 	width: 100%;
 }
 div#header {
 	width: 970px;
 	margin: 0 auto;
+	position: relative;
+	z-index: 10;
 }
 a#logo {
 	margin-top: 21px;

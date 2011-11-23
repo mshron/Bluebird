@@ -31,33 +31,28 @@
 
 
 <body>
-
-
-	<div id="header-bar">
-		<div id="header">
-			<a href="#" id="logo"><img src="/static/images/logo.png" /></a>
-			<div id="nav">
-				<ul>
-					<li id="view-consensus" class="current"><a href="#">Current Consensus</a></li>
-					<li id="view-everything"><a href="#">Everything</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
 	
 	
 	<div id="main">
-		<div id="new" style="
-			padding-left: 200px;
-		    padding-top: 19px;
-		    position: fixed;
-		    text-align: center;
-		    top: 0;
-		    width: 100%;">
-			<input class="new-text" type="text" style="width:300px;"></input>
-			<button class="done">Save</button>
-			<button class="refresh">Refresh</button>
-	    </div>
+	
+		<div id="header-bar">
+			<div id="header">
+				<a href="#" id="logo"><img src="/static/images/logo.png" /></a>
+				<div id="nav">
+					<ul>
+						<li id="view-consensus" class="current"><a href="#">Current Consensus</a></li>
+						<li id="view-everything"><a href="#">Everything</a></li>
+					</ul>
+				</div>
+				
+				<div id="new" style="padding-top:16px;float:right;">
+					<input class="new-text" type="text" style="width:300px;border:1px solid #444;padding:5px;"></input>
+					<span class="done button">Save</span>
+					<span class="refresh button">Refresh</span>
+			    </div>
+			</div>
+		</div>
+			
 		<div id="ideas"></div>
 	</div>
 	
