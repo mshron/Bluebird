@@ -35,7 +35,6 @@ var Revision = Backbone.Model.extend({
     },
     fork: function () {
         var f = this.clone();
-        s = this;
         q = f;
         f.set({'parent': this.id});
         f.set({'score': this.get('score')*.9999});
@@ -49,11 +48,13 @@ var Revision = Backbone.Model.extend({
         "score": 0
     },
     initialize: function () {
-/*        if (!this.get('parent')) {
+		/*
+		if (!this.get('parent')) {
             this.set({'id': rnd()});
             this.set({'root': this.get('id')});
             this.set({'parent': this.get('id')});
-        }*/
+        }
+        */
     }
 
 });
@@ -79,7 +80,7 @@ var RevisionCollection = Backbone.Collection.extend({
     }
 });
 
-var RevisionsInAThread = Backbone.Collection.extend({
+var RevisionsInAIdea = Backbone.Collection.extend({
     model: Revision,
     comparator: function (rev) {return -rev.get('score')},
     count: function () {
@@ -110,9 +111,9 @@ var User = Backbone.Model.extend({
 // Backbone Views
 //
 
-var RevisionsInAThreadView = Backbone.View.extend({
-    tagName: "li",
-    template: _.template($('#thread-template').html()),
+var RevisionsInAIdeaView = Backbone.View.extend({
+    tagName: "div",
+    template: _.template($('#idea-template').html()),
     render: function () {
         var that = this;
         this.$('.top-text').html(that.model.first().get('text'));
@@ -126,13 +127,15 @@ var RevisionsInAThreadView = Backbone.View.extend({
     },
     initialize: function () {
         this.rvs = [];
-        $('#threads').append(this.el);
+        $('#ideas').append(this.el);
         this.model.bind('add', this.render, this);
         this.improve = false;
         $(this.el).html(this.template({}));
     },
     events: {
-        'click .improve': 'improve'
+        'click .improve': 'improve',
+        'click .edit-count': 'improve',
+        'click .idea-text': 'improve'
     },
     improve: function () {
         if (this.improve) {
@@ -188,51 +191,51 @@ var MainView = Backbone.View.extend({
     el: '#main',
     initialize: function () {
         this.el = $('#main');
-        this.threads = [];
+        this.ideas = [];
         window.revisions = new RevisionCollection;
         window.revisions.bind('reset', this.reset, this);
         window.revisions.bind('done', this.render, this);
     },
     reset: function (revs) {
-        this.threads = [];
+        this.ideas = [];
         var that = this;
-        revs.each(function (rev) {that.addRevisionToThread(rev)} );
+        revs.each(function (rev) {that.addRevisionToIdea(rev)} );
         this.render();
-        window.revisions.bind('add', this.addRevisionToThread, this);
+        window.revisions.bind('add', this.addRevisionToIdea, this);
         this.documentid = window.revisions.first().get('document');
     },
-    addRevisionToThread: function (rev) {
+    addRevisionToIdea: function (rev) {
         var root = rev.get('root');
-        var t = _(this.threads)
+        var t = _(this.ideas)
                  .find(function (th) {return th.root == root });
         if (!t) {
-            this.threads.push(new RevisionsInAThread([rev]));
+            this.ideas.push(new RevisionsInAIdea([rev]));
         } else {
             t.add(rev);
         }
     },
     render:  function () {
-        this.$('#threads').html('');
+        this.$('#ideas').html('');
         var that = this;
-        _(this.threads).each(function (th) {
-                            that.$('#threads')
-                                .append(new RevisionsInAThreadView({model: th}).render().el)
+        _(this.ideas).each(function (th) {
+                            that.$('#ideas')
+                                .append(new RevisionsInAIdeaView({model: th}).render().el)
                           });
     },
     events: {
-        "click .done": "newThread",
+        "click .done": "newIdea",
         "keypress .new-text": "pressenter",
         "click .refresh": "refresh"
     },
     pressenter: function (e) {
         if (e.keyCode == 13) {
-            this.newThread();
+            this.newIdea();
         }
     },
     refresh: function () {
         window.revisions.fetch();
     },
-    newThread: function () {
+    newIdea: function () {
         var rev = new Revision({'text': this.$('.new-text').val(), 
                                 'parent': '', 'document': this.documentid});
         window.revisions.add(rev);
