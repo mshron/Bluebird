@@ -48,11 +48,13 @@ var Revision = Backbone.Model.extend({
         "score": 0
     },
     initialize: function () {
-/*        if (!this.get('parent')) {
+		/*
+		if (!this.get('parent')) {
             this.set({'id': rnd()});
             this.set({'root': this.get('id')});
             this.set({'parent': this.get('id')});
-        }*/
+        }
+        */
     }
 
 });
@@ -110,7 +112,7 @@ var User = Backbone.Model.extend({
 //
 
 var RevisionsInAIdeaView = Backbone.View.extend({
-    tagName: "li",
+    tagName: "div",
     template: _.template($('#idea-template').html()),
     render: function () {
         var that = this;
@@ -131,7 +133,9 @@ var RevisionsInAIdeaView = Backbone.View.extend({
         $(this.el).html(this.template({}));
     },
     events: {
-        'click .improve': 'improve'
+        'click .improve': 'improve',
+        'click .edit-count': 'improve',
+        'click .idea-text': 'improve'
     },
     improve: function () {
         if (this.improve) {
