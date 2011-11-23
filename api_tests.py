@@ -9,8 +9,8 @@ class ApiTestCases(unittest.TestCase):
         api.app.debug = True
         self.app = api.app.test_client()
         # generate some sample objects
-        self.user = data.User(handle='ginuwine', 
-                              name='Ginuwine', 
+        self.user = data.User(screen_name='ginuwine', 
+                              real_name='Ginuwine', 
                               location='US', 
                               bio='Come ride my pony')
         self.doc = data.Document(name='Ponies and Horses')
