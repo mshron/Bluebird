@@ -29,9 +29,60 @@ a:hover {
 	height: 30px;
 	color: #ddd;
 	text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
+	box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset;
 	border: 1px solid #3C3C3C;
 	border-radius: 5px;
 	cursor: pointer;
+}
+div.dialog {
+	background: white;
+	position: fixed;
+	top: 100px;
+	left: 50%;
+	margin-left: -300px;
+	width: 600px;
+	box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+	border-radius: 5px;
+}
+div.dialog-header {
+	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;
+	padding: 10px 20px;
+	border: 1px solid #3C3C3C;
+	color: white;
+	overflow: hidden;
+	box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+div.dialog-header h3 {
+	float: left;
+	font-size: 15px;
+	padding: 3px 0;
+	text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
+}
+div.dialog-header .close-dialog {
+	float: right;
+	font-size: 13px;
+	font-weight: bold;
+	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;;
+	border: 1px solid #3C3C3C;
+	color: white;
+	display: block;
+	padding: 4px 7px;
+	box-shadow: 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(255,255,255,0.1) inset;
+	color: #ddd;
+	cursor: pointer;
+	border-radius: 3px;
+	margin-right: -7px;
+}
+div.dialog-content {
+	padding: 20px;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0,0,0,0.3);
+	border-bottom: 1px solid rgba(0,0,0,0.4);
+	border-top: 0;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
 }
 
 div#header-bar {
@@ -43,11 +94,16 @@ div#header-bar {
 	top: 0;
 	width: 100%;
 }
+
 div#header {
 	width: 970px;
 	margin: 0 auto;
 	position: relative;
 	z-index: 10;
+}
+div#header-right {
+	float: right;
+	padding-top: 15px;
 }
 a#logo {
 	margin-top: 21px;
@@ -86,6 +142,7 @@ div#nav ul li a {
 	color: #ddd;
 	font-size: 14px;
 	text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset;
 }
 div#nav ul li a:hover {
 	text-decoration: none;
@@ -96,10 +153,28 @@ div#nav ul li a:active {
 }
 div#nav ul li.current a {
 	background: #3e4246;
+	box-shadow: none;
 }
 div#nav ul li#view-everything a {
 	border-bottom-right-radius: 5px;
 	border-top-right-radius: 5px;
+}
+
+/* New Idea */
+textarea.new-text {
+	width: 535px;
+	max-width: 535px;
+	min-width: 535px;
+	height: 100px;
+	border: 1px solid #ccc;
+	padding: 10px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset;
+	font-family: Helvetica, arial, sans-serif;
+	font-family: Georgia, TImes New Roman, Serif;
+	color: #444;
+	font-size: 16px;
+	line-height: 20px;
 }
 
 /* ideas */
