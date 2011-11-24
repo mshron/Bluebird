@@ -1,14 +1,16 @@
 @font-face {
-  font-family: 'PictosRegular';
-  src: url('../fonts/Pictos-webfont.eot');
-  src: url('../fonts/Pictos-webfont.eot?iefix') format('eot'),
-       url('../fonts/Pictos-webfont.woff') format('woff'),
-       url('../fonts/Pictos-webfont.ttf') format('truetype'),
-       url('../fonts/Pictos-webfont.svg#webfontVz8pnSxt') format('svg');
-  font-weight:normal;
-  font-style:normal;
+	font-family: 'PictosRegular';
+	src: url('../fonts/Pictos-webfont.eot');
+	src: url('../fonts/Pictos-webfont.eot?iefix') format('eot'),
+		 url('../fonts/Pictos-webfont.woff') format('woff'),
+		 url('../fonts/Pictos-webfont.ttf') format('truetype'),
+		 url('../fonts/Pictos-webfont.svg#webfontVz8pnSxt') format('svg');
+	font-weight:normal;
+	font-style:normal;
 }
-
+.icon {
+	font-family: 'PictosRegular';
+}
 body {
 	background: url(../images/bg.gif);
 	font-family: Helvetica neue, Helvetica, Arial, Sans-serif;
@@ -33,16 +35,49 @@ a:hover {
 	border: 1px solid #3C3C3C;
 	border-radius: 5px;
 	cursor: pointer;
+	
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+
+}
+.tinybutton {
+	font-size: 13px;
+	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;;
+	border: 1px solid #3C3C3C;
+	color: white;
+	display: block;
+	padding: 3px 7px;
+	box-shadow: 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(255,255,255,0.1) inset;
+	color: #ddd;
+	cursor: pointer;
+	border-radius: 3px;
+	margin-right: -7px;
+}
+.button:hover {
+	text-decoration: none;
+	background: url(../images/nav-bg.png) 0 14px repeat-x #6e7277;
+}
+.tinybutton:hover {
+	text-decoration: none;
+	background: url(../images/nav-bg.png) 0 11px repeat-x #6e7277;
+}
+.button:active,
+.tinybutton:active {
+	box-shadow: 0 0 5px rgba(0,0,0,0.4) inset;
 }
 div.dialog {
 	background: white;
 	position: fixed;
-	top: 100px;
+	top: 15%;
 	left: 50%;
 	margin-left: -300px;
 	width: 600px;
 	box-shadow: 0 5px 20px rgba(0,0,0,0.3);
 	border-radius: 5px;
+	z-index: 100;
 }
 div.dialog-header {
 	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;
@@ -62,18 +97,10 @@ div.dialog-header h3 {
 }
 div.dialog-header .close-dialog {
 	float: right;
-	font-size: 13px;
-	font-weight: bold;
-	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;;
-	border: 1px solid #3C3C3C;
-	color: white;
-	display: block;
-	padding: 4px 7px;
-	box-shadow: 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(255,255,255,0.1) inset;
-	color: #ddd;
-	cursor: pointer;
-	border-radius: 3px;
-	margin-right: -7px;
+}
+div.dialog-header .close-dialog .icon {
+	position: relative;
+	top: -3px;
 }
 div.dialog-content {
 	padding: 20px;
@@ -85,6 +112,7 @@ div.dialog-content {
 	border-bottom-right-radius: 5px;
 }
 
+/* Header */
 div#header-bar {
 	background: url(../images/header-bg.png) repeat-x #555b61;
 	height: 61px;
@@ -101,10 +129,6 @@ div#header {
 	position: relative;
 	z-index: 10;
 }
-div#header-right {
-	float: right;
-	padding-top: 15px;
-}
 a#logo {
 	margin-top: 21px;
 	display: block;
@@ -113,11 +137,18 @@ a#logo {
 a#logo img {
 	display: block;
 }
-.icon {
-	font-family: 'PictosRegular';
-	font-size: 14px;
-	color: #999;
+div#header-right {
+	float: right;
+	padding-top: 15px;
 }
+div#header-right .button {
+	padding: 5px 11px;
+}
+div#header-right .button .icon {
+	position: relative;
+	top: -1px;
+}
+
 /* Nav */
 div#nav {
 	margin-left: 150px;
@@ -198,6 +229,7 @@ div.idea {
 	clear: both;
 }
 a.edit-count {
+	/*
 	background: #f5f5f5;
 	background: #f1f1f1;
 	font-size: 12px;
@@ -213,13 +245,29 @@ a.edit-count {
 	line-height: 20px;
 	box-shadow: 0 0 1px rgba(0,0,0,0.1) inset, 0 1px 0 white;
 	text-shadow: 0 1px 0 white;
+	*/
+	background: none repeat scroll 0 0 #F1F1F1;
+    border: 6px solid #DDDDDD;
+    border-radius: 75px 75px 75px 75px;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.5) inset, 0 1px 0 white;
+    color: #989DA2;
+    display: block;
+    float: left;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 15px;
+    margin-right: 22px;
+    padding: 12px 2px;
+    text-align: center;
+    text-shadow: 0 1px 0 white;
+    width: 50px;
 }
 a.edit-count:hover {
 	text-decoration: none;
 	background: #fff;
 }
 a.edit-count strong {
-	font-size: 20px;
+	font-size: 16px;
 	color: #6388f0;
 }
 div.idea-content {
@@ -240,7 +288,7 @@ div.idea-wrap p.idea-text a:hover {
 	color: #6388f0;
 }
 div.idea-wrap p.categories {
-	font-size: 12px;
+	font-size: 11px;
 	text-transform: uppercase;
 }
 div.idea-wrap div.actions {

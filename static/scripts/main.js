@@ -135,7 +135,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
     events: {
         'click .improve': 'improve',
         'click .edit-count': 'improve',
-        'click .idea-text': 'improve',
+        'click .idea-text a': 'improve',
     },
     improve: function () {
         if (this.improve) {
