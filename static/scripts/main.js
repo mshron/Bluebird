@@ -135,7 +135,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
     events: {
         'click .improve': 'improve',
         'click .edit-count': 'improve',
-        'click .idea-text': 'improve'
+        'click .idea-text a': 'improve',
     },
     improve: function () {
         if (this.improve) {
@@ -225,11 +225,13 @@ var MainView = Backbone.View.extend({
     events: {
         "click .done": "newIdea",
         "keypress .new-text": "pressenter",
-        "click .refresh": "refresh"
+        "click .refresh": "refresh",
+        'click .show-idea-box': 'idea_dialog',
+        'click .close-dialog': 'idea_dialog'
     },
     pressenter: function (e) {
         if (e.keyCode == 13) {
-            this.newIdea();
+            //this.newIdea();
         }
     },
     refresh: function () {
@@ -242,6 +244,9 @@ var MainView = Backbone.View.extend({
         window.revisions.trigger('save', rev);
         this.$('.new-text').val('');
         this.render();
+    },
+    idea_dialog: function () {
+    	$('#new-idea-box').toggle();
     }
 
 });
