@@ -26,12 +26,13 @@ a:hover {
 }
 .button {
 	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;
+	background: url(../images/button-bg.png) 0 bottom repeat-x #666b71;
 	padding: 5px 13px;
 	line-height: 28px;
 	height: 30px;
 	color: #ddd;
 	text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
-	box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset;
+	box-shadow: 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(255,255,255,0.1) inset;
 	border: 1px solid #3C3C3C;
 	border-radius: 5px;
 	cursor: pointer;
@@ -45,7 +46,7 @@ a:hover {
 }
 .tinybutton {
 	font-size: 13px;
-	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;;
+	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;
 	border: 1px solid #3C3C3C;
 	color: white;
 	display: block;
@@ -58,11 +59,11 @@ a:hover {
 }
 .button:hover {
 	text-decoration: none;
-	background: url(../images/nav-bg.png) 0 14px repeat-x #6e7277;
+	background: url(../images/button-bg.png) 0 0 repeat-x #5e6267;
 }
 .tinybutton:hover {
 	text-decoration: none;
-	background: url(../images/nav-bg.png) 0 11px repeat-x #6e7277;
+	background: url(../images/button-bg.png) 0 0 repeat-x #5e6267;
 }
 .button:active,
 .tinybutton:active {
@@ -167,6 +168,7 @@ div#nav ul li {
 div#nav ul li a {
 	display: block;
 	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;
+	background: url(../images/button-bg.png) 0 bottom repeat-x #666b71;
 	padding: 0 13px;
 	line-height: 28px;
 	height: 30px;
@@ -178,6 +180,7 @@ div#nav ul li a {
 div#nav ul li a:hover {
 	text-decoration: none;
 	background: url(../images/nav-bg.png) 0 14px repeat-x #6e7277;
+	background: url(../images/button-bg.png) 0 0 repeat-x #5e6267;
 }
 div#nav ul li a:active {
 	box-shadow: 0 0 5px rgba(0,0,0,0.3) inset;
@@ -246,10 +249,13 @@ a.edit-count {
 	box-shadow: 0 0 1px rgba(0,0,0,0.1) inset, 0 1px 0 white;
 	text-shadow: 0 1px 0 white;
 	*/
-	background: none repeat scroll 0 0 #F1F1F1;
+	/* background: none repeat scroll 0 0 #F1F1F1; */
+	/* background: white; */
     border: 6px solid #DDDDDD;
+    /* border: 6px solid #e5e5e5; */
     border-radius: 75px 75px 75px 75px;
     box-shadow: 0 0 1px rgba(0, 0, 0, 0.5) inset, 0 1px 0 white;
+    /* box-shadow: 0 1px 0 white; */
     color: #989DA2;
     display: block;
     float: left;
@@ -270,6 +276,12 @@ a.edit-count strong {
 	font-size: 16px;
 	color: #6388f0;
 }
+a.edit-count .edits-label {
+	font-weight: normal;
+	font-family: Georgia, 'CaslonItalic';
+	font-style: italic;
+	font-size: 11px;
+}
 div.idea-content {
 	float: left;
 	width: 650px;
@@ -279,6 +291,7 @@ div.idea-wrap p.idea-text {
 	font-size: 16px;
 	line-height: 23px;
 	padding-bottom: 11px;
+	padding-top: 7px;
 }
 div.idea-wrap p.idea-text a {
 	color: #444;
