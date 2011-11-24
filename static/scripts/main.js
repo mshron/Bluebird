@@ -118,6 +118,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
         var that = this;
         this.$('.top-text').html(that.model.first().get('text'));
         this.$('.revisions').html('');
+        this.$('.revision-count').html(that.model.length);
         this.model
             .each(function (rev) {
                 that.$('.revisions')
