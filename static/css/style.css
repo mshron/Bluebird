@@ -276,6 +276,10 @@ a.edit-count strong {
 	font-size: 16px;
 	color: #6388f0;
 }
+a.edit-count.no_edits .revision-count,
+a.edit-count.no_edits .edits-label {
+	color: #ccc;
+}
 a.edit-count .edits-label {
 	font-weight: normal;
 	font-family: Georgia, 'CaslonItalic';
