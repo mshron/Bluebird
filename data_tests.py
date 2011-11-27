@@ -4,8 +4,8 @@ import data
 class DataTestCases(unittest.TestCase):
     def setUp(self):
         self.ds = data.DataStore()
-        self.user = data.User(handle='ginuwine', 
-                              name='Ginuwine', 
+        self.user = data.User(screen_name='ginuwine', 
+                              real_name='Ginuwine', 
                               location='US', 
                               bio='Come ride my pony')
         self.doc = data.Document(name='Ponies and Horses')
@@ -26,10 +26,11 @@ class DataTestCases(unittest.TestCase):
             try:
                 av = getattr(a,k)
                 bv = getattr(b,k)
-                self.assertEqual(av, bv, 
-                  'Written and read keys for %s object do not match:\n' % a.key.type() 
-                  + '    written.%s: %s\n' % (k, av)
-                  + '    read.%s:    %s\n' % (k, bv))
+                if not ((av is None) and (bv == 'None')):
+                    self.assertEqual(av, bv, 
+                      'Written and read keys for %s object do not match:\n' % a.key.type() 
+                      + '    written.%s: %s\n' % (k, av)
+                      + '    read.%s:    %s\n' % (k, bv))
             except KeyError:
                 pass
     
