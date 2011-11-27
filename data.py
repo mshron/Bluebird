@@ -52,6 +52,28 @@ class DataStore(object):
     def __init__(self, *args, **kwargs):
         self.redis = Redis(*args, **kwargs)
 
+    def delete(self, key):
+        '''Removes an element from the datastore'''
+        obj = self.get(key)
+        # todo: for now, only deletion of revisions is allowed
+        if isinstance(obj, Revision):
+            # remove revision references
+            self.redis.srem('%s:authored' % obj.author, obj.key)
+            self.redis.srem('%s:revisions' % obj.root, obj.key)
+            self.redis.srem('%s:revisions' % obj.document, obj.key)
+            if obj.parent:
+                self.redis.srem('%s:forks' % obj.parent, obj.key)
+            # if this is a root revision, delete the whole tree of forks
+            if obj.key == obj.root:
+                self.redis.srem('%s:roots' % obj.document, obj.key)
+                rev_keys = self.members('%s:revisions' % obj.key)
+                for r in rev_keys:
+                    self.delete(r)
+                self.redis.delete('%s:revisions', obj.key)
+            # remove revision
+            self.redis.delete(obj.key)
+            self.redis.delete('%s:forks', obj.key)
+
     def members(self, set_key):
         '''Returns a list of references under key'''
         members = self.redis.smembers(set_key)
