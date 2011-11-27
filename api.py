@@ -131,10 +131,13 @@ def threads(doc_id):
     return collection_handler(fl.request, key, obj_type='Revision')
 
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>',
-            methods=['PUT'])
+            methods=['PUT', 'DELETE'])
 def revision(doc_id, rev_id):
     key = 'Document:%s:revisions' % doc_id
-    return collection_handler(fl.request, key, obj_type='Revision')
+    if fl.request.method == 'PUT':
+        return collection_handler(fl.request, key, obj_type='Revision')
+    if fl.request.method == 'DELETE':
+        return ds.delete(key)
 
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>', 
             methods=['PUT'])
