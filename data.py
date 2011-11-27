@@ -77,11 +77,16 @@ class DataStore(object):
     def members(self, set_key):
         '''Returns a list of references under key'''
         members = self.redis.smembers(set_key)
-        return [Key(m) for m in members]
+        return [Key(m) for m in members if self.redis.exists(Key(m))]
 
     def ismember(self, set_key, obj_key):
         '''Check whether key in set'''
         return self.redis.sismember(set_key, obj_key)
+
+    def sadd(self, set_key, *obj_keys):
+        for k in obj_keys:
+            if self.redis.exists(k):
+                self.redis.sadd(set_key, k)
 
     def inter(self, set_keys):
         '''Returns intersection between sets'''
@@ -117,26 +122,6 @@ class DataStore(object):
 
     def put(self, data):
         '''Writes out a DataModel object'''
-        # new objects need to be added to their respective sets
-        if not self.redis.exists(data.key):
-            if isinstance(data, User):
-                self.redis.sadd('users', data.key)
-            if isinstance(data, Document):
-                self.redis.sadd('documents', data.key)
-            if isinstance(data, Revision): 
-                if data.parent:
-                    self.redis.sadd('%s:forks' % data.parent, data.key)
-                if data.document:
-                    self.redis.sadd('%s:revisions' % data.document, data.key)
-                    if data.key == data.root:
-                        self.redis.sadd('%s:roots' % data.document, data.key)
-                if data.key != data.root:
-                    self.redis.sadd('%s:revisions' % data.root, data.key)
-                else:
-                    self.redis.sadd('%s:revisions' % data.key, data.key)
-                if data.author:
-                    self.redis.sadd('%s:authored' % data.author, data.key)
-
         # for users, don't write out reference sets 
         # (these are stored separately)
         attrs = dict(data.__dict__.items())
@@ -146,8 +131,28 @@ class DataStore(object):
                     self.redis.delete('%s:%s' % (data.key, s))
                     keys = attrs.pop(s, [])
                     if keys:
-                        print self.redis.sadd('%s:%s' % (data.key, s), *keys)
+                        self.sadd('%s:%s' % (data.key, s), *keys)
         success = self.redis.hmset(data.key, attrs)
+
+        # objects need to be added to their respective sets
+        if isinstance(data, User):
+            self.sadd('users', data.key)
+        if isinstance(data, Document):
+            self.sadd('documents', data.key)
+        if isinstance(data, Revision): 
+            if data.parent:
+                self.sadd('%s:forks' % data.parent, data.key)
+            if data.document:
+                self.sadd('%s:revisions' % data.document, data.key)
+                if data.key == data.root:
+                    self.sadd('%s:roots' % data.document, data.key)
+            if data.key != data.root:
+                self.sadd('%s:revisions' % data.root, data.key)
+            else:
+                self.sadd('%s:revisions' % data.key, data.key)
+            if data.author:
+                self.sadd('%s:authored' % data.author, data.key)
+
         return data.key if success else success
 
     def update(self, attrs):
@@ -197,12 +202,12 @@ class DataStore(object):
                 dirty = True
         # vote 1 means upvote
         if vote == 1 and not self.ismember('%s:up_voted' % user_key, rev_key):
-                self.redis.sadd('%s:up_voted' % user_key, rev_key)
+                self.sadd('%s:up_voted' % user_key, rev_key)
                 self.redis.hincrby(rev_key, 'up', 1)
                 dirty = True
         # vote -1 means downvote
         elif vote == -1 and not self.ismember('%s:down_voted' % user_key, rev_key):
-                self.redis.sadd('%s:down_voted' % user_key, rev_key)
+                self.sadd('%s:down_voted' % user_key, rev_key)
                 self.redis.hincrby(rev_key, 'down', 1)
                 dirty = True
         # update scores
