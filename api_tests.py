@@ -42,12 +42,10 @@ class ApiTestCases(unittest.TestCase):
         return resp
 
     def vote(self, rev, user, vote):
-        dat = {'user':str(user), 'vote':vote}
-        url = '/api/documents/%s/revisions/%s/vote' \
-               % (data.Key(rev.document).id(), self.rev.key.id())
+        url = '/api/documents/%s/revisions/%s/vote?type=%s' \
+               % (data.Key(rev.document).id(), self.rev.key.id(), vote)
         print 'PUT to: %s' % url
-        resp = self.app.put(path=url, data=json.dumps(dat), content_type='application/json')
-        return resp
+        return self.app.put(path=url)
             
     def get_all(self, col):
         url = '/api/%s' % col
@@ -61,6 +59,8 @@ class ApiTestCases(unittest.TestCase):
         return obj_list
     
     def test_api(self):
+        # set user
+        api.TEST_USER = self.user
         # test posting
         self.post('users', self.user)
         self.post('documents', self.doc)
