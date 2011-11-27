@@ -14,6 +14,7 @@ SECRET_KEY = 'abcdef'
 DEBUG = True
 MAX_UP = 3
 MAX_DOWN = 3
+TEST_USER = None
 
 # open app instance
 app = fl.Flask(__name__)
@@ -68,6 +69,8 @@ def before_request():
     if 'user_id' in fl.session:
         user_key = '%s:%s' % ('User', fl.session['user_id'])
         fl.g.user = ds.get(user_key)
+    elif TEST_USER:
+        fl.g.user = TEST_USER
 
 @twitter.tokengetter
 def get_twitter_token():
@@ -139,11 +142,11 @@ def revision(doc_id, rev_id):
     if fl.request.method == 'DELETE':
         return ds.delete(key)
 
-@app.route('/api/documents/<doc_id>/revisions/<rev_id>/votes', 
+@app.route('/api/documents/<doc_id>/revisions/<rev_id>/vote', 
             methods=['PUT'])
 def vote(doc_id, rev_id):
     if fl.request.method == 'PUT':
-        vote = fl.request.args('type', None)
+        vote = int(fl.request.args.get('type', None))
         if not vote is None:
             user = fl.g.user
             rkey = 'Revision:%s' % (rev_id)
