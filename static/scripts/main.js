@@ -34,7 +34,8 @@ var Revision = Backbone.Model.extend({
             alert("Login, human!");
             return 
         }
-        if (!this.get('user_voted_up') || !this.get('user_voted_down')) {
+        if ((!this.get('user_voted_up') || !this.get('user_voted_down')) 
+                && length(window.users.get('up_voted'))<3) {
             this.set({up: this.get('up') + 1});
             $.get(this.voteurl + "1");
         }
@@ -45,7 +46,9 @@ var Revision = Backbone.Model.extend({
             alert("Login, human!");
             return 
         }
-        if (!this.get('user_voted_up') || !this.get('user_voted_down')) {
+        if ((!this.get('user_voted_up') || !this.get('user_voted_down')) 
+                && length(window.users.get('down_voted'))<3) {
+
             this.set({down: this.get('down') + 1});
             $.get(this.voteurl + "-1");
         }
@@ -57,8 +60,12 @@ var Revision = Backbone.Model.extend({
         f.set({'parent': this.id});
         f.set({'score': this.get('score')*.9999});
         f.set({'id': rnd()});
+        f.unset('user_voted_up');
+        f.unset('user_voted_down');
+        f.unset('documentid');
         f.forking = true;
         this.trigger('register', f);
+        f.trigger('checkuser');
     },
     defaults: {
         "up": 0,
