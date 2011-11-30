@@ -45,23 +45,35 @@ def put(attrs, obj_type=None):
     key = ds.put(obj)
     return key.id() if key else ''
 
+def get(key):
+    '''retrieve an object in JSON representation from datastore'''
+    assert(ds.redis.exists(key))
+    return ds.get(key)
+
 def get_all(key):
-    '''retrieve a set of object in JSON representation from datastore'''
+    '''retrieve a set of objects in JSON representation from datastore'''
     assert(ds.redis.exists(key))
     return ds.get_all(key)
 
 def collection_handler(request, col_key, obj_type=None):
-    '''Default handling for fl.requests on object urls:
-    * Write object on post,
+    '''Default handling for fl.requests on collection urls:
+    * Write object on POST/PUT
     * Retrieve list objects in collection on GET'''
     app.logger.debug('[collection_handler] collection: %s, method: %s user: %s' % (col_key, fl.request.method, fl.g.user))
     if fl.request.method in ['POST','PUT']:
-        # if fl.g.user is None:
-        #     app.logger.debug('[collection_handler] redirect')
-        #     return fl.redirect(fl.url_for('login', next=fl.request.url))
         return put(fl.request.json, obj_type=obj_type); 
     else:
         return fl.Response(js.dumps(get_all(col_key), cls=data.DataEncoder), mimetype='application/json')
+
+def object_handler(request, obj_key, obj_type=None):
+    '''Default handling for fl.requests on object urls:
+    * Write object on POST/PUT
+    * Retrieve list objects in collection on GET'''
+    app.logger.debug('[object_handler] collection: %s, method: %s user: %s' % (obj_key, fl.request.method, fl.g.user))
+    if fl.request.method in ['POST','PUT']:
+        return put(fl.request.json, obj_type=obj_type); 
+    else:
+        return fl.Response(js.dumps(get(obj_key), cls=data.DataEncoder), mimetype='application/json')
 
 @app.before_request
 def before_request():
@@ -132,6 +144,12 @@ def documents():
 def threads(doc_id):
     key = 'Document:%s:revisions' % doc_id
     return collection_handler(fl.request, key, obj_type='Revision')
+
+@app.route('/api/users/<user_id>',
+            methods=['GET','PET'])
+def user(user_id):
+    key = 'User:%s' % user_id
+    return object_handler(fl.request, key, obj_type='User')
 
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>',
             methods=['PUT', 'DELETE'])
