@@ -164,7 +164,6 @@ def revision(doc_id, rev_id):
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>/vote', 
             methods=['GET'])
 def vote(doc_id, rev_id):
-    print('foo')
     if fl.request.method == 'GET':
         vote = int(fl.request.args.get('type', None))
         if not vote is None:

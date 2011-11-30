@@ -8,6 +8,10 @@ function rnd () {
     return parseInt(Math.random()*(Math.pow(2,32))).toString('16');
 }
 
+function getid(u) {
+    return u.split(':')[1];
+}
+
 //
 // Backbone Models
 //
@@ -26,14 +30,26 @@ var DocumentCollection = Backbone.Collection.extend({
 
 var Revision = Backbone.Model.extend({
     upVote: function() {
-        this.set({up: this.get('up') + 1});
-        $.get(this.voteurl + "1");
-        return this.up
+        if (this.get('user_voted_up') == null) {
+            alert("Login, human!");
+            return 
+        }
+        if (!this.get('user_voted_up') || !this.get('user_voted_down')) {
+            this.set({up: this.get('up') + 1});
+            $.get(this.voteurl + "1");
+        }
+        return
     },
     downVote: function() {
-        this.set({down: this.get('down') + 1});
-        $.get(this.voteurl + "-1");
-        return this.down
+        if (this.get('user_voted_down') == null) {
+            alert("Login, human!");
+            return 
+        }
+        if (!this.get('user_voted_up') || !this.get('user_voted_down')) {
+            this.set({down: this.get('down') + 1});
+            $.get(this.voteurl + "-1");
+        }
+        return
     },
     fork: function () {
         var f = this.clone();
@@ -49,10 +65,26 @@ var Revision = Backbone.Model.extend({
         "down": 0,
         "score": 0
     },
+    checkuser: function () {
+        if (window.user) {
+            this.set({'user_voted_up' : _(
+                                   _(window.user.get('up_voted')).map(getid)
+                                  ).include(this.get('id')) })
+
+            this.set({'user_voted_down' : _(
+                                   _(window.user.get('down_voted')).map(getid)
+                                  ).include(this.get('id'))})
+
+        } else {
+            this.set({'user_voted_up': null});
+            this.set({'user_voted_down': null});
+        }
+    },
     initialize: function () {
-        this.set({'id': this.get('key').split(':')[1]});
-        this.set({'documentid': this.get('document').split(':')[1]});
+        this.set({'id': getid(this.get('key'))});
+        this.set({'documentid': getid(this.get('document'))});
         this.voteurl = "/api/documents/"+this.get('documentid')+"/revisions/"+this.get('id')+"/vote?type=";
+        this.bind('checkuser', this.checkuser, this);
 		/*
 		if (!this.get('parent')) {
             this.set({'id': rnd()});
@@ -72,6 +104,7 @@ var RevisionCollection = Backbone.Collection.extend({
     initialize: function () {
        this.bind('register', this.add, this);
        this.bind('reset', this.setdoc, this);
+       this.bind('checkusers', this.checkuser, this);
        this.bind('save', this.save, this);
     },
     setdoc: function (revs) {
@@ -81,8 +114,10 @@ var RevisionCollection = Backbone.Collection.extend({
         rev.save();
     },
     register: function(rev) {
-        rev.set('documentid', this.documentid);
         this.add(rev);
+    },
+    checkuser: function() {
+        this.each(function (rev) {rev.trigger('checkuser')});
     }
 });
 
