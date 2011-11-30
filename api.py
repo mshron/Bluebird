@@ -175,7 +175,7 @@ def vote(doc_id, rev_id):
             # vote blanking is always ok
             if vote==0 or (vote==-1 and (rkey in up_voted)) \
                or (vote==1 and (rkey in down_voted)): 
-                ds.vote(user, rkey, vote)
+                ds.vote(user, rkey, 0)
             else:
                 # allow vote if user has votes left, and has not voted in thread
                 rev = ds.get(rkey)
