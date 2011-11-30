@@ -162,9 +162,10 @@ def revision(doc_id, rev_id):
         return ds.delete(key)
 
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>/vote', 
-            methods=['PUT'])
+            methods=['GET'])
 def vote(doc_id, rev_id):
-    if fl.request.method == 'PUT':
+    print('foo')
+    if fl.request.method == 'GET':
         vote = int(fl.request.args.get('type', None))
         if not vote is None:
             user = fl.g.user

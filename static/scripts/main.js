@@ -26,12 +26,14 @@ var DocumentCollection = Backbone.Collection.extend({
 
 var Revision = Backbone.Model.extend({
     upVote: function() {
-        this.set({upVotes: this.get('up') + 1});
-        return this.upVotes
+        this.set({up: this.get('up') + 1});
+        $.get(this.voteurl + "1");
+        return this.up
     },
     downVote: function() {
-        this.set({downVotes: this.get('down') + 1});
-        return this.downVotes
+        this.set({down: this.get('down') + 1});
+        $.get(this.voteurl + "-1");
+        return this.down
     },
     fork: function () {
         var f = this.clone();
@@ -48,6 +50,9 @@ var Revision = Backbone.Model.extend({
         "score": 0
     },
     initialize: function () {
+        this.set({'id': this.get('key').split(':')[1]});
+        this.set({'documentid': this.get('document').split(':')[1]});
+        this.voteurl = "/api/documents/"+this.get('documentid')+"/revisions/"+this.get('id')+"/vote?type=";
 		/*
 		if (!this.get('parent')) {
             this.set({'id': rnd()});
@@ -76,6 +81,7 @@ var RevisionCollection = Backbone.Collection.extend({
         rev.save();
     },
     register: function(rev) {
+        rev.set('documentid', this.documentid);
         this.add(rev);
     }
 });
@@ -102,7 +108,10 @@ var RevisionsInAIdea = Backbone.Collection.extend({
 //------------------------------------------------------------------------
 
 var User = Backbone.Model.extend({
-    url: '/api/users'
+    urlRoot: '/api/users/',
+    init: function() {
+        this.id = window.user_id;
+    }
 });
 
 //------------------------------------------------------------------------
@@ -173,7 +182,15 @@ var RevisionView = Backbone.View.extend({
     events: {
         "click .fork": "doFork",
         "click .done": "endEditing",
-        "keypress .edit-text": "pressenter"
+        "keypress .edit-text": "pressenter",
+        "click .upvote": "upvote",
+        "click .downvote": "downvote"
+    },
+    upvote: function() {
+        this.model.upVote();
+    },
+    downvote: function() {
+        this.model.downVote();
     },
     editing: function () {
         $(this.el).addClass('editing');

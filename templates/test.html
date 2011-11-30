@@ -71,7 +71,6 @@
 	    
 	</div>
 	
-	
 	<!-- //////////////////////////////////////////////////////////////// -->
 	
 	
@@ -119,7 +118,7 @@
 			<input class="edit-text" type="text" value="<%= text %>"></input>
 			<div class="done">Save</div>
 		</div>
-		<div><%= up %> <%= down %></div>
+		<div><div class="upvote"><%= up %></div> <div class="downvote"><%= down %></div></div>
 		
 	</script>
 	
@@ -130,7 +129,11 @@
 	<script type="text/javascript" src="/static/scripts/json2.js"></script>
 	<script type="text/javascript" src="/static/scripts/backbone-min.js"></script>
 	<script type="text/javascript" src="/static/scripts/main.js"> </script>
-	<script type="text/javascript">window.revisions.reset({{ data|tojson|safe }});</script>
+	<script type="text/javascript">
+        window.revisions.reset({{ data|tojson|safe }});
+        window.user = new User({id: {{ session.user_id|tojson|safe }} });
+        window.user.fetch();
+    </script>
 	
 	
 	<!-- //////////////////////////////////////////////////////////////// -->
