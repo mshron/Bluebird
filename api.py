@@ -38,11 +38,21 @@ def put(attrs, obj_type=None):
     '''write an object in dictionary representation to datastore'''
     if obj_type:
         attrs['type'] = obj_type
-    obj = data.parse(attrs)
+    obj = data.parse_obj(attrs)
     # ensure current user is author of new revision
     if hasattr(obj, 'author'):
         obj.author = fl.g.user.key
     key = ds.put(obj)
+    return key.id() if key else ''
+
+def update(attrs, obj_type=None):
+    '''updates a set of object properties in the datastore'''
+    if obj_type:
+        attrs['type'] = obj_type
+    # ensure current user is author of new revision
+    if 'author' in attrs:
+        attrs['author'] = fl.g.user.key
+    key = ds.update(attrs)
     return key.id() if key else ''
 
 def get(key):
