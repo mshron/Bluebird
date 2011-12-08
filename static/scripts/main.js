@@ -234,7 +234,6 @@ var RevisionView = Backbone.View.extend({
     events: {
         "click .fork": "doFork",
         "click .done": "endEditing",
-        "keypress .edit-text": "pressenter",
         "click .upvote": "upvote",
         "click .downvote": "downvote"
     },
@@ -246,11 +245,6 @@ var RevisionView = Backbone.View.extend({
     },
     editing: function () {
         $(this.el).addClass('editing');
-    },
-    pressenter: function (e) {
-        if (e.keyCode == 13) {
-            this.endEditing();
-        }
     },
     endEditing: function () {
         $(this.el).removeClass('editing');
