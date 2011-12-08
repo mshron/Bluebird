@@ -1,11 +1,16 @@
 '''Data model for collaborative manifesto maker'''
 # TODO: check existence of referenced objects on put. JWM
 
-from random import randrange
+
 import time
 import sys
 import json
+import inspect
+
+from collections import Set
+from random import randrange
 from redis import Redis
+
 
 # this is how times are stored (chosen to be sortable)
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -31,7 +36,9 @@ def rnd():
 
 def parse(attrs):
     '''Takes a dictionary representation of a DataModel
-    instance and returns the corresponding object'''
+    instance and returns the corresponding object. Any invalid 
+    attributes are ignored when initializing the object.
+    '''
     attrs = dict(attrs.items())
     obj_type = ''
     if 'key' in attrs:
@@ -44,7 +51,11 @@ def parse(attrs):
     if 'id' in attrs:
         obj_id = attrs.pop('id')
         attrs['key'] = Key('%s:%s' % (obj_type, obj_id))
-    return globals()[obj_type](**attrs)
+    # strip any unexpected arguments from attrs
+    obj_class = globals()[obj_type]
+    args = inspect.getargspec(obj_class.__init__).args
+    attrs = {k: attrs[k] for k in args if k in attrs}
+    return obj_class(**attrs)
 
 class DataStore(object):
     '''Interface with redis datastore'''
