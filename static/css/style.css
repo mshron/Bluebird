@@ -358,9 +358,29 @@ div.revisions {
 .dialog {
 	display: none;
 }
+
+/* Revison */
+div.revision-wrap {
+	border-bottom: 1px dotted #ccc;
+	clear: both;
+	overflow: hidden;
+	/* box-shadow: 0 1px 0 white inset; */
+	text-shadow: 0 1px 0 white;
+}
+div.revision {
+	width: 970px;
+	margin: 0 auto;
+	padding-top: 16px;
+	padding-bottom: 16px;
+	clear: both;
+}
 div.editing div.dialog {
 	display: block;
 }
 div.editing div.revision-wrap {
 	display: none;
 }
+
+
+
+

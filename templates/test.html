@@ -80,15 +80,17 @@
 	
 	
 	<script type="text/template" id="idea-template">
+		
 		<div class="idea-wrap">
 		<div class="idea">
+			
 			<a href="javascript: void(0);" class="edit-count">
 				<strong class="revision-count"></strong>
 				<br />
 				<span class="edits-label">Edits</span>
 			</a>
+			
 			<div class="idea-content">
-				<div class="top_revision"></div>
 				<p class="idea-text"><a href="javascript: void(0);" class="top-text"></a></p>
 				<p class="categories">
 					<%
@@ -104,12 +106,16 @@
 					%>
 				</p>
 			</div>
+			
 			<div class="actions">
 				<a href="javascript: void(0);" class="improve">Improve Idea</a>
 			</div>
+			
 			<div style="clear:both"></div>
+			
 		</div>
 		</div>
+		
 		<div class="revisions noimprove" style="display:none;"></div>
 	
 	</script>
@@ -127,13 +133,14 @@
 		%>
 		<div class="idea-wrap" style="box-shadow: 0 0 5px rgba(0,0,0,0.1); border-bottom: 1px solid #ccc;">
 		<div class="idea">
+			
 			<a href="javascript: void(0);" class="edit-count">
 				<strong class="revision-count"><%= edit_count %></strong>
 				<br />
 				<span class="edits-label">Edits</span>
 			</a>
+			
 			<div class="idea-content">
-				<div class="top_revision"></div>
 				<p class="idea-text"><a href="javascript: void(0);" class="top-text"><%= text %></a></p>
 				<p class="categories">
 					<%
@@ -149,6 +156,7 @@
 					%>
 				</p>
 			</div>
+			
 			<div class="actions">
 				<span class="upvote button button_light">
 					<span href="javascript:void(0);" class="icon" style="font-size: 14px;">{</span>
@@ -166,7 +174,6 @@
 				<a href="javascript:void(0);" class="fork button button_light"> Fork</a>
 			</div>
 			
-			
 			<div class="dialog">
 				<div class="dialog-header">
 					<span class="close-dialog tinybutton"><span class="icon">*</span></span>
@@ -178,9 +185,9 @@
 					<span class="done button">Save</span>
 			    </div>
 		    </div>
-			
-			
+		    
 			<div style="clear:both"></div>
+			
 		</div>
 		</div>
 		<%
