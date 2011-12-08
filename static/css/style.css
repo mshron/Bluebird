@@ -122,6 +122,7 @@ div#header-bar {
 	position: fixed;
 	top: 0;
 	width: 100%;
+	z-index: 151;
 }
 
 div#header {
@@ -213,7 +214,11 @@ textarea.new-text {
 
 /* ideas */
 div#main {
-	padding-top: 62px;
+	position: absolute;
+	top: 62px;
+	bottom: 0;
+	overflow: auto;
+	width: 100%;
 }
 div.idea-wrap {
 	background: white;
@@ -313,4 +318,13 @@ div.idea-wrap div.actions {
 }
 div.children {
 	display: none;
+}
+div.revisions {
+	background: url(../images/bg.gif);
+	position: fixed;
+	width: 100%;
+
+	top: 62px;
+	bottom: 0;
+	z-index: 150;
 }
