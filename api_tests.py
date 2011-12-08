@@ -55,7 +55,7 @@ class ApiTestCases(unittest.TestCase):
                          'GET request on URL=%s returned status: %s' 
                          % (url, resp.status))
         attrs_list = json.loads(resp.data)
-        obj_list = [data.parse(a) for a in attrs_list]
+        obj_list = [data.parse_obj(a) for a in attrs_list]
         return obj_list
     
     def test_api(self):
