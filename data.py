@@ -249,7 +249,7 @@ class Key(str):
 
     def id(self):
         '''Returns id of object'''
-        return self.split(':')[0] if len(self.split(':')) == 2 else None
+        return self.split(':')[1] if len(self.split(':')) == 2 else None
 
 # class KeyList(list):
 #     '''BaseClass for sets of datastore references'''
