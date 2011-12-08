@@ -9,7 +9,12 @@ function rnd () {
 }
 
 function getid(u) {
-    return u.split(':')[1];
+    if (u.indexOf(':') > 0) {
+        return u.split(':')[1];
+    } else {
+        return u;
+    }
+    
 }
 
 //
@@ -34,12 +39,14 @@ var Revision = Backbone.Model.extend({
             alert("Login, human!");
             return 
         }
-        if ((!this.get('user_voted_up') || !this.get('user_voted_down')) 
+        if ((!this.get('user_voted_up') && !this.get('user_voted_down')) 
                 && window.user.get('up_voted').length<3) {
             this.set({up: this.get('up') + 1});
+            this.set({user_voted_up: true});
             $.get(this.voteurl + "1");
         } else if (this.get('user_voted_up')) {
             this.set({up: this.get('up') - 1});
+            this.set({user_voted_up: false})
             $.get(this.voteurl + "0");
 
         }
@@ -50,13 +57,14 @@ var Revision = Backbone.Model.extend({
             alert("Login, human!");
             return 
         }
-        if ((!this.get('user_voted_up') || !this.get('user_voted_down')) 
+        if ((!this.get('user_voted_up') && !this.get('user_voted_down')) 
                 && window.user.get('down_voted').length<3) {
-
             this.set({down: this.get('down') + 1});
+            this.set({user_voted_down: true});
             $.get(this.voteurl + "-1");
         } else if (this.get('user_voted_down')) {
-            this.set({up: this.get('down') - 1});
+            this.set({down: this.get('down') - 1});
+            this.set({user_voted_down: false})
             $.get(this.voteurl + "0");
 
         }
@@ -233,7 +241,6 @@ var RevisionView = Backbone.View.extend({
     },
     doFork: function () {
         this.model.fork();
-		alert('Boom!');
     },
     events: {
         "click .fork": "doFork",
