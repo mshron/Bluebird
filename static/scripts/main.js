@@ -175,10 +175,9 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 
         if(public_count < 1) this.$('.edit-count').addClass('no_edits');
         if(public_count == 1) this.$('.edits-label').html('Edit');
-        
         this.model.each(function (rev) {
 			that.$('.revisions').append(new RevisionView({model: rev}).render().el);
-		}); 
+		});
         return this;
     },
     initialize: function () {
@@ -195,13 +194,13 @@ var RevisionsInAIdeaView = Backbone.View.extend({
     },
     improve: function () {
         if (this.improve) {
-            this.$('.revisions').addClass('noimprove');
+            //this.$('.revisions').hide();
+            this.$('.revisions').fadeOut(300);
             this.improve = false;
         } else {
-            this.$('.revisions').removeClass('noimprove');
+            this.$('.revisions').fadeIn(300);
             this.improve = true;
         }
-		return false;
     }
 });
 
