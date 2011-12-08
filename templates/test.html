@@ -71,6 +71,8 @@
 	    
 	</div>
 	
+	<script type="text/javascript">var ix = 0;</script>
+	
 	<!-- //////////////////////////////////////////////////////////////// -->
 	
 	
@@ -112,20 +114,94 @@
 	
 	<script type="text/template" id="revision-template">
 	
-		<div class="text"><%= text %></div>
-		<div class="fork"> - Fork</div>
-		<div class="edit-visible">
-			<input class="edit-text" type="text" value="<%= text %>"></input>
-			<div class="done">Save</div>
+		<%
+		
+		if (ix == 0) {
+		
+		%>
+		<div class="idea-wrap" style="box-shadow: 0 0 5px rgba(0,0,0,0.1); border-bottom: 1px solid #ccc;">
+		<div class="idea">
+			<a href="javascript: void(0);" class="edit-count">
+				<strong class="revision-count"><%= Math.floor(Math.random()*10) %></strong>
+				<br />
+				<span class="edits-label">Edits</span>
+			</a>
+			<div class="idea-content">
+				<div class="top_revision"></div>
+				<p class="idea-text"><a href="javascript: void(0);" class="top-text"><%= text %></a></p>
+				<p class="categories">
+					<%
+
+					var strings = ["Finance", "Education", "Human Rights", "Environment"];
+					var rando = Math.floor(Math.random()*2);
+					
+					for ( i=0 ; i<(rando+1); i=i+1 ) {
+						if (i < rando) { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>, " ); }
+						else 		   { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>" );	}
+					}
+					
+					%>
+				</p>
+			</div>
+			<div class="actions">
+				<a href="javascript:void(0);" class="icon" style="font-size: 14px;">{</a> <%= up %>
+				<a href="javascript:void(0);" class="icon" style="font-size: 14px;">}</a> <%= down %>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="javascript:void(0);" class="fork"> Fork</a>
+			</div>
+			<div style="clear:both"></div>
 		</div>
-		<div><div class="upvote"><%= up %></div> <div class="downvote"><%= down %></div></div>
+		</div>
+		<%
+		
+		}
+		
+		else {
+		
+		%>
+		<div class="revision-wrap">
+		<div class="revision">
+			
+			<br /><br />
+			
+			<div class="text"><%= text %></div>
+			<div class="fork"> - Fork</div>
+			
+			<div>
+				<div class="upvote"><%= up %></div>
+				<div class="downvote"><%= down %></div>
+			</div>
+			
+			
+			<div class="dialog edit-visible">
+				<div class="dialog-header">
+					<span class="close-dialog tinybutton"><span class="icon">*</span></span>
+					<h3>Improve this idea</h3>	
+				</div>
+				<div class="dialog-content">
+					<input class="edit-text" type="text" value="<%= text %>"></input>
+					<div class="done">Save</div>
+			    </div>
+		    </div>
+			
+			<br /><br />
+			
+		</div>
+		</div>
+		<%
+		
+		}
+		
+		ix = ix + 1;
+		
+		%>
 		
 	</script>
 	
 	
 	<script type="text/javascript" src="/static/scripts/underscore-min.js"></script>
 	<script type="text/javascript" src="/static/scripts/underscore.string.min.js"></script>
-	<script type="text/javascript" src="/static/scripts/zepto.min.js"></script>
+	<script type="text/javascript" src="/static/scripts/jquery.js"></script>
 	<script type="text/javascript" src="/static/scripts/json2.js"></script>
 	<script type="text/javascript" src="/static/scripts/backbone-min.js"></script>
 	<script type="text/javascript" src="/static/scripts/main.js"> </script>
