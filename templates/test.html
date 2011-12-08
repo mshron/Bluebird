@@ -7,7 +7,8 @@
 
 	<link rel="stylesheet" href="/static/css/reset.css" type="text/css" />
 	<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
-
+	
+	<!--
 	<style type="text/css">
 		div.edit-visible {
 		    display: none;
@@ -28,6 +29,7 @@
 		    display: none;
 		}
 	</style>
+	-->
 
 </head>
 
@@ -71,9 +73,10 @@
 	    
 	</div>
 	
-	<script type="text/javascript">var ix = 0;</script>
+	<script type="text/javascript">ix = 0;</script>
 	
-	<!-- //////////////////////////////////////////////////////////////// -->
+	
+	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 	
 	
 	<script type="text/template" id="idea-template">
@@ -107,22 +110,25 @@
 			<div style="clear:both"></div>
 		</div>
 		</div>
-		<div class="revisions noimprove"></div>
+		<div class="revisions noimprove" style="display:none;"></div>
 	
 	</script>
 	
 	
-	<script type="text/template" id="revision-template">
+	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 	
+	
+	<script type="text/template" id="revision-template">
+		
 		<%
 		
-		if (ix == 0) {
+		if (idx == 0) {
 		
 		%>
 		<div class="idea-wrap" style="box-shadow: 0 0 5px rgba(0,0,0,0.1); border-bottom: 1px solid #ccc;">
 		<div class="idea">
 			<a href="javascript: void(0);" class="edit-count">
-				<strong class="revision-count"><%= Math.floor(Math.random()*10) %></strong>
+				<strong class="revision-count"><%= edit_count %></strong>
 				<br />
 				<span class="edits-label">Edits</span>
 			</a>
@@ -144,11 +150,35 @@
 				</p>
 			</div>
 			<div class="actions">
-				<a href="javascript:void(0);" class="icon" style="font-size: 14px;">{</a> <%= up %>
-				<a href="javascript:void(0);" class="icon" style="font-size: 14px;">}</a> <%= down %>
-				&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="javascript:void(0);" class="fork"> Fork</a>
+				<span class="upvote button">
+					<span href="javascript:void(0);" class="icon" style="font-size: 14px;">{</span>
+					&nbsp;
+					<%= up %>
+				</span>
+				&nbsp;&nbsp;
+				<span class="upvote button">
+					<span class="icon" style="font-size: 14px;">}</span>
+					&nbsp;
+					<%= down %>
+				</span>
+				&nbsp;&nbsp;
+				<a href="javascript:void(0);" class="fork button"> Fork</a>
 			</div>
+			
+			
+			<div class="dialog" style="display:none;">
+				<div class="dialog-header">
+					<span class="close-dialog tinybutton"><span class="icon">*</span></span>
+					<h3>Improve this idea</h3>	
+				</div>
+				<div class="dialog-content">
+					<input class="edit-text" type="text" value="<%= text %>"></input>
+					<br />
+					<span class="done button">Save</span>
+			    </div>
+		    </div>
+			
+			
 			<div style="clear:both"></div>
 		</div>
 		</div>
@@ -173,14 +203,15 @@
 			</div>
 			
 			
-			<div class="dialog edit-visible">
+			<div class="dialog" style="display:none;">
 				<div class="dialog-header">
 					<span class="close-dialog tinybutton"><span class="icon">*</span></span>
 					<h3>Improve this idea</h3>	
 				</div>
 				<div class="dialog-content">
 					<input class="edit-text" type="text" value="<%= text %>"></input>
-					<div class="done">Save</div>
+					<br />
+					<span class="done button">Save</span>
 			    </div>
 		    </div>
 			
@@ -192,11 +223,12 @@
 		
 		}
 		
-		ix = ix + 1;
-		
 		%>
 		
 	</script>
+	
+	
+	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 	
 	
 	<script type="text/javascript" src="/static/scripts/underscore-min.js"></script>
@@ -211,9 +243,6 @@
         window.user.fetch();
         _.delay(function() {window.revisions.trigger('checkusers')}, 1000); // this is dumb
     </script>
-	
-	
-	<!-- //////////////////////////////////////////////////////////////// -->
 
 
 </body>
