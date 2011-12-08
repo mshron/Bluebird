@@ -267,7 +267,7 @@ var RevisionView = Backbone.View.extend({
         this.model.trigger('save', this.model);
     },
     cancelEditing: function () {
-    	$(this.el).removeClass("editing");
+    	//$(this.el).removeClass("editing");
     }
 });
 
