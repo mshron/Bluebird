@@ -156,7 +156,8 @@
 					<%= up %>
 				</span>
 				&nbsp;&nbsp;
-				<span class="upvote button button_light">
+				<span class="downvote button button_light">
+
 					<span class="icon" style="font-size: 14px;">}</span>
 					&nbsp;
 					<%= down %>
@@ -172,7 +173,7 @@
 					<h3>Improve this idea</h3>	
 				</div>
 				<div class="dialog-content">
-					<input class="edit-text" type="text" value="<%= text %>"></input>
+					<textarea class="edit-text"><%= text %></textarea>
 					<br />
 					<span class="done button">Save</span>
 			    </div>
@@ -212,7 +213,7 @@
 				<h3>Improve this idea</h3>	
 			</div>
 			<div class="dialog-content">
-				<input class="edit-text" type="text" value="<%= text %>"></input>
+				<textarea class="edit-text"><%= text %></textarea>
 				<br />
 				<span class="done button">Save</span>
 		    </div>
