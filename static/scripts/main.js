@@ -43,10 +43,12 @@ var Revision = Backbone.Model.extend({
                 && window.user.get('up_voted').length<3) {
             this.set({up: this.get('up') + 1});
             this.set({user_voted_up: true});
+            window.user.get('up_voted').push('Revision:'+this.id);
             $.get(this.voteurl + "1");
         } else if (this.get('user_voted_up')) {
             this.set({up: this.get('up') - 1});
             this.set({user_voted_up: false})
+            window.user.get('up_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
             $.get(this.voteurl + "0");
 
         }
@@ -66,6 +68,7 @@ var Revision = Backbone.Model.extend({
         } else if (this.get('user_voted_down')) {
             this.set({down: this.get('down') - 1});
             this.set({user_voted_down: false})
+            window.user.get('down_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
             $.get(this.voteurl + "0");
         } //else if (this.id  0
 
@@ -80,7 +83,6 @@ var Revision = Backbone.Model.extend({
         f.unset('user_voted_up');
         f.unset('user_voted_down');
         f.unset('documentid');
-        f.unset('edit_count');
         f.forking = true;
         this.trigger('register', f);
         f.trigger('checkuser');
