@@ -19,7 +19,7 @@ def rnd():
     '''Generates a random value for usage in keys'''
     return hex(randrange(0,2**32))[2:]
 
-# def parse(attrs):
+# def parse_obj(attrs):
 #     '''Takes a dictionary representation of a DataModel
 #     instance and returns the corresponding object'''
 #     obj_type = attrs['type'].split(':')[-1]
@@ -34,7 +34,7 @@ def rnd():
 #     # init new object with specified attributes
 #     return Obj(**attrs)
 
-def parse(attrs):
+def parse_obj(attrs):
     '''Takes a dictionary representation of a DataModel
     instance and returns the corresponding object. Any invalid 
     attributes are ignored when initializing the object.
@@ -127,7 +127,7 @@ class DataStore(object):
                     attrs[k] = self.members('%s:%s' % (obj_key, k)) 
             if Key(obj_key).type() == 'Revision':
                 attrs['forks'] = self.members('%s:%s' % (obj_key, 'forks')) 
-            return parse(attrs)
+            return parse_obj(attrs)
         else:
             return None
 

@@ -38,7 +38,7 @@ def put(attrs, obj_type=None):
     '''write an object in dictionary representation to datastore'''
     if obj_type:
         attrs['type'] = obj_type
-    obj = data.parse(attrs)
+    obj = data.parse_obj(attrs)
     # ensure current user is author of new revision
     if hasattr(obj, 'author'):
         obj.author = fl.g.user.key
