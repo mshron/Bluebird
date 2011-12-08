@@ -34,22 +34,28 @@ def rnd():
 #     # init new object with specified attributes
 #     return Obj(**attrs)
 
+
+def parse_key(attrs):
+    '''Extracts object key from an attribute representation
+    of a DataModel instance
+    '''
+    if 'type' in attrs and 'id' in attrs:
+        return Key('%s:%s' % (attrs['type'], attrs['id']))
+    if 'key' in attrs:
+        return Key(attrs['key'])
+    
 def parse_obj(attrs):
     '''Takes a dictionary representation of a DataModel
     instance and returns the corresponding object. Any invalid 
     attributes are ignored when initializing the object.
     '''
-    attrs = dict(attrs.items())
-    obj_type = ''
-    if 'key' in attrs:
-        obj_type = Key(attrs['key']).type()   
-    if 'type' in attrs:
-        obj_type = attrs.pop('type')
+    obj_type = attrs['type'] if 'type' in attrs \
+               else Key(attrs.get('key', None)).type() 
     if not obj_type:
         raise ValueError('Cannot determine object type from attrs.'
-                         + ' Needs to define either "key" or "type".')
+                         + 'Needs to define either "key" or "type".')
     if 'id' in attrs:
-        obj_id = attrs.pop('id')
+        obj_id = attrs['id']
         attrs['key'] = Key('%s:%s' % (obj_type, obj_id))
     # strip any unexpected arguments from attrs
     obj_class = globals()[obj_type]
@@ -168,16 +174,21 @@ class DataStore(object):
 
     def update(self, attrs):
         '''Writes subset of attributes to specified object'''
-        key = attrs['key']
-        if self.redis.exists(key):
-            data = self.get(key)
-            for k,v in attrs.items():
-                setattr(data, k, v)
-            # write out object
-            success = self.put(data)
-            return data.key if success else success
-        else:
+        key = parse_key(attrs)
+        try: 
+            if key and self.redis.exists(key):
+                orig = self.get(key).__dict__
+                for k in attrs:
+                    if k in orig:
+                        orig[k] = attrs[k]
+                # write out object
+                data = parse_obj(orig)
+            else:
+                data = parse_obj(attrs)
+        except ValueError:
             return 0
+        success = self.put(data)
+        return data.key if success else success
 
     def update_scores(self, key, parent=None, base_up=0, base_down=0):
         '''re-calculates scores for tree under specified revision'''
@@ -229,13 +240,16 @@ class DataStore(object):
 
 class Key(str):
     '''BaseClass for datastore keys'''
+    def __nonzero__(self):
+        return str(self) and (self != 'None')
+
     def type(self):
         '''Returns object type of key'''
-        return self.split(':')[0]
+        return self.split(':')[0] if len(self.split(':')) == 2 else None
 
     def id(self):
         '''Returns id of object'''
-        return self.split(':')[1]
+        return self.split(':')[0] if len(self.split(':')) == 2 else None
 
 # class KeyList(list):
 #     '''BaseClass for sets of datastore references'''
