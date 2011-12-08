@@ -1,11 +1,16 @@
 '''Data model for collaborative manifesto maker'''
 # TODO: check existence of referenced objects on put. JWM
 
-from random import randrange
+
 import time
 import sys
 import json
+import inspect
+
+from collections import Set
+from random import randrange
 from redis import Redis
+
 
 # this is how times are stored (chosen to be sortable)
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -14,7 +19,7 @@ def rnd():
     '''Generates a random value for usage in keys'''
     return hex(randrange(0,2**32))[2:]
 
-# def parse(attrs):
+# def parse_obj(attrs):
 #     '''Takes a dictionary representation of a DataModel
 #     instance and returns the corresponding object'''
 #     obj_type = attrs['type'].split(':')[-1]
@@ -29,22 +34,34 @@ def rnd():
 #     # init new object with specified attributes
 #     return Obj(**attrs)
 
-def parse(attrs):
-    '''Takes a dictionary representation of a DataModel
-    instance and returns the corresponding object'''
-    attrs = dict(attrs.items())
-    obj_type = ''
+
+def parse_key(attrs):
+    '''Extracts object key from an attribute representation
+    of a DataModel instance
+    '''
+    if 'type' in attrs and 'id' in attrs:
+        return Key('%s:%s' % (attrs['type'], attrs['id']))
     if 'key' in attrs:
-        obj_type = Key(attrs['key']).type()   
-    if 'type' in attrs:
-        obj_type = attrs.pop('type')
+        return Key(attrs['key'])
+    
+def parse_obj(attrs):
+    '''Takes a dictionary representation of a DataModel
+    instance and returns the corresponding object. Any invalid 
+    attributes are ignored when initializing the object.
+    '''
+    obj_type = attrs['type'] if 'type' in attrs \
+               else Key(attrs.get('key', None)).type() 
     if not obj_type:
         raise ValueError('Cannot determine object type from attrs.'
-                         + ' Needs to define either "key" or "type".')
+                         + 'Needs to define either "key" or "type".')
     if 'id' in attrs:
-        obj_id = attrs.pop('id')
+        obj_id = attrs['id']
         attrs['key'] = Key('%s:%s' % (obj_type, obj_id))
-    return globals()[obj_type](**attrs)
+    # strip any unexpected arguments from attrs
+    obj_class = globals()[obj_type]
+    args = inspect.getargspec(obj_class.__init__).args
+    attrs = {k: attrs[k] for k in args if k in attrs}
+    return obj_class(**attrs)
 
 class DataStore(object):
     '''Interface with redis datastore'''
@@ -116,7 +133,7 @@ class DataStore(object):
                     attrs[k] = self.members('%s:%s' % (obj_key, k)) 
             if Key(obj_key).type() == 'Revision':
                 attrs['forks'] = self.members('%s:%s' % (obj_key, 'forks')) 
-            return parse(attrs)
+            return parse_obj(attrs)
         else:
             return None
 
@@ -157,16 +174,21 @@ class DataStore(object):
 
     def update(self, attrs):
         '''Writes subset of attributes to specified object'''
-        key = attrs['key']
-        if self.redis.exists(key):
-            data = self.get(key)
-            for k,v in attrs.items():
-                setattr(data, k, v)
-            # write out object
-            success = self.put(data)
-            return data.key if success else success
-        else:
+        key = parse_key(attrs)
+        try: 
+            if key and self.redis.exists(key):
+                orig = self.get(key).__dict__
+                for k in attrs:
+                    if k in orig:
+                        orig[k] = attrs[k]
+                # write out object
+                data = parse_obj(orig)
+            else:
+                data = parse_obj(attrs)
+        except ValueError:
             return 0
+        success = self.put(data)
+        return data.key if success else success
 
     def update_scores(self, key, parent=None, base_up=0, base_down=0):
         '''re-calculates scores for tree under specified revision'''
@@ -218,13 +240,16 @@ class DataStore(object):
 
 class Key(str):
     '''BaseClass for datastore keys'''
+    def __nonzero__(self):
+        return str(self) and (self != 'None')
+
     def type(self):
         '''Returns object type of key'''
-        return self.split(':')[0]
+        return self.split(':')[0] if len(self.split(':')) == 2 else None
 
     def id(self):
         '''Returns id of object'''
-        return self.split(':')[1]
+        return self.split(':')[0] if len(self.split(':')) == 2 else None
 
 # class KeyList(list):
 #     '''BaseClass for sets of datastore references'''
