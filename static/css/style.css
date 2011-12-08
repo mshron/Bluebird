@@ -60,14 +60,17 @@ a:hover {
 .button:hover {
 	text-decoration: none;
 	background: url(../images/button-bg.png) 0 0 repeat-x #5e6267;
+	color: #ddd;
 }
 .tinybutton:hover {
 	text-decoration: none;
 	background: url(../images/button-bg.png) 0 0 repeat-x #5e6267;
+	color: #ddd;
 }
 .button:active,
 .tinybutton:active {
 	box-shadow: 0 0 5px rgba(0,0,0,0.4) inset;
+	color: #ddd;
 }
 div.dialog {
 	background: white;
@@ -102,6 +105,7 @@ div.dialog-header .close-dialog {
 div.dialog-header .close-dialog .icon {
 	position: relative;
 	top: -3px;
+	text-shadow: none;
 }
 div.dialog-content {
 	padding: 20px;

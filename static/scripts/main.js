@@ -9,7 +9,12 @@ function rnd () {
 }
 
 function getid(u) {
-    return u.split(':')[1];
+    if (u.indexOf(':') > 0) {
+        return u.split(':')[1];
+    } else {
+        return u;
+    }
+    
 }
 
 //
@@ -34,10 +39,16 @@ var Revision = Backbone.Model.extend({
             alert("Login, human!");
             return 
         }
-        if ((!this.get('user_voted_up') || !this.get('user_voted_down')) 
-                && length(window.users.get('up_voted'))<3) {
+        if ((!this.get('user_voted_up') && !this.get('user_voted_down')) 
+                && window.user.get('up_voted').length<3) {
             this.set({up: this.get('up') + 1});
+            this.set({user_voted_up: true});
             $.get(this.voteurl + "1");
+        } else if (this.get('user_voted_up')) {
+            this.set({up: this.get('up') - 1});
+            this.set({user_voted_up: false})
+            $.get(this.voteurl + "0");
+
         }
         return
     },
@@ -46,12 +57,18 @@ var Revision = Backbone.Model.extend({
             alert("Login, human!");
             return 
         }
-        if ((!this.get('user_voted_up') || !this.get('user_voted_down')) 
-                && length(window.users.get('down_voted'))<3) {
-
+        if ((!this.get('user_voted_up') && !this.get('user_voted_down')) 
+                && window.user.get('down_voted').length<3) {
             this.set({down: this.get('down') + 1});
+            this.set({user_voted_down: true});
+            window.user.get('down_voted').push('Revision:'+this.id);
             $.get(this.voteurl + "-1");
-        }
+        } else if (this.get('user_voted_down')) {
+            this.set({down: this.get('down') - 1});
+            this.set({user_voted_down: false})
+            $.get(this.voteurl + "0");
+        } //else if (this.id  0
+
         return
     },
     fork: function () {
@@ -63,6 +80,7 @@ var Revision = Backbone.Model.extend({
         f.unset('user_voted_up');
         f.unset('user_voted_down');
         f.unset('documentid');
+        f.unset('edit_count');
         f.forking = true;
         this.trigger('register', f);
         f.trigger('checkuser');
@@ -177,7 +195,10 @@ var RevisionsInAIdeaView = Backbone.View.extend({
         if(public_count == 1) this.$('.edits-label').html('Edit');
 
         this.model.each(function (rev, idx) {
-            rev.set({idx : idx});
+            rev.set({
+            	"idx" : idx,
+            	"edit_count" : public_count
+            });
 			that.$('.revisions').append(new RevisionView({model: rev}).render().el);
 		});
         return this;
@@ -220,12 +241,11 @@ var RevisionView = Backbone.View.extend({
         }
     },
     doFork: function () {
-        this.model.fork();        
+        this.model.fork();
     },
     events: {
         "click .fork": "doFork",
         "click .done": "endEditing",
-        "keypress .edit-text": "pressenter",
         "click .upvote": "upvote",
         "click .downvote": "downvote"
     },
@@ -236,15 +256,11 @@ var RevisionView = Backbone.View.extend({
         this.model.downVote();
     },
     editing: function () {
-        $(this.el).addClass('editing');
-    },
-    pressenter: function (e) {
-        if (e.keyCode == 13) {
-            this.endEditing();
-        }
+        //$(this.el).addClass('editing');
+        //$(this.el).hide()
     },
     endEditing: function () {
-        $(this.el).removeClass('editing');
+        $(this.el).show();
         this.model.forking = false;
         this.model.set({'text': this.$('.edit-text').val()});
         this.model.trigger('save', this.model);
