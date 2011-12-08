@@ -38,6 +38,10 @@ var Revision = Backbone.Model.extend({
                 && length(window.users.get('up_voted'))<3) {
             this.set({up: this.get('up') + 1});
             $.get(this.voteurl + "1");
+        } else if (this.get('user_voted_up')) {
+            this.set({up: this.get('up') - 1});
+            $.get(this.voteurl + "0");
+
         }
         return
     },
@@ -51,7 +55,12 @@ var Revision = Backbone.Model.extend({
 
             this.set({down: this.get('down') + 1});
             $.get(this.voteurl + "-1");
+        } else if (this.get('user_voted_down')) {
+            this.set({up: this.get('down') - 1});
+            $.get(this.voteurl + "0");
+
         }
+
         return
     },
     fork: function () {
