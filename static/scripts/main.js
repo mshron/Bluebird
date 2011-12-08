@@ -233,7 +233,6 @@ var RevisionView = Backbone.View.extend({
     },
     doFork: function () {
         this.model.fork();
-		alert('Boom!');
     },
     events: {
         "click .fork": "doFork",
@@ -248,7 +247,7 @@ var RevisionView = Backbone.View.extend({
         this.model.downVote();
     },
     editing: function () {
-        //$(this.el).addClass('editing');
+        $(this.el).addClass('editing');
         //$(this.el).hide()
     },
     endEditing: function () {
