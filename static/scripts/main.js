@@ -9,12 +9,7 @@ function rnd () {
 }
 
 function getid(u) {
-    if (u.indexOf(':') > 0) {
-        return u.split(':')[1];
-    } else {
-        return u;
-    }
-    
+    return u.split(':')[1];
 }
 
 //
@@ -43,13 +38,17 @@ var Revision = Backbone.Model.extend({
                 && window.user.get('up_voted').length<3) {
             this.set({up: this.get('up') + 1});
             this.set({user_voted_up: true});
+            window.user.get('up_voted').push('Revision:'+this.id);
             $.get(this.voteurl + "1");
         } else if (this.get('user_voted_up')) {
             this.set({up: this.get('up') - 1});
             this.set({user_voted_up: false})
+            window.user.get('up_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
             $.get(this.voteurl + "0");
-
+        } else if (window.user.get('up_voted').indexOf('Revision:' + this.id) >= 0) {
+            alert('You have to uncheck a vote to change your vote');
         }
+
         return
     },
     downVote: function() {
@@ -66,6 +65,7 @@ var Revision = Backbone.Model.extend({
         } else if (this.get('user_voted_down')) {
             this.set({down: this.get('down') - 1});
             this.set({user_voted_down: false})
+            window.user.get('down_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
             $.get(this.voteurl + "0");
         } //else if (this.id  0
 
@@ -80,7 +80,6 @@ var Revision = Backbone.Model.extend({
         f.unset('user_voted_up');
         f.unset('user_voted_down');
         f.unset('documentid');
-        f.unset('edit_count');
         f.forking = true;
         this.trigger('register', f);
         f.trigger('checkuser');
@@ -106,7 +105,6 @@ var Revision = Backbone.Model.extend({
         }
     },
     initialize: function () {
-        this.set({'id': getid(this.get('key'))});
         this.set({'documentid': getid(this.get('document'))});
         this.voteurl = "/api/documents/"+this.get('documentid')+"/revisions/"+this.get('id')+"/vote?type=";
         this.bind('checkuser', this.checkuser, this);
