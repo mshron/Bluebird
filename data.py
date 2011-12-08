@@ -307,6 +307,8 @@ class Revision(DataModel):
                  up=0, down=0, tot_up=0, tot_down=0, 
                  parent=None, root=None, document=None, key=None):
         super(Revision, self).__init__(key=key)
+        if text is None:
+            raise ValueError('text of revision needs to be specified')
         self.text = text
         self.author = Key(author) if author else ''
         self.root = Key(root) if root else self.key
