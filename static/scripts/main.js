@@ -184,7 +184,9 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 
         if(public_count < 1) this.$('.edit-count').addClass('no_edits');
         if(public_count == 1) this.$('.edits-label').html('Edit');
-        this.model.each(function (rev) {
+
+        this.model.each(function (rev, idx) {
+            rev.set({idx : idx});
 			that.$('.revisions').append(new RevisionView({model: rev}).render().el);
 		});
         return this;
