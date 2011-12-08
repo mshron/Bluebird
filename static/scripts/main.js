@@ -177,7 +177,10 @@ var RevisionsInAIdeaView = Backbone.View.extend({
         if(public_count == 1) this.$('.edits-label').html('Edit');
 
         this.model.each(function (rev, idx) {
-            rev.set({idx : idx});
+            rev.set({
+            	"idx" : idx,
+            	"edit_count" : public_count
+            });
 			that.$('.revisions').append(new RevisionView({model: rev}).render().el);
 		});
         return this;
@@ -220,7 +223,8 @@ var RevisionView = Backbone.View.extend({
         }
     },
     doFork: function () {
-        this.model.fork();        
+        this.model.fork();
+		alert('Boom!');
     },
     events: {
         "click .fork": "doFork",
@@ -236,7 +240,8 @@ var RevisionView = Backbone.View.extend({
         this.model.downVote();
     },
     editing: function () {
-        $(this.el).addClass('editing');
+        //$(this.el).addClass('editing');
+        //$(this.el).hide()
     },
     pressenter: function (e) {
         if (e.keyCode == 13) {
@@ -244,7 +249,7 @@ var RevisionView = Backbone.View.extend({
         }
     },
     endEditing: function () {
-        $(this.el).removeClass('editing');
+        $(this.el).show();
         this.model.forking = false;
         this.model.set({'text': this.$('.edit-text').val()});
         this.model.trigger('save', this.model);
