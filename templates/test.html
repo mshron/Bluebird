@@ -150,29 +150,30 @@
 				</p>
 			</div>
 			<div class="actions">
-				<span class="upvote button">
+				<span class="upvote button button_light">
 					<span href="javascript:void(0);" class="icon" style="font-size: 14px;">{</span>
 					&nbsp;
 					<%= up %>
 				</span>
 				&nbsp;&nbsp;
-				<span class="downvote button">
+				<span class="downvote button button_light">
+
 					<span class="icon" style="font-size: 14px;">}</span>
 					&nbsp;
 					<%= down %>
 				</span>
 				&nbsp;&nbsp;
-				<a href="javascript:void(0);" class="fork button"> Fork</a>
+				<a href="javascript:void(0);" class="fork button button_light"> Fork</a>
 			</div>
 			
 			
-			<div class="dialog" style="display:none;">
+			<div class="dialog">
 				<div class="dialog-header">
 					<span class="close-dialog tinybutton"><span class="icon">*</span></span>
 					<h3>Improve this idea</h3>	
 				</div>
 				<div class="dialog-content">
-					<input class="edit-text" type="text" value="<%= text %>"></input>
+					<textarea class="edit-text"><%= text %></textarea>
 					<br />
 					<span class="done button">Save</span>
 			    </div>
@@ -198,27 +199,25 @@
 			<div class="fork"> - Fork</div>
 			
 			<div>
-				<div class="upvote"><%= up %></div>
-				<div class="downvote"><%= down %></div>
+				<span class="upvote"><%= up %></span
+				<span class="downvote"><%= down %></span>
 			</div>
-			
-			
-			<div class="dialog" style="display:none;">
-				<div class="dialog-header">
-					<span class="close-dialog tinybutton"><span class="icon">*</span></span>
-					<h3>Improve this idea</h3>	
-				</div>
-				<div class="dialog-content">
-					<input class="edit-text" type="text" value="<%= text %>"></input>
-					<br />
-					<span class="done button">Save</span>
-			    </div>
-		    </div>
 			
 			<br /><br />
 			
 		</div>
 		</div>
+		<div class="dialog">
+			<div class="dialog-header">
+				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
+				<h3>Improve this idea</h3>	
+			</div>
+			<div class="dialog-content">
+				<textarea class="edit-text"><%= text %></textarea>
+				<br />
+				<span class="done button">Save</span>
+		    </div>
+	    </div>
 		<%
 		
 		}

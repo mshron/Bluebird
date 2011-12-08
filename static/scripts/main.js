@@ -249,7 +249,8 @@ var RevisionView = Backbone.View.extend({
         "click .fork": "doFork",
         "click .done": "endEditing",
         "click .upvote": "upvote",
-        "click .downvote": "downvote"
+        "click .downvote": "downvote",
+        "click .close-dialog" : "cancelEditing"
     },
     upvote: function() {
         this.model.upVote();
@@ -258,7 +259,7 @@ var RevisionView = Backbone.View.extend({
         this.model.downVote();
     },
     editing: function () {
-        //$(this.el).addClass('editing');
+        $(this.el).addClass('editing');
         //$(this.el).hide()
     },
     endEditing: function () {
@@ -266,6 +267,9 @@ var RevisionView = Backbone.View.extend({
         this.model.forking = false;
         this.model.set({'text': this.$('.edit-text').val()});
         this.model.trigger('save', this.model);
+    },
+    cancelEditing: function () {
+    	//$(this.el).removeClass("editing");
     }
 });
 
