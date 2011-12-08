@@ -9,12 +9,7 @@ function rnd () {
 }
 
 function getid(u) {
-    if (u.indexOf(':') > 0) {
-        return u.split(':')[1];
-    } else {
-        return u;
-    }
-    
+    return u.split(':')[1];
 }
 
 //
@@ -50,8 +45,10 @@ var Revision = Backbone.Model.extend({
             this.set({user_voted_up: false})
             window.user.get('up_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
             $.get(this.voteurl + "0");
-
+        } else if (window.user.get('up_voted').indexOf('Revision:' + this.id) >= 0) {
+            alert('You have to uncheck a vote to change your vote');
         }
+
         return
     },
     downVote: function() {
@@ -108,7 +105,6 @@ var Revision = Backbone.Model.extend({
         }
     },
     initialize: function () {
-        this.set({'id': getid(this.get('key'))});
         this.set({'documentid': getid(this.get('document'))});
         this.voteurl = "/api/documents/"+this.get('documentid')+"/revisions/"+this.get('id')+"/vote?type=";
         this.bind('checkuser', this.checkuser, this);
