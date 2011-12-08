@@ -88,6 +88,7 @@ def object_handler(request, obj_key, obj_type=None):
 @app.before_request
 def before_request():
     fl.g.user = None
+    app.logger.debug('[before_request] session: %s' % fl.session)
     if 'user_id' in fl.session:
         user_key = '%s:%s' % ('User', fl.session['user_id'])
         fl.g.user = ds.get(user_key)
@@ -172,38 +173,37 @@ def revision(doc_id, rev_id):
         return ds.delete(key)
 
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>/vote', 
-            methods=['GET'])
+            methods=['GET', 'PUT'])
 def vote(doc_id, rev_id):
-    if fl.request.method == 'GET':
-        vote = int(fl.request.args.get('type', None))
-        if not vote is None:
-            user = fl.g.user
-            rkey = 'Revision:%s' % (rev_id)
-            dkey = 'Document:%s' % doc_id
-            up_voted = ds.inter(['%s:revisions' % dkey, '%s:up_voted' % user])
-            down_voted = ds.inter(['%s:revisions' % dkey, '%s:down_voted' % user])
-            # vote blanking is always ok
-            if vote==0 or (vote==-1 and (rkey in up_voted)) \
-               or (vote==1 and (rkey in down_voted)): 
-                ds.vote(user, rkey, 0)
-            else:
-                # allow vote if user has votes left, and has not voted in thread
-                rev = ds.get(rkey)
-                if (vote==1) and (len(up_voted) < MAX_UP):
-                    if not ds.inter(['%s:revisions' % rev.root, '%s:up_voted' % user]):
-                        ds.vote(user, rkey, vote)
-                    else:
-                        fl.abort(403)
-                elif (vote==-1) and (len(down_voted) < MAX_DOWN):   
-                    if not ds.inter(['%s:revisions' % rev.root, '%s:down_voted' % user]):
-                        ds.vote(user, rkey, vote)
-                    else:
-                        fl.abort(403)
+    vote = int(fl.request.args.get('type', None))
+    if not vote is None:
+        user = fl.g.user
+        rkey = 'Revision:%s' % (rev_id)
+        dkey = 'Document:%s' % doc_id
+        up_voted = ds.inter(['%s:revisions' % dkey, '%s:up_voted' % user])
+        down_voted = ds.inter(['%s:revisions' % dkey, '%s:down_voted' % user])
+        # vote blanking is always ok
+        if vote==0 or (vote==-1 and (rkey in up_voted)) \
+           or (vote==1 and (rkey in down_voted)): 
+            ds.vote(user, rkey, 0)
+        else:
+            # allow vote if user has votes left, and has not voted in thread
+            rev = ds.get(rkey)
+            if (vote==1) and (len(up_voted) < MAX_UP):
+                if not ds.inter(['%s:revisions' % rev.root, '%s:up_voted' % user]):
+                    ds.vote(user, rkey, vote)
                 else:
                     fl.abort(403)
-            return fl.Response('Succes')
-        else:
-            fl.abort(403)
+            elif (vote==-1) and (len(down_voted) < MAX_DOWN):   
+                if not ds.inter(['%s:revisions' % rev.root, '%s:down_voted' % user]):
+                    ds.vote(user, rkey, vote)
+                else:
+                    fl.abort(403)
+            else:
+                fl.abort(403)
+        return fl.Response('Succes')
+    else:
+        fl.abort(403)
 
 @app.route('/documents/<doc_id>')
 def dochtml(doc_id):
