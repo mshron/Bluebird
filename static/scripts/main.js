@@ -12,6 +12,12 @@ function getid(u) {
     return u.split(':')[1];
 }
 
+(function($) {
+    $.fn.hasScrollBar = function() {
+        return this.get(0).scrollHeight > this.height();
+    }
+})(jQuery);
+
 //
 // Backbone Models
 //
@@ -199,6 +205,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
             });
 			that.$('.revisions').append(new RevisionView({model: rev}).render().el);
 		});
+		this.revision_view_scrollbar();
         return this;
     },
     initialize: function () {
@@ -218,10 +225,19 @@ var RevisionsInAIdeaView = Backbone.View.extend({
             //this.$('.revisions').hide();
             this.$('.revisions').fadeOut(300);
             this.improve = false;
+            this.revision_view_scrollbar();
         } else {
             this.$('.revisions').fadeIn(300);
             this.improve = true;
+            this.revision_view_scrollbar();
         }
+    },
+    revision_view_scrollbar : function () {
+
+		if(	$(this.el).find(".revisions").hasScrollBar() ) {
+			$(this.el).find(".revisions").addClass("has_scrollbar");
+			alert("scroll!");
+		}
     }
 });
 
@@ -302,9 +318,9 @@ var MainView = Backbone.View.extend({
         this.$('#ideas').html('');
         var that = this;
         _(this.ideas).each(function (th) {
-                            that.$('#ideas')
-                                .append(new RevisionsInAIdeaView({model: th}).render().el)
-                          });
+			that.$('#ideas').append(new RevisionsInAIdeaView({model: th}).render().el)
+		});
+		this.idea_view_scrollbar();
     },
     events: {
         "click .done": "newIdea",
@@ -331,6 +347,12 @@ var MainView = Backbone.View.extend({
     },
     idea_dialog: function () {
     	$('#new-idea-box').toggle();
+    },
+    idea_view_scrollbar : function () {
+
+		if(	$('#main').hasScrollBar() ) {
+			$('#main').addClass("has_scrollbar");
+		}
     }
 
 });

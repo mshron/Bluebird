@@ -3,33 +3,10 @@
 
 <head>	
 
-	<title>Citizens Consensus</title>
+	<title>Citizensus</title>
 
 	<link rel="stylesheet" href="/static/css/reset.css" type="text/css" />
 	<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
-	
-	<!--
-	<style type="text/css">
-		div.edit-visible {
-		    display: none;
-		}
-		div.editing .text {
-		    display: none;
-		}
-		div.editing .edit-visible {
-		    display: block;
-		}
-		div.fork {
-		    display: inline;
-		}
-		div.text {
-		    display: inline;
-		}
-		div.revisions.noimprove {
-		    display: none;
-		}
-	</style>
-	-->
 
 </head>
 
@@ -41,7 +18,7 @@
 	
 		<div id="header-bar">
 			<div id="header">
-				<a href="#" id="logo"><img src="/static/images/logo.png" /></a>
+				<a href="/?" id="logo"><img src="/static/images/logo.png" /></a>
 				<div id="nav">
 					<ul>
 						<li id="view-consensus" class="current"><a href="#">Current Consensus</a></li>
@@ -64,7 +41,6 @@
 			</div>
 			<div class="dialog-content">
 				<div id="new">
-					<!-- <input class="new-text" type="text" style="width:300px;border:1px solid #ccc;padding:5px;"></input> -->
 					<textarea class="new-text"></textarea>
 					<span class="done button">Save</span>
 		    	</div>
@@ -108,7 +84,7 @@
 			</div>
 			
 			<div class="actions">
-				<a href="javascript: void(0);" class="improve">Improve Idea</a>
+				<a href="javascript: void(0);" class="improve button button_light">View Idea</a>
 			</div>
 			
 			<div style="clear:both"></div>
@@ -253,6 +229,28 @@
 	
 	
 	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	
+
+	<script type="text/javascript">
+		var scrollDiv = document.createElement("div");
+		scrollDiv.className = "scrollbar-measure";
+		document.body.appendChild(scrollDiv);
+		
+		scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+		
+		// Delete the dic
+		document.body.removeChild(scrollDiv);
+		
+		// Set padding on idea and revision views
+		document.write(
+		    "<style>"
+		  + "	div#main.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px; }"
+		  + "	div#main.has_scrollbar div.revisions div.idea { padding-left: 0; }"
+		  + "	div.revisions.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px !important; }"
+		  + "	div.revisions.has_scrollbar div.revision { padding-left: " + scrollbarWidth + "px !important; }"
+		  + "</style>"
+		);
+    </script>
 	
 	
 	<script type="text/javascript" src="/static/scripts/underscore-min.js"></script>

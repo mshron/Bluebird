@@ -95,7 +95,13 @@ a:hover {
 .button_light .icon {
 	color: #989DA2;
 }
-
+.scrollbar-measure {
+  width: 100px;
+  height: 100px;
+  overflow: scroll;
+  position: absolute;
+  top: -9999px;
+}
 
 div.dialog {
 	background: white;
