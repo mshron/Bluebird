@@ -236,7 +236,9 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 
 		if(	$(this.el).find(".revisions").hasScrollBar() ) {
 			$(this.el).find(".revisions").addClass("has_scrollbar");
-			alert("scroll!");
+		}
+		else {
+			$(this.el).find(".revisions").removeClass("has_scrollbar");
 		}
     }
 });
@@ -352,6 +354,9 @@ var MainView = Backbone.View.extend({
 
 		if(	$('#main').hasScrollBar() ) {
 			$('#main').addClass("has_scrollbar");
+		}
+		else {
+			$('#main').removeClass("has_scrollbar");
 		}
     }
 
