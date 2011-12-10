@@ -105,6 +105,7 @@ var Revision = Backbone.Model.extend({
         }
     },
     initialize: function () {
+        this.set({'id': getid(this.get('key'))});
         this.set({'documentid': getid(this.get('document'))});
         this.voteurl = "/api/documents/"+this.get('documentid')+"/revisions/"+this.get('id')+"/vote?type=";
         this.bind('checkuser', this.checkuser, this);
