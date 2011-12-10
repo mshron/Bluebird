@@ -3,33 +3,10 @@
 
 <head>	
 
-	<title>Citizens Consensus</title>
+	<title>Citizensus</title>
 
 	<link rel="stylesheet" href="/static/css/reset.css" type="text/css" />
 	<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
-	
-	<!--
-	<style type="text/css">
-		div.edit-visible {
-		    display: none;
-		}
-		div.editing .text {
-		    display: none;
-		}
-		div.editing .edit-visible {
-		    display: block;
-		}
-		div.fork {
-		    display: inline;
-		}
-		div.text {
-		    display: inline;
-		}
-		div.revisions.noimprove {
-		    display: none;
-		}
-	</style>
-	-->
 
 </head>
 
@@ -41,7 +18,7 @@
 	
 		<div id="header-bar">
 			<div id="header">
-				<a href="#" id="logo"><img src="/static/images/logo.png" /></a>
+				<a href="/?" id="logo"><img src="/static/images/logo.png" /></a>
 				<div id="nav">
 					<ul>
 						<li id="view-consensus" class="current"><a href="#">Current Consensus</a></li>
@@ -64,7 +41,6 @@
 			</div>
 			<div class="dialog-content">
 				<div id="new">
-					<!-- <input class="new-text" type="text" style="width:300px;border:1px solid #ccc;padding:5px;"></input> -->
 					<textarea class="new-text"></textarea>
 					<span class="done button">Save</span>
 		    	</div>
@@ -80,15 +56,17 @@
 	
 	
 	<script type="text/template" id="idea-template">
+		
 		<div class="idea-wrap">
 		<div class="idea">
+			
 			<a href="javascript: void(0);" class="edit-count">
 				<strong class="revision-count"></strong>
 				<br />
 				<span class="edits-label">Edits</span>
 			</a>
+			
 			<div class="idea-content">
-				<div class="top_revision"></div>
 				<p class="idea-text"><a href="javascript: void(0);" class="top-text"></a></p>
 				<p class="categories">
 					<%
@@ -104,12 +82,16 @@
 					%>
 				</p>
 			</div>
+			
 			<div class="actions">
-				<a href="javascript: void(0);" class="improve">Improve Idea</a>
+				<a href="javascript: void(0);" class="improve button button_light">View Idea</a>
 			</div>
+			
 			<div style="clear:both"></div>
+			
 		</div>
 		</div>
+		
 		<div class="revisions noimprove" style="display:none;"></div>
 	
 	</script>
@@ -127,13 +109,14 @@
 		%>
 		<div class="idea-wrap" style="box-shadow: 0 0 5px rgba(0,0,0,0.1); border-bottom: 1px solid #ccc;">
 		<div class="idea">
+			
 			<a href="javascript: void(0);" class="edit-count">
 				<strong class="revision-count"><%= edit_count %></strong>
 				<br />
 				<span class="edits-label">Edits</span>
 			</a>
+			
 			<div class="idea-content">
-				<div class="top_revision"></div>
 				<p class="idea-text"><a href="javascript: void(0);" class="top-text"><%= text %></a></p>
 				<p class="categories">
 					<%
@@ -149,23 +132,18 @@
 					%>
 				</p>
 			</div>
+			
 			<div class="actions">
 				<span class="upvote button button_light">
-					<span href="javascript:void(0);" class="icon" style="font-size: 14px;">{</span>
-					&nbsp;
-					<%= up %>
+					<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
 				</span>
 				&nbsp;&nbsp;
 				<span class="downvote button button_light">
-
-					<span class="icon" style="font-size: 14px;">}</span>
-					&nbsp;
-					<%= down %>
+					<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
 				</span>
 				&nbsp;&nbsp;
 				<a href="javascript:void(0);" class="fork button button_light"> Fork</a>
 			</div>
-			
 			
 			<div class="dialog">
 				<div class="dialog-header">
@@ -178,9 +156,9 @@
 					<span class="done button">Save</span>
 			    </div>
 		    </div>
-			
-			
+		    
 			<div style="clear:both"></div>
+			
 		</div>
 		</div>
 		<%
@@ -193,20 +171,43 @@
 		<div class="revision-wrap">
 		<div class="revision">
 			
-			<br /><br />
+
+			<div class="idea-content" style="margin-left:32px; padding-left:57px;">
+				<p class="idea-text"><%= text %></p>
+				<p class="categories">
+					<%
+
+					var strings = ["Finance", "Education", "Human Rights", "Environment"];
+					var rando = Math.floor(Math.random()*2);
+					
+					for ( i=0 ; i<(rando+1); i=i+1 ) {
+						if (i < rando) { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>, " ); }
+						else 		   { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>" );	}
+					}
+					
+					%>
+				</p>
+				<!-- <div class="text"><%= text %></div> -->
+
+			</div>
+
 			
-			<div class="text"><%= text %></div>
-			<div class="fork"> - Fork</div>
-			
-			<div>
-				<span class="upvote"><%= up %></span>
-				<span class="downvote"><%= down %></span>
+			<div class="actions">
+				<span class="upvote button button_light">
+					<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
+				</span>
+				&nbsp;&nbsp;
+				<span class="downvote button button_light">
+					<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
+				</span>
+				&nbsp;&nbsp;
+				<a href="javascript:void(0);" class="fork button button_light"> Fork</a>
 			</div>
 			
-			<br /><br />
-			
+			<div style="clear:both"></div>
 		</div>
 		</div>
+		
 		<div class="dialog">
 			<div class="dialog-header">
 				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
@@ -228,6 +229,28 @@
 	
 	
 	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	
+
+	<script type="text/javascript">
+		var scrollDiv = document.createElement("div");
+		scrollDiv.className = "scrollbar-measure";
+		document.body.appendChild(scrollDiv);
+		
+		scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+		
+		// Delete the dic
+		document.body.removeChild(scrollDiv);
+		
+		// Set padding on idea and revision views
+		document.write(
+		    "<style>"
+		  + "	div#main.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px; }"
+		  + "	div#main.has_scrollbar div.revisions div.idea { padding-left: 0; }"
+		  + "	div.revisions.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px !important; }"
+		  + "	div.revisions.has_scrollbar div.revision { padding-left: " + scrollbarWidth + "px !important; }"
+		  + "</style>"
+		);
+    </script>
 	
 	
 	<script type="text/javascript" src="/static/scripts/underscore-min.js"></script>
