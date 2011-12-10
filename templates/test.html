@@ -14,7 +14,7 @@
 <body>
 	
 	
-	<div id="main">
+	<div id="main" class="has_scrollbar" style="overflow-y:scroll;">
 	
 		<div id="header-bar">
 			<div id="header">
@@ -89,10 +89,12 @@
 			
 			<div style="clear:both"></div>
 			
+			<div class="line"></div>
+			
 		</div>
 		</div>
 		
-		<div class="revisions noimprove" style="display:none;"></div>
+		<div class="revisions noimprove has_scrollbar" style="display:none; overflow-y:scroll;"></div>
 	
 	</script>
 	
@@ -142,7 +144,7 @@
 					<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
 				</span>
 				&nbsp;&nbsp;
-				<a href="javascript:void(0);" class="fork button button_light"> Fork</a>
+				<span class="fork button button_light"> Fork</span>
 			</div>
 			
 			<div class="dialog">
@@ -158,6 +160,8 @@
 		    </div>
 		    
 			<div style="clear:both"></div>
+			
+			<div class="line"></div>
 			
 		</div>
 		</div>
@@ -201,7 +205,7 @@
 					<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
 				</span>
 				&nbsp;&nbsp;
-				<a href="javascript:void(0);" class="fork button button_light"> Fork</a>
+				<span class="fork button button_light"> Fork</span>
 			</div>
 			
 			<div style="clear:both"></div>
@@ -247,9 +251,11 @@
 		  + "	div#main.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px; }"
 		  + "	div#main.has_scrollbar div.revisions div.idea { padding-left: 0; }"
 		  + "	div.revisions.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px !important; }"
+		  + "	div.slider div.idea { padding-left: " + scrollbarWidth + "px !important; }"
 		  + "	div.revisions.has_scrollbar div.revision { padding-left: " + scrollbarWidth + "px !important; }"
 		  + "</style>"
 		);
+
     </script>
 	
 	
@@ -264,6 +270,7 @@
         window.user = new User({id: {{ session.user_id|tojson|safe }} });
         window.user.fetch();
         _.delay(function() {window.revisions.trigger('checkusers')}, 1000); // this is dumb
+        
     </script>
 
 

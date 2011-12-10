@@ -349,6 +349,13 @@ div.idea-wrap p.categories {
 div.idea-wrap div.actions {
 	float: right;
 }
+div.idea-wrap div.actions .button {
+	position: relative;
+	top: 5px;
+}
+.revisions div.idea-wrap div.actions .button {
+	top: 0px;
+}
 div.children {
 	display: none;
 }
@@ -361,6 +368,23 @@ div.revisions {
 	top: 62px;
 	bottom: 0;
 	z-index: 150;
+}
+div.revisions div.line,
+div.slider div.line {
+	position: absolute;
+	height: 100%;
+	width: 4px;
+	background: #d5d5d5;
+	margin-left: 32px;
+    margin-top: 16px;
+}
+div.slider {
+	background: url(../images/bg.gif);
+	position: fixed;
+	width : 100%;
+	z-index: 125;
+	overflow-y: scroll;
+	border-bottom: 1px solid #ccc;
 }
 .dialog {
 	display: none;
@@ -375,7 +399,7 @@ div.revision-wrap {
 	text-shadow: 0 1px 0 white;
 }
 div.revision {
-	background: url("../images/line.png") repeat-y 32px 0;
+	/* background: url("../images/line.png") repeat-y 32px 0; */
 	width: 970px;
 	margin: 0 auto;
 	padding-top: 12px;
