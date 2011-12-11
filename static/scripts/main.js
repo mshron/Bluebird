@@ -228,14 +228,14 @@ var RevisionsInAIdeaView = Backbone.View.extend({
         	var b_travel = ( $(window).height() - travel - $(this.el).height() );
             clone_wrap = this.$('.slider');
             
-            this.$('.revisions').fadeOut(100,function() {
+            this.$('.revisions').fadeOut(200,function() {
             	$(clone_wrap).animate({
 						top: travel + 'px',
 						bottom: b_travel +"px"
 					}, 
-					300,
+					400,
 					function() {
-						$(clone_wrap).fadeOut(50,function() {
+						$(clone_wrap).fadeOut(100,function() {
 		    				$(clone_wrap).remove();	
 		    			});
 	  				}
@@ -264,9 +264,9 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 					top: '62px',
 					bottom: "0"
 				}, 
-				100,
+				300,
 				function() {
-		    		that.$('.revisions').fadeIn(200);
+		    		that.$('.revisions').fadeIn(300);
   				}
 			);
             this.improve = true;
