@@ -46,12 +46,14 @@ var Revision = Backbone.Model.extend({
             this.set({user_voted_up: true});
             window.user.get('up_voted').push('Revision:'+this.id);
             $.get(this.voteurl + "1");
-        } else if (this.get('user_voted_up')) {
+        }
+        else if (this.get('user_voted_up')) {
             this.set({up: this.get('up') - 1});
             this.set({user_voted_up: false})
             window.user.get('up_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
             $.get(this.voteurl + "0");
-        } else if (window.user.get('up_voted').indexOf('Revision:' + this.id) >= 0) {
+        }
+        else if (window.user.get('up_voted').indexOf('Revision:' + this.id) >= 0) {
             alert('You have to uncheck a vote to change your vote');
         }
 
@@ -68,7 +70,8 @@ var Revision = Backbone.Model.extend({
             this.set({user_voted_down: true});
             window.user.get('down_voted').push('Revision:'+this.id);
             $.get(this.voteurl + "-1");
-        } else if (this.get('user_voted_down')) {
+        }
+        else if (this.get('user_voted_down')) {
             this.set({down: this.get('down') - 1});
             this.set({user_voted_down: false})
             window.user.get('down_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
@@ -98,14 +101,14 @@ var Revision = Backbone.Model.extend({
     checkuser: function () {
         if (window.user) {
             this.set({'user_voted_up' : _(
-                                   _(window.user.get('up_voted')).map(getid)
-                                  ).include(this.get('id')) })
+				_(window.user.get('up_voted')).map(getid)
+			).include(this.get('id')) })
 
             this.set({'user_voted_down' : _(
-                                   _(window.user.get('down_voted')).map(getid)
-                                  ).include(this.get('id'))})
-
-        } else {
+				_(window.user.get('down_voted')).map(getid)
+			).include(this.get('id'))})
+        }
+        else {
             this.set({'user_voted_up': null});
             this.set({'user_voted_down': null});
         }
@@ -114,13 +117,6 @@ var Revision = Backbone.Model.extend({
         this.set({'documentid': getid(this.get('document'))});
         this.voteurl = "/api/documents/"+this.get('documentid')+"/revisions/"+this.get('id')+"/vote?type=";
         this.bind('checkuser', this.checkuser, this);
-		/*
-		if (!this.get('parent')) {
-            this.set({'id': rnd()});
-            this.set({'root': this.get('id')});
-            this.set({'parent': this.get('id')});
-        }
-        */
     }
 
 });
@@ -243,6 +239,12 @@ var RevisionsInAIdeaView = Backbone.View.extend({
             this.improve = false;
         }
         else {
+        
+        	revheight = $(this.el).height();
+        	lefty = this.$('.idea').position();
+        	
+        	this.$('.line').css("top", (revheight - 15) + "px");
+        
         	var offset = $(this.el).offset();
         	var travel = offset.top;
         	var b_travel = ( $(window).height() - travel - $(this.el).height() );
@@ -252,19 +254,25 @@ var RevisionsInAIdeaView = Backbone.View.extend({
             clone = $(item[0]).clone();
 			$(clone).css("box-shadow","0 0 5px rgba(0, 0, 0, 0.1)");
 			$(clone).children("div.idea").css("padding-left",0);
-			
+
 			clone_wrap = $(document.createElement('div'));
 			$(clone_wrap).addClass("slider");
 			$(clone).appendTo(clone_wrap);
 			$(clone_wrap).appendTo(this.el);
 			$(clone_wrap).css("top",travel + "px");
 			$(clone_wrap).css("bottom",b_travel + "px");
+			
+			// Slde up and show the revisions
 			$(clone_wrap).animate({
 					top: '62px',
 					bottom: "0"
 				}, 
 				300,
 				function() {
+					that.$('.revisions').css("top",(revheight + 62) + "px");
+					that.$('.revisions .line').css("top", (revheight + 46) + "px");
+					that.$('.revisions .line').css("position","fixed");
+					that.$('.revisions .line').css("left",(lefty.left + scrollbarWidth) +"px");
 		    		that.$('.revisions').fadeIn(300);
   				}
 			);
@@ -312,7 +320,7 @@ var RevisionView = Backbone.View.extend({
         this.model.trigger('save', this.model);
     },
     cancelEditing: function () {
-    	//$(this.el).removeClass("editing");
+
     }
 });
 
@@ -362,7 +370,7 @@ var MainView = Backbone.View.extend({
     },
     pressenter: function (e) {
         if (e.keyCode == 13) {
-            //this.newIdea();
+        
         }
     },
     refresh: function () {
