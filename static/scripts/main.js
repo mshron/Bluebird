@@ -263,7 +263,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 					top: '62px',
 					bottom: "0"
 				}, 
-				200,
+				300,
 				function() {
 		    		that.$('.revisions').fadeIn(300);
   				}
