@@ -47,8 +47,8 @@
 			</div>
 			<div class="dialog-content">
 				<div id="new">
-					<textarea class="new-text"></textarea>
-					<span class="done button">Save</span>
+					<textarea class="new-text" tabindex="100"></textarea>
+					<span class="done button" tabindex="200">Save</span>
 		    	</div>
 		    </div>
 	    </div>
@@ -142,13 +142,13 @@
 			<div class="actions">
 				<span class="improve button button_light"><span class="icon">*</span> &nbsp;Close Idea</span><br />
 				<div class="pill">
-					<span class="upvote button button_light">
+					<span class="upvote button button_light first">
 						<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
 					</span>
 					<span class="downvote button button_light">
 						<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
 					</span>
-					<span class="fork button button_light"> Fork</span>
+					<span class="fork button button_light last"> Fork</span>
 				</div>
 			</div>
 			<div style="clear:both"></div>
@@ -184,13 +184,13 @@
 			</div>
 			<div class="actions">
 				<div class="pill">
-					<span class="upvote button button_light">
+					<span class="upvote button button_light first">
 						<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
 					</span>
 					<span class="downvote button button_light">
 						<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
 					</span>
-					<span class="fork button button_light"> Fork</span>
+					<span class="fork button button_light last"> Fork</span>
 				</div>
 			</div>
 			<div style="clear:both"></div>
