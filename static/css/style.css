@@ -93,6 +93,9 @@ a:hover {
 .button_light .icon {
 	color: #989DA2;
 }
+.pill .button {
+	border-radius: 0;
+}
 .scrollbar-measure {
   width: 100px;
   height: 100px;
