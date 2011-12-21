@@ -216,6 +216,10 @@ var RevisionsInAIdeaView = Backbone.View.extend({
     },
     improve: function () {
         if (this.improve) {
+        
+        	// Close Idea
+        	
+        	window.Main.close_dialog();
             var offset = $(this.el).offset();
         	var travel = offset.top;
         	var b_travel = ( $(window).height() - travel - $(this.el).height() );
@@ -237,6 +241,10 @@ var RevisionsInAIdeaView = Backbone.View.extend({
             this.improve = false;
         }
         else {
+        
+        	// Open Idea
+        		
+        	window.Main.close_dialog();
         
         	revheight = $(this.el).height();
         
@@ -350,7 +358,7 @@ var MainView = Backbone.View.extend({
 		});
     },
     events: {
-        "click .done": "newIdea",
+        "click #new-idea-box .done": "newIdea",
         "keypress .new-text": "pressenter",
         "click .refresh": "refresh",
         'click .show-idea-box': 'idea_dialog',
