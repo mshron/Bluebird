@@ -239,21 +239,20 @@ var RevisionsInAIdeaView = Backbone.View.extend({
         else {
         
         	revheight = $(this.el).height();
-        	lefty = this.$('.idea').position();
-        	
-        	this.$('.line').css("top", (revheight - 15) + "px");
         
         	var offset = $(this.el).offset();
         	var travel = offset.top;
         	var b_travel = ( $(window).height() - travel - $(this.el).height() );
-        	var that = this;
+        	that = this;
         	
+        	// Duplicate idea row
         	item = $(this.el).find('.idea-wrap');            
             clone = $(item[0]).clone();
 			$(clone).css("box-shadow","0 0 5px rgba(0, 0, 0, 0.1)");
 			$(clone).children("div.idea").css("padding-left",0);
 
 			clone_wrap = $(document.createElement('div'));
+			$(clone_wrap).html('<div class="line"></div>');
 			$(clone_wrap).addClass("slider");
 			$(clone).appendTo(clone_wrap);
 			$(clone_wrap).appendTo(this.el);
@@ -268,9 +267,6 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 				300,
 				function() {
 					that.$('.revisions').css("top",(revheight + 62) + "px");
-					that.$('.revisions .line').css("top", (revheight + 46) + "px");
-					that.$('.revisions .line').css("position","fixed");
-					that.$('.revisions .line').css("left",(lefty.left + scrollbarWidth) +"px");
 		    		that.$('.revisions').fadeIn(300);
   				}
 			);

@@ -28,6 +28,8 @@
 				<div id="header-right">
 					<span class="refresh button"><span class="icon">0</span></span>
 					<span class="show-idea-box button"><span class="icon">&</span></span>
+					&nbsp;
+					<span class="remaining">Remaining Votes: <strong>5</strong></span>
 				</div>
 			</div>
 		</div>
@@ -80,7 +82,7 @@
 				<a href="javascript: void(0);" class="improve button button_light">View Idea</a>
 			</div>
 			<div style="clear:both"></div>
-			<div class="line"></div>
+			<!-- <div class="line"></div> -->
 		</div>
 		</div>
 		<div class="revisions noimprove has_scrollbar" style="display:none; overflow-y:scroll;"></div>
@@ -98,6 +100,7 @@
 		if (idx == 0) {
 		
 		%>
+		<div class="line"></div>
 		<div class="idea-wrap" style="box-shadow: 0 0 5px rgba(0,0,0,0.1); border-bottom: 1px solid #ccc;">
 		<div class="idea">
 			<a href="javascript: void(0);" class="edit-count <% if (edit_count < 1) { %>no_edits<% } %>">
@@ -120,6 +123,11 @@
 				</p>
 			</div>
 			<div class="actions">
+
+				<span class="improve button button_light">Close Idea</span>
+
+				<br />
+				
 				<span class="upvote button button_light">
 					<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
 				</span>
@@ -142,7 +150,6 @@
 			    </div>
 		    </div>
 			<div style="clear:both"></div>
-			<div class="line"></div>
 		</div>
 		</div>
 		<%
@@ -225,6 +232,7 @@
 		  + "	div.revisions .idea-wrap { right: " + scrollbarWidth + "px; }"
 		  + "	div.revisions.has_scrollbar div.revision { padding-left: " + scrollbarWidth + "px !important; }"
 		  + "	div.revisions.has_scrollbar .idea-wrap .idea { padding-left: " + ( scrollbarWidth * 2) + "px !important; }"
+		  + "	div.slider .line, div.revisions .line { margin-left: " + (-454 + (scrollbarWidth/2)) + "px; }"
 		  + "</style>"
 		);
     </script>
