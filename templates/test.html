@@ -20,15 +20,18 @@
 			<div id="header">
 
 				<a href="#" id="logo" class="refresh"><img src="/static/images/logo.png" /></a>
+				<div id="doc-title">What should we bring to World War I</div>
+				<!--
 				<div id="nav">
 					<ul>
 						<li id="view-consensus" class="current"><a href="#">Current Consensus</a></li>
 						<li id="view-everything"><a href="#">New Ideas</a></li>
 					</ul>
 				</div>
+				-->
 				<div id="header-right">
-					<span class="username">Welcome, <strong>AndrewFiorillo</strong></span>
-					<span class="remaining">Remaining Votes: <strong>5</strong></span>
+					<span class="username">Welcome, <strong class="header-link">AndrewFiorillo</strong></span>
+					<span class="remaining">Remaining Votes: <strong class="header-link">5</strong></span>
 					<!--<span class="refresh button"><span class="icon">0</span> &nbsp;Refresh</span> -->
 					<span class="show-idea-box button"><span class="icon">&</span> &nbsp;Add Idea</span>
 				</div>
@@ -47,6 +50,18 @@
 					<textarea class="new-text"></textarea>
 					<span class="done button">Save</span>
 		    	</div>
+		    </div>
+	    </div>
+	    
+	    <div class="dialog" id="fork-input">
+			<div class="dialog-header">
+				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
+				<h3>Improve this idea</h3>	
+			</div>
+			<div class="dialog-content">
+				<textarea class="edit-text"></textarea>
+				<br />
+				<span class="done button">Save</span>
 		    </div>
 	    </div>
 	    
@@ -136,17 +151,6 @@
 					<span class="fork button button_light"> Fork</span>
 				</div>
 			</div>
-			<div class="dialog">
-				<div class="dialog-header">
-					<span class="close-dialog tinybutton"><span class="icon">*</span></span>
-					<h3>Improve this idea</h3>	
-				</div>
-				<div class="dialog-content">
-					<textarea class="edit-text"><%= text %></textarea>
-					<br />
-					<span class="done button">Save</span>
-			    </div>
-		    </div>
 			<div style="clear:both"></div>
 		</div>
 		</div>
@@ -192,17 +196,6 @@
 			<div style="clear:both"></div>
 		</div>
 		</div>
-		<div class="dialog">
-			<div class="dialog-header">
-				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
-				<h3>Improve this idea</h3>	
-			</div>
-			<div class="dialog-content">
-				<textarea class="edit-text"><%= text %></textarea>
-				<br />
-				<span class="done button">Save</span>
-		    </div>
-	    </div>
 		<%
 		
 		}

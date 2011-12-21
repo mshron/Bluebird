@@ -367,7 +367,7 @@ var MainView = Backbone.View.extend({
         "keypress .new-text": "pressenter",
         "click .refresh": "refresh",
         'click .show-idea-box': 'idea_dialog',
-        'click .close-dialog': 'idea_dialog'
+        'click .close-dialog': 'close_dialog'
     },
     pressenter: function (e) {
         if (e.keyCode == 13) {
@@ -389,6 +389,11 @@ var MainView = Backbone.View.extend({
     },
     idea_dialog: function () {
     	$('#new-idea-box').toggle();
+    	$('#new-idea-box textarea').focus();
+    },
+    close_dialog: function () {
+    	//console.log(this);
+    	$(".dialog").hide();
     }
 
 });
