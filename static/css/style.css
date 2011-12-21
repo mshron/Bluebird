@@ -110,7 +110,7 @@ div.dialog {
 	width: 600px;
 	box-shadow: 0 5px 20px rgba(0,0,0,0.3);
 	border-radius: 5px;
-	z-index: 100;
+	z-index: 1000;
 }
 div.dialog-header {
 	background: url(../images/nav-bg.png) 0 0 repeat-x #5d6368;
@@ -187,6 +187,13 @@ a#logo {
 
 a#logo img {
 	display: block;
+}
+div#header #doc-title {
+	position: absolute;
+	font-size: 17px;
+	font-weight: bold;
+	color: white;
+	border-left: 1px solid #3C3C3C;
 }
 div#header-right {
 	float: right;
@@ -418,7 +425,6 @@ div.revision-wrap .actions {
 }
 div.editing div.dialog {
 	display: block;
-	z-index: 1000;
 }
 div.editing div.revision-wrap {
 	display: none;
