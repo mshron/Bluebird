@@ -184,12 +184,13 @@ a#logo {
 	display: block;
 	position: absolute;
 }
+
 a#logo img {
 	display: block;
 }
 div#header-right {
 	float: right;
-	padding-top: 15px;
+	padding-top: 12px;
 }
 div#header-right .button {
 	padding: 5px 11px;
@@ -198,9 +199,13 @@ div#header-right .button .icon {
 	position: relative;
 	top: -1px;
 }
+div#header .username,
 div#header .remaining {
 	color: #ddd;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+	border-right: 1px solid #3C3C3C;
+	padding-right: 10px;
+	margin-right: 10px;
 }
 
 /* Nav */
@@ -309,6 +314,7 @@ a.edit-count .edits-label {
 div.idea-content {
 	float: left;
 	width: 650px;
+	width: 640px;
 }
 div.idea-wrap p.idea-text, p.idea-text {
 	font-family: Georgia, Times New Roman, Serif;
@@ -360,7 +366,11 @@ div.revisions .idea-wrap {
 }
 div.revisions .idea-wrap .actions {
 	position: relative;
-	top: 5px;
+	top: 1px;
+}
+div.revisions .idea-wrap .actions .icon {
+	position: relative;
+	top: -1px;
 }
 div.revisions div.line,
 div.slider div.line {

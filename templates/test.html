@@ -18,7 +18,7 @@
 	
 		<div id="header-bar">
 			<div id="header">
-				<a href="/?" id="logo"><img src="/static/images/logo.png" /></a>
+				<a href="#" id="logo" class="refresh"><img src="/static/images/logo.png" /></a>
 				<div id="nav">
 					<ul>
 						<li id="view-consensus" class="current"><a href="#">Current Consensus</a></li>
@@ -26,10 +26,10 @@
 					</ul>
 				</div>
 				<div id="header-right">
-					<span class="refresh button"><span class="icon">0</span></span>
-					<span class="show-idea-box button"><span class="icon">&</span></span>
-					&nbsp;
+					<span class="username">Welcome, <strong>AndrewFiorillo</strong></span>
 					<span class="remaining">Remaining Votes: <strong>5</strong></span>
+					<!--<span class="refresh button"><span class="icon">0</span> &nbsp;Refresh</span> -->
+					<span class="show-idea-box button"><span class="icon">&</span> &nbsp;Add Idea</span>
 				</div>
 			</div>
 		</div>
@@ -100,7 +100,7 @@
 		if (idx == 0) {
 		
 		%>
-		<div class="line"></div>
+		<!-- <div class="line"></div> -->
 		<div class="idea-wrap" style="box-shadow: 0 0 5px rgba(0,0,0,0.1); border-bottom: 1px solid #ccc;">
 		<div class="idea">
 			<a href="javascript: void(0);" class="edit-count <% if (edit_count < 1) { %>no_edits<% } %>">
@@ -109,8 +109,9 @@
 			<div class="idea-content">
 				<p class="idea-text"><a href="javascript: void(0);" class="top-text"><%= text %></a></p>
 				<p class="categories">
+					<a href="#">Finance</a>
 					<%
-
+					/*
 					var strings = ["Finance", "Finance", "Finance", "Finance"];
 					var rando = Math.floor(Math.random()*2);
 					
@@ -118,25 +119,21 @@
 						if (i < rando) { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>, " ); }
 						else 		   { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>" );	}
 					}
-					
+					*/
 					%>
 				</p>
 			</div>
 			<div class="actions">
-
-				<span class="improve button button_light">Close Idea</span>
-
-				<br />
-				
-				<span class="upvote button button_light">
-					<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
-				</span>
-				&nbsp;&nbsp;
-				<span class="downvote button button_light">
-					<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
-				</span>
-				&nbsp;&nbsp;
-				<span class="fork button button_light"> Fork</span>
+				<span class="improve button button_light"><span class="icon">*</span> &nbsp;Close Idea</span><br />
+				<div>
+					<span class="upvote button button_light">
+						<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
+					</span>
+					<span class="downvote button button_light">
+						<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
+					</span>
+					<span class="fork button button_light"> Fork</span>
+				</div>
 			</div>
 			<div class="dialog">
 				<div class="dialog-header">
@@ -162,6 +159,8 @@
 		<div class="revision">
 			<div class="idea-content" style="margin-left:32px; padding-left:57px;">
 				<p class="idea-text"><%= text %></p>
+				
+				<!--
 				<p class="categories">
 					<%
 
@@ -175,17 +174,19 @@
 					
 					%>
 				</p>
+				-->
+				
 			</div>
 			<div class="actions">
-				<span class="upvote button button_light">
-					<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
-				</span>
-				&nbsp;&nbsp;
-				<span class="downvote button button_light">
-					<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
-				</span>
-				&nbsp;&nbsp;
-				<span class="fork button button_light"> Fork</span>
+				<div class="pill">
+					<span class="upvote button button_light">
+						<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
+					</span>
+					<span class="downvote button button_light">
+						<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
+					</span>
+					<span class="fork button button_light"> Fork</span>
+				</div>
 			</div>
 			<div style="clear:both"></div>
 		</div>
@@ -229,9 +230,9 @@
 		  + "	div#main.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px; }"
 		  + "	div#main.has_scrollbar div.revisions div.idea { padding-left: 0; }"
 		  + "	div.slider div.idea { padding-left: " + scrollbarWidth + "px !important; }"
-		  + "	div.revisions .idea-wrap { right: " + scrollbarWidth + "px; }"
+		  /* + "	div.revisions .idea-wrap { right: " + scrollbarWidth + "px; }" */
 		  + "	div.revisions.has_scrollbar div.revision { padding-left: " + scrollbarWidth + "px !important; }"
-		  + "	div.revisions.has_scrollbar .idea-wrap .idea { padding-left: " + ( scrollbarWidth * 2) + "px !important; }"
+		  /* + "	div.revisions.has_scrollbar .idea-wrap .idea { padding-left: " + ( scrollbarWidth * 2) + "px !important; }" */
 		  + "	div.slider .line, div.revisions .line { margin-left: " + (-454 + (scrollbarWidth/2)) + "px; }"
 		  + "</style>"
 		);
