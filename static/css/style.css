@@ -369,14 +369,27 @@ div.revisions {
 	bottom: 0;
 	z-index: 150;
 }
+div.revisions > div {
+
+}
+div.revisions .idea-wrap {
+	position: fixed;
+	top: 62px;
+	width: 100%;
+	z-index: 125;
+}
 div.revisions div.line,
 div.slider div.line {
 	position: absolute;
-	height: 100%;
 	width: 4px;
 	background: #d5d5d5;
 	margin-left: 32px;
     margin-top: 16px;
+    bottom: 0;
+    top: 62px;
+}
+div.revisions div.line {
+
 }
 div.slider {
 	background: url(../images/bg.gif);
@@ -385,6 +398,7 @@ div.slider {
 	z-index: 125;
 	overflow-y: scroll;
 	border-bottom: 1px solid #ccc;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 .dialog {
 	display: none;
