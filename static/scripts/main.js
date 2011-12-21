@@ -288,11 +288,18 @@ var RevisionView = Backbone.View.extend({
             this.editing();
         }
     },
-    doFork: function () {
-        this.model.fork();
+    finishFork: function (t) {
+        console.log(t);
+    },
+    startFork: function () {
+        $('#fork-input textarea').text(this.model.get('text'));
+        $('#fork-input').unbind();
+        $('#fork-input .done').click(function () {this.finishFork});
+        $('#fork-input .done').click(function() {window.Main.close_dialog()});
+        $('#fork-input').toggle();
     },
     events: {
-        "click .fork": "doFork",
+        "click .fork": "startFork",
         "click .done": "endEditing",
         "click .upvote": "upvote",
         "click .downvote": "downvote",
@@ -371,11 +378,14 @@ var MainView = Backbone.View.extend({
         window.revisions.fetch();
     },
     newIdea: function () {
+        console.log('newidea');
         var rev = new Revision({'text': this.$('.new-text').val(), 
                                 'parent': '', 'document': this.documentid});
         window.revisions.add(rev);
         this.$('.new-text').val('');
+        rev.trigger('save', rev);
         this.render();
+        this.idea_dialog();
     },
     idea_dialog: function () {
     	$('#new-idea-box').toggle();
