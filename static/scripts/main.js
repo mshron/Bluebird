@@ -80,15 +80,15 @@ var Revision = Backbone.Model.extend({
 
         return
     },
-    fork: function () {
+    fork: function (text) {
         var f = this.clone();
         f.set({'parent': this.id});
         f.set({'score': this.get('score')*.9999});
         f.set({'id': rnd()});
+        f.set({'text': text});
         f.unset('user_voted_up');
         f.unset('user_voted_down');
         f.unset('documentid');
-        f.forking = true;
         this.trigger('register', f);
         f.trigger('checkuser');
     },
@@ -284,12 +284,10 @@ var RevisionView = Backbone.View.extend({
     },
     initialize: function () {
         this.model.bind('all', this.render, this);
-        if (this.model.forking == true) {
-            this.editing();
-        }
     },
     finishFork: function (t) {
-        console.log(t);
+        console.log('finish fork');
+        this.model.fork($('#fork-input textarea').text());
     },
     startFork: function () {
         $('#fork-input textarea').text(this.model.get('text'));
@@ -300,10 +298,8 @@ var RevisionView = Backbone.View.extend({
     },
     events: {
         "click .fork": "startFork",
-        "click .done": "endEditing",
         "click .upvote": "upvote",
         "click .downvote": "downvote",
-        "click .close-dialog" : "cancelEditing"
     },
     upvote: function() {
         this.model.upVote();
@@ -313,15 +309,6 @@ var RevisionView = Backbone.View.extend({
     },
     editing: function () {
         $(this.el).addClass('editing');
-    },
-    endEditing: function () {
-        $(this.el).show();
-        this.model.forking = false;
-        this.model.set({'text': this.$('.edit-text').val()});
-        this.model.trigger('save', this.model);
-    },
-    cancelEditing: function () {
-
     }
 });
 
