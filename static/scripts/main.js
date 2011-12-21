@@ -82,7 +82,6 @@ var Revision = Backbone.Model.extend({
     },
     fork: function () {
         var f = this.clone();
-        q = f;
         f.set({'parent': this.id});
         f.set({'score': this.get('score')*.9999});
         f.set({'id': rnd()});
@@ -137,10 +136,8 @@ var RevisionCollection = Backbone.Collection.extend({
        this.documentid = revs.first().get('document').split(':')[1];
     },
     save: function (rev) {
+        console.log('foo');
         rev.save();
-    },
-    register: function(rev) {
-        this.add(rev);
     },
     checkuser: function() {
         this.each(function (rev) {rev.trigger('checkuser')});
@@ -381,7 +378,6 @@ var MainView = Backbone.View.extend({
         var rev = new Revision({'text': this.$('.new-text').val(), 
                                 'parent': '', 'document': this.documentid});
         window.revisions.add(rev);
-        window.revisions.trigger('save', rev);
         this.$('.new-text').val('');
         this.render();
     },
