@@ -90,6 +90,7 @@ var Revision = Backbone.Model.extend({
         f.unset('user_voted_down');
         f.unset('documentid');
         this.trigger('register', f);
+        f.save();
         f.trigger('checkuser');
     },
     defaults: {
@@ -251,7 +252,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
         	var offset = $(this.el).offset();
         	var travel = offset.top;
         	var b_travel = ( $(window).height() - travel - $(this.el).height() );
-        	that = this;
+        	var that = this;
         	
         	// Duplicate idea row
         	item = $(this.el).find('.idea-wrap');            
@@ -293,15 +294,16 @@ var RevisionView = Backbone.View.extend({
     initialize: function () {
         this.model.bind('all', this.render, this);
     },
-    finishFork: function (t) {
+    finishFork: function () {
         console.log('finish fork');
-        this.model.fork($('#fork-input textarea').text());
+        this.model.fork($("#fork-input textarea").val());
     },
     startFork: function () {
-        $('#fork-input textarea').text(this.model.get('text'));
+        $('#fork-input textarea').val(this.model.get('text'));
         $('#fork-input').unbind();
-        $('#fork-input .done').click(function () {this.finishFork});
-        $('#fork-input .done').click(function() {window.Main.close_dialog()});
+        var that = this;
+        $('#fork-input .done').click(function () {that.finishFork()});
+        $('#fork-input .done').click(function () {window.Main.close_dialog()});
         $('#fork-input').toggle();
     },
     events: {
