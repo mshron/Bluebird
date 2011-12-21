@@ -254,7 +254,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 			$(clone).children("div.idea").css("padding-left",0);
 
 			clone_wrap = $(document.createElement('div'));
-			$(clone_wrap).html('<div class="line"></div>');
+			// $(clone_wrap).html('<div class="line"></div>');
 			$(clone_wrap).addClass("slider");
 			$(clone).appendTo(clone_wrap);
 			$(clone_wrap).appendTo(this.el);
