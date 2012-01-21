@@ -193,9 +193,7 @@ var User = Backbone.Model.extend({
                         this.set({'total_votes': this.get('total_votes') + 1});
                     }
                })
-               
-
-               
+        window.Main.populateUserData();
     }
 });
 
@@ -384,6 +382,11 @@ var MainView = Backbone.View.extend({
         _(this.ideas).each(function (th) {
 			that.$('#ideas').append(new RevisionsInAIdeaView({model: th}).render().el)
 		});
+    },
+    populateUserData: function () {
+             $("#screen_name strong").html(window.user.get('screen_name'));
+             $("#screen_name").show()
+             $("#header-right .remaining .header-link").html(5 - window.user.get('total_votes'))
     },
     events: {
         "click #new-idea-box .done": "newIdea",
