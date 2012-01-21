@@ -117,7 +117,7 @@ var Revision = Backbone.Model.extend({
         //this.set({'id': getid(this.get('key'))});
         this.set({'documentid': getid(this.get('document'))});
         this.voteurl = "/api/documents/"+this.get('documentid')+"/revisions/"+this.get('id')+"/vote?type=";
-        this.bind('checkuser', this.checkuser, this);
+        this.set({'id': getid(this.get('key'))});
     }
 
 });
@@ -168,8 +168,21 @@ var RevisionsInAIdea = Backbone.Collection.extend({
 
 var User = Backbone.Model.extend({
     urlRoot: '/api/users/',
-    init: function() {
-        this.id = window.user_id;
+    defaults: {
+        "total_votes": 0   
+    },
+    initialize: function() {
+        this.bind('change', this.update, this)
+    },
+    update: function() {
+/*        _.each(this.get('up_voted'),
+               function (rid) {
+                    rev = window.revisions.get(rid);
+                    if (rev===undefined) {
+                          
+                    }
+               })
+               */
     }
 });
 
