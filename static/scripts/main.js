@@ -398,3 +398,4 @@ var MainView = Backbone.View.extend({
 window.Main = new MainView;
 
 //}); // I open at the close (of DOM rendering).
+
