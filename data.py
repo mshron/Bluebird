@@ -91,6 +91,10 @@ class DataStore(object):
             self.redis.delete(obj.key)
             self.redis.delete('%s:forks', obj.key)
 
+    def exists(self, key):
+        '''Checks if key exists'''
+        return self.redis.exists(key)
+
     def members(self, set_key):
         '''Returns a list of references under key'''
         members = self.redis.smembers(set_key)
