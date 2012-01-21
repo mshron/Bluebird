@@ -36,7 +36,7 @@ var DocumentCollection = Backbone.Collection.extend({
 
 var Revision = Backbone.Model.extend({
     upVote: function() {
-        if (this.get('user_voted_up') == null) {
+        if (window.user === undefined) {
             alert("Login, human!");
             return 
         }
@@ -60,7 +60,7 @@ var Revision = Backbone.Model.extend({
         return
     },
     downVote: function() {
-        if (this.get('user_voted_down') == null) {
+        if (window.user === undefined) {
             alert("Login, human!");
             return 
         }
@@ -96,7 +96,9 @@ var Revision = Backbone.Model.extend({
     defaults: {
         "up": 0,
         "down": 0,
-        "score": 0
+        "score": 0,
+        "user_voted_up": false,
+        "user_voted_down": false
     },
     checkuser: function () {
         if (window.user) {
@@ -116,8 +118,8 @@ var Revision = Backbone.Model.extend({
     initialize: function () {
         //this.set({'id': getid(this.get('key'))});
         this.set({'documentid': getid(this.get('document'))});
-        this.voteurl = "/api/documents/"+this.get('documentid')+"/revisions/"+this.get('id')+"/vote?type=";
         this.set({'id': getid(this.get('key'))});
+        this.voteurl = "/api/documents/"+this.get('documentid')+"/revisions/"+this.get('id')+"/vote?type=";
     }
 
 });
@@ -175,14 +177,25 @@ var User = Backbone.Model.extend({
         this.bind('change', this.update, this)
     },
     update: function() {
-/*        _.each(this.get('up_voted'),
+        _.each(this.get('up_voted'),
                function (rid) {
                     rev = window.revisions.get(rid);
-                    if (rev===undefined) {
-                          
+                    if (rev!==undefined) {
+                        rev.set({'user_voted_up': true});
+                        this.set({'total_votes': this.get('total_votes') + 1});
                     }
                })
-               */
+        _.each(this.get('down_voted'),
+               function (rid) {
+                    rev = window.revisions.get(rid);
+                    if (rev!==undefined) {
+                        rev.set({'user_voted_down': true});
+                        this.set({'total_votes': this.get('total_votes') + 1});
+                    }
+               })
+               
+
+               
     }
 });
 
