@@ -57,14 +57,16 @@ def update(attrs, obj_type=None):
 
 def exists(url):
     '''check that each object referenced in a url exists'''
+    #http://localhost:5000/api/documents/63af0ffe/revisions/649c9855/vote?type=1
     elems = url.split('/')
 
     for this, next in zip(elems[:-1], elems[1:]):
-        tmpl = {'documents': 'Revision:%s',
-                'revisions': 'Document:%s',
+        tmpl = {'documents': 'Document:%s',
+                'revisions': 'Revision:%s',
                 'users': 'User:%s'
                 }.get(this, '')
         if tmpl and not ds.exists(tmpl % next):
+            app.logger.debug('[exists] nonexistent key: %s' % (tmpl % next))
             return False
     return True
 
@@ -78,17 +80,19 @@ def get_all(key):
     assert(ds.redis.exists(key))
     return ds.get_all(key)
 
-def collection_handler(request, col_key, obj_type=None):
+def collection_handler(col_key, obj_type=None):
     '''Default handling for fl.requests on collection urls:
     * Write object on POST/PUT
     * Retrieve list objects in collection on GET'''
     app.logger.debug('[collection_handler] collection: %s, method: %s user: %s' % (col_key, fl.request.method, fl.g.user))
+    if not exists(fl.request.url):
+        fl.abort(404)
     if fl.request.method in ['POST','PUT']:
         return put(fl.request.json, obj_type=obj_type); 
     else:
         return fl.Response(js.dumps(get_all(col_key), cls=data.DataEncoder), mimetype='application/json')
 
-def object_handler(request, obj_key, obj_type=None):
+def object_handler(obj_key, obj_type=None):
     '''Default handling for fl.requests on object urls:
     * Write object on POST/PUT
     * Retrieve list objects in collection on GET'''
@@ -155,32 +159,32 @@ def oauth_authorized(resp):
             methods=['GET','POST'])
 def users():
     key = 'users'
-    return collection_handler(fl.request, key, obj_type='User')
+    return collection_handler(key, obj_type='User')
 
 @app.route('/api/documents',
             methods=['GET','POST'])
 def documents():
     key = 'documents'
-    return collection_handler(fl.request, key, obj_type='Document')
+    return collection_handler(key, obj_type='Document')
 
 @app.route('/api/documents/<doc_id>/revisions',
             methods=['GET','POST'])
 def threads(doc_id):
     key = 'Document:%s:revisions' % doc_id
-    return collection_handler(fl.request, key, obj_type='Revision')
+    return collection_handler(key, obj_type='Revision')
 
 @app.route('/api/users/<user_id>',
             methods=['GET','PET'])
 def user(user_id):
     key = 'User:%s' % user_id
-    return object_handler(fl.request, key, obj_type='User')
+    return object_handler(key, obj_type='User')
 
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>',
             methods=['PUT', 'DELETE'])
 def revision(doc_id, rev_id):
     if fl.request.method == 'PUT':
         key = 'Document:%s:revisions' % doc_id
-        return collection_handler(fl.request, key, obj_type='Revision')
+        return collection_handler(key, obj_type='Revision')
     if fl.request.method == 'DELETE':
         key = 'Revision:%s' % rev_id
         return ds.delete(key)
@@ -189,6 +193,7 @@ def revision(doc_id, rev_id):
             methods=['GET', 'PUT'])
 def vote(doc_id, rev_id):
     if not exists(fl.request.url):
+        app.logger.debug('[vote] invalid key')
         fl.abort(404)
     vote = int(fl.request.args.get('type', None))
     if not vote is None:
@@ -221,12 +226,21 @@ def vote(doc_id, rev_id):
         fl.abort(403)
 
 @app.route('/documents/<doc_id>')
-def dochtml(doc_id):
+def threads_html(doc_id):
     if fl.g.user is None:
         app.logger.debug('[collection_handler] redirect')
         return fl.redirect(fl.url_for('login', next=fl.request.url))
     ddata = [obj.__dict__ for obj in get_all('Document:%s:revisions'%doc_id)]
     return fl.render_template('test.html', data=ddata) #FIXME
+
+@app.route('/documents')
+def documents_html():
+    if fl.g.user is None:
+        app.logger.debug('[collection_handler] redirect')
+        return fl.redirect(fl.url_for('login', next=fl.request.url))
+    ddata = [obj.__dict__ for obj in get_all('Document:%s:revisions'%doc_id)]
+    return fl.render_template('documents.html', data=ddata) #FIXME
+
 
 if __name__ == "__main__":
     import logging
