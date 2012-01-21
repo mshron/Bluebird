@@ -55,6 +55,19 @@ def update(attrs, obj_type=None):
     key = ds.update(attrs)
     return key.id() if key else ''
 
+def exists(url):
+    '''check that each object referenced in a url exists'''
+    elems = url.split('/')
+
+    for this, next in zip(elems[:-1], elems[1:]):
+        tmpl = {'documents': 'Revision:%s',
+                'revisions': 'Document:%s',
+                'users': 'User:%s'
+                }.get(this, '')
+        if tmpl and not ds.exists(tmpl % next):
+            return False
+    return True
+
 def get(key):
     '''retrieve an object in JSON representation from datastore'''
     assert(ds.redis.exists(key))
@@ -175,6 +188,8 @@ def revision(doc_id, rev_id):
 @app.route('/api/documents/<doc_id>/revisions/<rev_id>/vote', 
             methods=['GET', 'PUT'])
 def vote(doc_id, rev_id):
+    if not exists(fl.request.url):
+        fl.abort(404)
     vote = int(fl.request.args.get('type', None))
     if not vote is None:
         user = fl.g.user
