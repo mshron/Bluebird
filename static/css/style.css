@@ -165,6 +165,7 @@ div.dialog-content {
 	border-top: 0;
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
+	line-height: 20px;
 }
 .dialog textarea {
 	width: 535px;
@@ -407,6 +408,7 @@ div.revisions .idea-wrap .actions .icon {
 	position: relative;
 	top: -1px;
 }
+/*
 div.revisions div.line,
 div.slider div.line {
 	position: absolute;
@@ -415,6 +417,38 @@ div.slider div.line {
     bottom: 0;
     top: 0;
     left: 50%;
+}
+*/
+div.explanation {
+	
+}
+div.explanation_content {
+	clear: both;
+	margin: 0 auto;
+	padding-bottom: 40px;
+	padding-top: 30px;
+	width: 970px;
+	color: #989DA2;
+	line-height: 18px;
+	/* font-family: Georgia, Times New Roman, Serif; */
+	font-size: 13px;
+	position: relative;
+}
+div.explanation_content strong {
+	/* color: #444; */
+	font-weight: normal;
+	font-family: Georgia, Times New Roman, Serif;
+	font-size: 16px;
+	display: block;
+	padding-bottom: 10px;
+}
+div.explanation_content p {
+	padding-right: 200px;
+}
+div.explanation_content div.arrow {
+	width: 88px;
+	float: left;
+	height: 100px;
 }
 div.slider {
 	background: url(../images/bg.gif);
@@ -442,6 +476,7 @@ div.revision-wrap {
 	text-shadow: 0 1px 0 white;
 }
 div.revision {
+	background: url("../images/line.png") repeat-y 31px 0;
 	width: 970px;
 	margin: 0 auto;
 	padding-top: 17px;

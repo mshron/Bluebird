@@ -40,6 +40,18 @@
 			
 		<div id="ideas"></div>
 		
+		<div id="ideas_explanation" class="explanation">
+			<div id="ideas_explanation_content" class="explanation_content">
+				<div class="arrow"></div>
+				<strong>How it works</strong>
+				<p>
+					You can create new ideas with the "Add Idea" button at the top.
+					Click "View idea" to see other versions of ideas.
+					From there you can vote on and individual revision or improve it yourself.
+				</p>
+			</div>
+		</div>
+		
 		<div class="dialog" id="new-idea-box" style="display:none;">
 			<div class="dialog-header">
 				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
@@ -49,6 +61,20 @@
 				<div id="new">
 					<textarea class="new-text" tabindex="100"></textarea>
 					<span class="done button" tabindex="200">Save</span>
+		    	</div>
+		    </div>
+	    </div>
+	    
+	    <div class="dialog" id="twitter-login" style="display:none;">
+			<div class="dialog-header">
+				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
+				<h3>Login, human!</h3>	
+			</div>
+			<div class="dialog-content">
+				<div id="new">
+					<p>You need to login with Twitter interact with the document. You'll be redirected back here afterward.</p>
+					<br />
+					<span class="twitter button" tabindex="200">Login with Twitter</span>
 		    	</div>
 		    </div>
 	    </div>
@@ -67,170 +93,8 @@
 	    
 	</div>
 	
-	
-	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
-	
-	
-	<script type="text/template" id="idea-template">
-	
-		<div class="idea-wrap">
-		<div class="idea">
-			<a href="javascript: void(0);" class="edit-count">
-				<strong class="revision-count"></strong><br /><span class="edits-label">Edits</span>
-			</a>
-			<div class="idea-content">
-				<p class="idea-text"><a href="javascript: void(0);" class="top-text"></a></p>
-				<p class="categories">
-					<%
-
-					var strings = ["Finance", "Finance", "Finance", "Finance"];
-					var rando = Math.floor(Math.random()*2);
-					
-					for ( i=0 ; i<(rando+1); i=i+1 ) {
-						if (i < rando) { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>, " ); }
-						else 		   { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>" );	}
-					}
-					
-					%>
-				</p>
-			</div>
-			<div class="actions">
-				<a href="javascript: void(0);" class="improve button button_light">View Idea</a>
-			</div>
-			<div style="clear:both"></div>
-			<!-- <div class="line"></div> -->
-		</div>
-		</div>
-		<div class="revisions noimprove has_scrollbar" style="display:none; overflow-y:scroll;"></div>
-		
-	</script>
-	
-	
-	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
-	
-	
-	<script type="text/template" id="revision-template">
-		
-		<%
-		
-		if (idx == 0) {
-		
-		%>
-		<!-- <div class="line"></div> -->
-		<div class="idea-wrap" style="box-shadow: 0 0 5px rgba(0,0,0,0.1); border-bottom: 1px solid #ccc;">
-		<div class="idea">
-			<a href="javascript: void(0);" class="edit-count <% if (edit_count < 1) { %>no_edits<% } %>">
-				<strong class="revision-count"><%= edit_count %></strong><br /><span class="edits-label">Edit<% if (edit_count != 1) { %>s<% } %></span>
-			</a>
-			<div class="idea-content">
-				<p class="idea-text"><a href="javascript: void(0);" class="top-text"><%= text %></a></p>
-				<p class="categories">
-					<a href="#">Finance</a>
-					<%
-					/*
-					var strings = ["Finance", "Finance", "Finance", "Finance"];
-					var rando = Math.floor(Math.random()*2);
-					
-					for ( i=0 ; i<(rando+1); i=i+1 ) {
-						if (i < rando) { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>, " ); }
-						else 		   { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>" );	}
-					}
-					*/
-					%>
-				</p>
-			</div>
-			<div class="actions">
-				<span class="improve button button_light"><span class="icon">*</span> &nbsp;Close Idea</span><br />
-				<div class="pill">
-					<span class="upvote button button_light first">
-						<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
-					</span>
-					<span class="downvote button button_light">
-						<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
-					</span>
-					<span class="fork button button_light last"> Fork</span>
-				</div>
-			</div>
-			<div style="clear:both"></div>
-		</div>
-		</div>
-		<%
-		
-		}
-		else {
-		
-		%>
-		<div class="revision-wrap">
-		<div class="revision">
-			<div class="idea-content" style="margin-left:32px; padding-left:57px;">
-				<p class="idea-text"><%= text %></p>
-				
-				<!--
-				<p class="categories">
-					<%
-
-					var strings = ["Finance", "Finance", "Finance", "Finance"];
-					var rando = Math.floor(Math.random()*2);
-					
-					for ( i=0 ; i<(rando+1); i=i+1 ) {
-						if (i < rando) { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>, " ); }
-						else 		   { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>" );	}
-					}
-					
-					%>
-				</p>
-				-->
-				
-			</div>
-			<div class="actions">
-				<div class="pill">
-					<span class="upvote button button_light first">
-						<span class="icon" style="font-size: 14px;">{</span>&nbsp; <%= up %>
-					</span>
-					<span class="downvote button button_light">
-						<span class="icon" style="font-size: 14px;">}</span>&nbsp; <%= down %>
-					</span>
-					<span class="fork button button_light last"> Fork</span>
-				</div>
-			</div>
-			<div style="clear:both"></div>
-		</div>
-		</div>
-		<%
-		
-		}
-		
-		%>
-		
-	</script>
-	
-	
-	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
-	
-
-	<script type="text/javascript">
-		var scrollDiv = document.createElement("div");
-		scrollDiv.className = "scrollbar-measure";
-		document.body.appendChild(scrollDiv);
-		
-		scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
-		
-		// Delete the dic
-		document.body.removeChild(scrollDiv);
-		
-		// Set padding on idea and revision views
-		document.write(
-		    "<style>"
-		  + "	div#main.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px; }"
-		  + "	div#main.has_scrollbar div.revisions div.idea { padding-left: 0; }"
-		  + "	div.slider div.idea { padding-left: " + scrollbarWidth + "px !important; }"
-		  /* + "	div.revisions .idea-wrap { right: " + scrollbarWidth + "px; }" */
-		  + "	div.revisions.has_scrollbar div.revision { padding-left: " + scrollbarWidth + "px !important; }"
-		  /* + "	div.revisions.has_scrollbar .idea-wrap .idea { padding-left: " + ( scrollbarWidth * 2) + "px !important; }" */
-		  + "	div.slider .line, div.revisions .line { margin-left: " + (-454 + (scrollbarWidth/2)) + "px; }"
-		  + "</style>"
-		);
-    </script>
+	{% include 'idea.html' %}
+	{% include 'revision.html' %}
 	
 	<script type="text/javascript" src="/static/scripts/underscore-min.js"></script>
 	<script type="text/javascript" src="/static/scripts/underscore.string.min.js"></script>
@@ -243,7 +107,8 @@
         window.user = new User({id: {{ session.user_id|tojson|safe }} });
         window.user.fetch();
     </script>
-
+    
+    {% include 'scrollbar.html' %}
 
 </body>
 </html>

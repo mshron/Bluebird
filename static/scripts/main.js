@@ -4,6 +4,8 @@
 // Convenience functions
 //
 
+"Put something here";
+
 function rnd () {
     return parseInt(Math.random()*(Math.pow(2,32))).toString('16');
 }
