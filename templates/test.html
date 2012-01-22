@@ -31,7 +31,7 @@
 				-->
 				<div id="header-right">
 					<span class="username" id="screen_name" style="display:none;">Welcome, <strong class="header-link"></strong></span>
-					<span class="remaining">Remaining Votes: <strong class="header-link">5</strong></span>
+					<span class="remaining">Remaining Votes: <strong class="header-link">-</strong></span>
 					<!--<span class="refresh button"><span class="icon">0</span> &nbsp;Refresh</span> -->
 					<span class="show-idea-box button"><span class="icon">&</span> &nbsp;Add Idea</span>
 				</div>
@@ -242,11 +242,6 @@
         window.revisions.reset({{ data|tojson|safe }});
         window.user = new User({id: {{ session.user_id|tojson|safe }} });
         window.user.fetch();
-        _.delay(function() {
-        	window.revisions.trigger('checkusers')
-        	$("#screen_name strong").html(window.user.attributes.screen_name);
-        	$("#screen_name").show();
-        }, 1000); // this is dumb
     </script>
 
 
