@@ -1,0 +1,33 @@
+<script type="text/template" id="idea-template">
+
+	<div class="idea-wrap">
+	<div class="idea">
+		<a href="javascript: void(0);" class="edit-count">
+			<strong class="revision-count"></strong><br /><span class="edits-label">Edits</span>
+		</a>
+		<div class="idea-content">
+			<p class="idea-text"><a href="javascript: void(0);" class="top-text"></a></p>
+			<p class="categories">
+				<%
+
+				var strings = ["Finance", "Finance", "Finance", "Finance"];
+				var rando = Math.floor(Math.random()*2);
+				
+				for ( i=0 ; i<(rando+1); i=i+1 ) {
+					if (i < rando) { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>, " ); }
+					else 		   { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>" );	}
+				}
+				
+				%>
+			</p>
+		</div>
+		<div class="actions">
+			<a href="javascript: void(0);" class="improve button button_light">View Idea</a>
+		</div>
+		<div style="clear:both"></div>
+		<!-- <div class="line"></div> -->
+	</div>
+	</div>
+	<div class="revisions noimprove has_scrollbar" style="display:none; overflow-y:scroll;"></div>
+	
+</script>

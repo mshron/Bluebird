@@ -1,0 +1,34 @@
+<script type="text/template" id="scrollStyle">
+	<style type="text/css">
+	div.idea,
+	div#ideas_explanation_content {
+		padding-left: <%= scrollbarWidth %>px;
+	}
+	div.revisions div.idea { 
+		padding-left: 0;
+	}
+	div.slider div.idea,
+	div.revisions.has_scrollbar div.revision {
+		padding-left: <%= scrollbarWidth %>px !important;
+	}
+	div.slider .line, div.revisions .line {
+		margin-left: <%= (-454 + (scrollbarWidth/2)) %>px;
+	}
+	div.revision {
+		background-position: <%= (-454 + (scrollbarWidth/2)) %>px 0;
+	}
+	/* div.revisions.has_scrollbar .idea-wrap .idea { padding-left: " + ( scrollbarWidth * 2) + "px !important; } */
+	/* div.revisions .idea-wrap { right: " + scrollbarWidth + "px; } */
+	</style>
+</script>
+
+
+<script type="text/javascript">
+	// Set css based on scrollbar width
+    var scrollDiv = document.createElement("div");
+	scrollDiv.className = "scrollbar-measure";
+	document.body.appendChild(scrollDiv);
+	scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+	document.body.removeChild(scrollDiv); // Delete the div
+	document.write(_.template( $("#scrollStyle").text(), {scrollbarWidth : scrollbarWidth} ));
+</script>
