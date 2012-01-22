@@ -42,45 +42,50 @@ var Revision = Backbone.Model.extend({
             alert("Login, human!");
             return 
         }
-        if ((!this.get('user_voted_up') && !this.get('user_voted_down')) 
-                && window.user.get('up_voted').length<3) {
+
+        var nvotes = window.user.get('up_voted').length + window.user.get('down_voted').length;
+        var up = this.get('user_voted_up');
+        var down = this.get('user_voted_down');
+
+        if (!up && !down && nvotes < 5) {
             this.set({up: this.get('up') + 1});
             this.set({user_voted_up: true});
             window.user.get('up_voted').push('Revision:'+this.id);
+            window.user.trigger('change');
             $.get(this.voteurl + "1");
         }
-        else if (this.get('user_voted_up')) {
+        else if (up) {
             this.set({up: this.get('up') - 1});
             this.set({user_voted_up: false})
             window.user.get('up_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
+            window.user.trigger('change');
             $.get(this.voteurl + "0");
         }
-        else if (window.user.get('up_voted').indexOf('Revision:' + this.id) >= 0) {
-            alert('You have to uncheck a vote to change your vote');
-        }
-
-        return
     },
     downVote: function() {
         if (window.user === undefined) {
             alert("Login, human!");
             return 
         }
-        if ((!this.get('user_voted_up') && !this.get('user_voted_down')) 
-                && window.user.get('down_voted').length<3) {
+
+        var nvotes = window.user.get('up_voted').length + window.user.get('down_voted').length;
+        var up = this.get('user_voted_up');
+        var down = this.get('user_voted_down');
+
+        if (!down && !up && nvotes < 5) {
             this.set({down: this.get('down') + 1});
             this.set({user_voted_down: true});
             window.user.get('down_voted').push('Revision:'+this.id);
+            window.user.trigger('change');
             $.get(this.voteurl + "-1");
         }
-        else if (this.get('user_voted_down')) {
+        else if (down) {
             this.set({down: this.get('down') - 1});
             this.set({user_voted_down: false})
             window.user.get('down_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
+            window.user.trigger('change');
             $.get(this.voteurl + "0");
         } //else if (this.id  0
-
-        return
     },
     fork: function (text) {
         var f = this.clone();
@@ -101,21 +106,6 @@ var Revision = Backbone.Model.extend({
         "score": 0,
         "user_voted_up": false,
         "user_voted_down": false
-    },
-    checkuser: function () {
-        if (window.user) {
-            this.set({'user_voted_up' : _(
-				_(window.user.get('up_voted')).map(getid)
-			).include(this.get('id')) })
-
-            this.set({'user_voted_down' : _(
-				_(window.user.get('down_voted')).map(getid)
-			).include(this.get('id'))})
-        }
-        else {
-            this.set({'user_voted_up': null});
-            this.set({'user_voted_down': null});
-        }
     },
     initialize: function () {
         //this.set({'id': getid(this.get('key'))});
@@ -172,30 +162,28 @@ var RevisionsInAIdea = Backbone.Collection.extend({
 
 var User = Backbone.Model.extend({
     urlRoot: '/api/users/',
-    defaults: {
-        "total_votes": 0   
-    },
     initialize: function() {
         this.bind('change', this.update, this)
     },
     update: function() {
+        var total_votes = 0;
         _.each(this.get('up_voted'),
                function (rid) {
-                    rev = window.revisions.get(rid);
+                    rev = window.revisions.get(getid(rid));
                     if (rev!==undefined) {
                         rev.set({'user_voted_up': true});
-                        this.set({'total_votes': this.get('total_votes') + 1});
+                        total_votes += 1;
                     }
-               })
+               }, this)
         _.each(this.get('down_voted'),
                function (rid) {
-                    rev = window.revisions.get(rid);
+                    rev = window.revisions.get(getid(rid));
                     if (rev!==undefined) {
                         rev.set({'user_voted_down': true});
-                        this.set({'total_votes': this.get('total_votes') + 1});
+                        total_votes += 1;
                     }
-               })
-        window.Main.populateUserData();
+               }, this)
+        window.Main.populateUserData(total_votes);
     }
 });
 
@@ -385,10 +373,10 @@ var MainView = Backbone.View.extend({
 			that.$('#ideas').append(new RevisionsInAIdeaView({model: th}).render().el)
 		});
     },
-    populateUserData: function () {
+    populateUserData: function (total_votes) {
              $("#screen_name strong").html(window.user.get('screen_name'));
              $("#screen_name").show()
-             $("#header-right .remaining .header-link").html(5 - window.user.get('total_votes'))
+             $("#header-right .remaining .header-link").html(5 - total_votes)
     },
     events: {
         "click #new-idea-box .done": "newIdea",
