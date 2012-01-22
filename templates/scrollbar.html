@@ -1,8 +1,11 @@
 <script type="text/template" id="scrollStyle">
 	<style type="text/css">
-	div.idea,
+	div.idea {
+		padding-left: <%= scrollbarWidth %>px;
+	}
 	div#ideas_explanation_content {
 		padding-left: <%= scrollbarWidth %>px;
+		background-position: <%= scrollbarWidth + 31 %>px 0;
 	}
 	div.revisions div.idea { 
 		padding-left: 0;
