@@ -309,6 +309,14 @@ var RevisionView = Backbone.View.extend({
     template: _.template($('#revision-template').html()),
     render: function() {
         $(this.el).html(this.template(this.model.toJSON()));
+        $(this.el).removeClass('voted_up').removeClass('voted_down');
+        if (this.model.get('user_voted_up')) {
+            $(this.el).addClass('voted_up');
+        }
+        if (this.model.get('user_voted_down')) {
+            $(this.el).addClass('voted_down');
+        }
+
         return this;
     },
     initialize: function () {
