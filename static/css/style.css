@@ -389,7 +389,6 @@ div.revisions {
 	position: fixed;
 	width: 100%;
 	overflow: auto;
-
 	top: 62px;
 	bottom: 0;
 	z-index: 150;

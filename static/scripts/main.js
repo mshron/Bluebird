@@ -282,7 +282,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 			$(clone_wrap).css("top",travel + "px");
 			$(clone_wrap).css("bottom",b_travel + "px");
 			
-			// Slde up and show the revisions
+			// Slide up and show the revisions
 			$(clone_wrap).animate({
 					top: '62px',
 					bottom: "0"
