@@ -40,6 +40,18 @@
 			
 		<div id="ideas"></div>
 		
+		<div id="ideas_explanation" class="explanation">
+			<div id="ideas_explanation_content" class="explanation_content">
+				<div class="arrow"></div>
+				<strong>How it works</strong>
+				<p>
+					You can create new ideas with the "Add Idea" button at the top.
+					Click "View idea" to see other versions of ideas.
+					From there you can vote on and individual revision or improve it yourself.
+				</p>
+			</div>
+		</div>
+		
 		<div class="dialog" id="new-idea-box" style="display:none;">
 			<div class="dialog-header">
 				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
@@ -49,6 +61,20 @@
 				<div id="new">
 					<textarea class="new-text" tabindex="100"></textarea>
 					<span class="done button" tabindex="200">Save</span>
+		    	</div>
+		    </div>
+	    </div>
+	    
+	    <div class="dialog" id="twitter-login" style="display:none;">
+			<div class="dialog-header">
+				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
+				<h3>Login, human!</h3>	
+			</div>
+			<div class="dialog-content">
+				<div id="new">
+					<p>You need to login with Twitter interact with the document. You'll be redirected back here afterward.</p>
+					<br />
+					<span class="twitter button" tabindex="200">Login with Twitter</span>
 		    	</div>
 		    </div>
 	    </div>
@@ -164,23 +190,6 @@
 		<div class="revision">
 			<div class="idea-content" style="margin-left:32px; padding-left:57px;">
 				<p class="idea-text"><%= text %></p>
-				
-				<!--
-				<p class="categories">
-					<%
-
-					var strings = ["Finance", "Finance", "Finance", "Finance"];
-					var rando = Math.floor(Math.random()*2);
-					
-					for ( i=0 ; i<(rando+1); i=i+1 ) {
-						if (i < rando) { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>, " ); }
-						else 		   { print ( "<a href='#'>" + strings[Math.floor(Math.random() * strings.length)] + "</a>" );	}
-					}
-					
-					%>
-				</p>
-				-->
-				
 			</div>
 			<div class="actions">
 				<div class="pill">
@@ -207,31 +216,6 @@
 	
 	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 	
-
-	<script type="text/javascript">
-		var scrollDiv = document.createElement("div");
-		scrollDiv.className = "scrollbar-measure";
-		document.body.appendChild(scrollDiv);
-		
-		scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
-		
-		// Delete the dic
-		document.body.removeChild(scrollDiv);
-		
-		// Set padding on idea and revision views
-		document.write(
-		    "<style>"
-		  + "	div#main.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px; }"
-		  + "	div#main.has_scrollbar div.revisions div.idea { padding-left: 0; }"
-		  + "	div.slider div.idea { padding-left: " + scrollbarWidth + "px !important; }"
-		  /* + "	div.revisions .idea-wrap { right: " + scrollbarWidth + "px; }" */
-		  + "	div.revisions.has_scrollbar div.revision { padding-left: " + scrollbarWidth + "px !important; }"
-		  /* + "	div.revisions.has_scrollbar .idea-wrap .idea { padding-left: " + ( scrollbarWidth * 2) + "px !important; }" */
-		  + "	div.slider .line, div.revisions .line { margin-left: " + (-454 + (scrollbarWidth/2)) + "px; }"
-		  + "</style>"
-		);
-    </script>
-	
 	<script type="text/javascript" src="/static/scripts/underscore-min.js"></script>
 	<script type="text/javascript" src="/static/scripts/underscore.string.min.js"></script>
 	<script type="text/javascript" src="/static/scripts/jquery.js"></script>
@@ -248,7 +232,8 @@
         	$("#screen_name").show();
         }, 1000); // this is dumb
     </script>
-
+    
+    {% include 'scrollbar.html' %}
 
 </body>
 </html>
