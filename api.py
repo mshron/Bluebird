@@ -230,16 +230,17 @@ def threads_html(doc_id):
     if fl.g.user is None:
         app.logger.debug('[collection_handler] redirect')
         return fl.redirect(fl.url_for('login', next=fl.request.url))
-    ddata = [obj.__dict__ for obj in get_all('Document:%s:revisions'%doc_id)]
-    return fl.render_template('test.html', data=ddata) #FIXME
+    threads = [obj.__dict__ for obj in get_all('Document:%s:revisions'%doc_id)]
+    return fl.render_template('test.html', data=threads) #FIXME
 
 @app.route('/documents')
 def documents_html():
     if fl.g.user is None:
         app.logger.debug('[collection_handler] redirect')
         return fl.redirect(fl.url_for('login', next=fl.request.url))
-    ddata = [obj.__dict__ for obj in get_all('Document:%s:revisions'%doc_id)]
-    return fl.render_template('documents.html', data=ddata) #FIXME
+    #docs = [obj.__dict__ for obj in get_all('Document:%s:revisions'%doc_id)]
+    docs = get_all('documents')
+    return fl.render_template('documents.html', documents=docs) #FIXME
 
 
 if __name__ == "__main__":
