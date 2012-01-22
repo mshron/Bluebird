@@ -43,21 +43,27 @@ var Revision = Backbone.Model.extend({
             return 
         }
 
+        // FIXME doesn't subselect for this document; tie in to top vote numbe
         var nvotes = window.user.get('up_voted').length + window.user.get('down_voted').length;
         var up = this.get('user_voted_up');
         var down = this.get('user_voted_down');
+        console.log(nvotes, up, down);
 
         if (!up && !down && nvotes < 5) {
             this.set({up: this.get('up') + 1});
             this.set({user_voted_up: true});
+            console.log(window.user.get('up_voted'));
             window.user.get('up_voted').push('Revision:'+this.id);
+            console.log(window.user.get('up_voted'));
             window.user.trigger('change');
             $.get(this.voteurl + "1");
         }
         else if (up) {
             this.set({up: this.get('up') - 1});
             this.set({user_voted_up: false})
+            console.log(window.user.get('up_voted'));
             window.user.get('up_voted').pop(window.user.get('down_voted').indexOf('Revision:'+this.id));
+            console.log(window.user.get('up_voted'));
             window.user.trigger('change');
             $.get(this.voteurl + "0");
         }
@@ -201,7 +207,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
         var public_count = (that.model.length - 1);
 
         this.$('.top-text').html(that.model.first().get('text'));
-        this.$('.revisions').html('');
+        this.$('.revisions-content').html('');
         this.$('.revision-count').html(public_count);
 
         if(public_count < 1) this.$('.edit-count').addClass('no_edits');
@@ -212,7 +218,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
             	"idx" : idx,
             	"edit_count" : public_count
             });
-			that.$('.revisions').append(new RevisionView({model: rev}).render().el);
+			that.$('.revisions-content').append(new RevisionView({model: rev}).render().el);
 		});
 		
         return this;
