@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+
+<head>	
+
+	<title>Citizensus</title>
+
+	<link rel="stylesheet" href="/static/css/reset.css" type="text/css" />
+	<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
+
+</head>
+
+
+<body>
+	
+	
+	<div id="main" class="has_scrollbar" style="overflow-y:scroll;">
+	
+		<div id="header-bar">
+			<div id="header">
+
+				<a href="#" id="logo" class="refresh"><img src="/static/images/logo.png" /></a>
+				<!-- <div id="doc-title">What should we bring to World War II</div> -->
+				<!--
+				<div id="nav">
+					<ul>
+						<li id="view-consensus" class="current"><a href="#">Current Consensus</a></li>
+						<li id="view-everything"><a href="#">New Ideas</a></li>
+					</ul>
+				</div>
+				-->
+				<div id="header-right">
+					<span class="username" id="screen_name" style="display:none;">Welcome, <strong class="header-link"></strong></span>
+					<span class="remaining">Remaining Votes: <strong class="header-link">5</strong></span>
+					<!--<span class="refresh button"><span class="icon">0</span> &nbsp;Refresh</span> -->
+					<span class="show-idea-box button"><span class="icon">&</span> &nbsp;Add Idea</span>
+				</div>
+			</div>
+		</div>
+			
+		<div id="documents">
+			{% for doc in documents %}
+				<div class="idea-wrap">
+				<div class="idea">
+					<a href="javascript: void(0);" class="edit-count">
+						<strong class="revision-count">0</strong><br /><span class="edits-label">Threads</span>
+					</a>
+					<div class="idea-content">
+						<p class="idea-text"><a href="javascript: void(0);" class="top-text">{{doc.name}}</a></p>
+					</div>
+					<div class="actions">
+						<a href="documents/{{doc.key.id()}}" class="improve button button_light">View Threads</a>
+					</div>
+					<div style="clear:both"></div>
+					<!-- <div class="line"></div> -->
+				</div>
+				</div>
+				<div class="revisions noimprove has_scrollbar" style="display:none; overflow-y:scroll;"></div>
+			{% endfor %}
+		</div>
+		
+	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	
+	<script type="text/template" id="document-template">
+		
+	</script>
+	
+	
+	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	
+	<script type="text/javascript">
+		var scrollDiv = document.createElement("div");
+		scrollDiv.className = "scrollbar-measure";
+		document.body.appendChild(scrollDiv);
+		
+		scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+		
+		// Delete the dic
+		document.body.removeChild(scrollDiv);
+		
+		// Set padding on idea and revision views
+		document.write(
+		    "<style>"
+		  + "	div#main.has_scrollbar div.idea { padding-left: " + scrollbarWidth + "px; }"
+		  + "	div#main.has_scrollbar div.revisions div.idea { padding-left: 0; }"
+		  + "	div.slider div.idea { padding-left: " + scrollbarWidth + "px !important; }"
+		  /* + "	div.revisions .idea-wrap { right: " + scrollbarWidth + "px; }" */
+		  + "	div.revisions.has_scrollbar div.revision { padding-left: " + scrollbarWidth + "px !important; }"
+		  /* + "	div.revisions.has_scrollbar .idea-wrap .idea { padding-left: " + ( scrollbarWidth * 2) + "px !important; }" */
+		  + "	div.slider .line, div.revisions .line { margin-left: " + (-454 + (scrollbarWidth/2)) + "px; }"
+		  + "</style>"
+		);
+    </script>
+	
+	<script type="text/javascript" src="/static/scripts/underscore-min.js"></script>
+	<script type="text/javascript" src="/static/scripts/underscore.string.min.js"></script>
+	<script type="text/javascript" src="/static/scripts/jquery.js"></script>
+	<script type="text/javascript" src="/static/scripts/json2.js"></script>
+	<script type="text/javascript" src="/static/scripts/backbone-min.js"></script>
+	<script type="text/javascript" src="/static/scripts/main.js"> </script>
+	<script type="text/javascript">
+        window.user = new User({id: {{ session.user_id|tojson|safe }} });
+        window.user.fetch();
+        _.delay(function() {
+        	window.revisions.trigger('checkusers')
+        	$("#screen_name strong").html(window.user.attributes.screen_name);
+        	$("#screen_name").show();
+        }, 1000); // this is dumb
+    </script>
+
+
+</body>
+</html>
