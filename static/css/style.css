@@ -426,13 +426,14 @@ div.explanation_content {
 	clear: both;
 	margin: 0 auto;
 	padding-bottom: 40px;
-	padding-top: 30px;
+	padding-top: 27px;
 	width: 970px;
 	color: #989DA2;
 	line-height: 18px;
 	/* font-family: Georgia, Times New Roman, Serif; */
 	font-size: 13px;
 	position: relative;
+	background: url(../images/arrow.png) 31px 0 no-repeat;
 }
 div.explanation_content strong {
 	/* color: #444; */
