@@ -20,7 +20,7 @@
 			<div id="header">
 
 				<a href="#" id="logo" class="refresh"><img src="/static/images/logo.png" /></a>
-				<div id="doc-title">What should we bring to World War II</div>
+				<div id="doc-title"></div>
 				<!--
 				<div id="nav">
 					<ul>
@@ -52,6 +52,18 @@
 			</div>
 		</div>
 		
+		<div class="dialog" id="fork-input" style="display:none;">
+			<div class="dialog-header">
+				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
+				<h3>Improve this idea</h3>	
+			</div>
+			<div class="dialog-content">
+				<textarea class="edit-text"></textarea>
+				<br />
+				<span class="done button">Save</span>
+		    </div>
+	    </div>
+		
 		<div class="dialog" id="new-idea-box" style="display:none;">
 			<div class="dialog-header">
 				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
@@ -64,7 +76,7 @@
 		    	</div>
 		    </div>
 	    </div>
-	    
+
 	    <div class="dialog" id="twitter-login" style="display:none;">
 			<div class="dialog-header">
 				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
@@ -79,18 +91,6 @@
 		    </div>
 	    </div>
 	    
-	    <div class="dialog" id="fork-input">
-			<div class="dialog-header">
-				<span class="close-dialog tinybutton"><span class="icon">*</span></span>
-				<h3>Improve this idea</h3>	
-			</div>
-			<div class="dialog-content">
-				<textarea class="edit-text"></textarea>
-				<br />
-				<span class="done button">Save</span>
-		    </div>
-	    </div>
-	    
 	</div>
 	
 	{% include 'idea.html' %}
@@ -99,6 +99,7 @@
 	<script type="text/javascript" src="/static/scripts/underscore-min.js"></script>
 	<script type="text/javascript" src="/static/scripts/underscore.string.min.js"></script>
 	<script type="text/javascript" src="/static/scripts/jquery.js"></script>
+	<script type="text/javascript" src="/static/scripts/jquery-ui-min.js"></script>
 	<script type="text/javascript" src="/static/scripts/json2.js"></script>
 	<script type="text/javascript" src="/static/scripts/backbone-min.js"></script>
 	<script type="text/javascript" src="/static/scripts/main.js"> </script>

@@ -88,7 +88,7 @@ a:hover {
 	text-shadow: 0 1px 0 white;
 }
 .button_light:active {
-	box-shadow: 0 0 5px rgba(0,0,0,0.1) inset;
+	box-shadow: 0 1px 0 white, 0 0 5px rgba(0,0,0,0.1) inset;
 }
 .button_light .icon {
 	color: #989DA2;
@@ -142,6 +142,7 @@ div.dialog-header {
 	box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
+	/* cursor: move; */
 }
 div.dialog-header h3 {
 	float: left;
@@ -181,6 +182,10 @@ div.dialog-content {
 	color: #444;
 	font-size: 16px;
 	line-height: 20px;
+}
+#twitter-login {
+	width: 400px;
+	margin-left: -200px;
 }
 
 /* Header */
@@ -296,6 +301,9 @@ div#main {
 	overflow: auto;
 	width: 100%;
 }
+div#ideas {
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
 div.idea-wrap {
 	background: white;
 	background: #f5f5f5;
@@ -305,12 +313,16 @@ div.idea-wrap {
 	box-shadow: 0 1px 0 white inset;
 	text-shadow: 0 1px 0 white;
 }
+div#ideas div:last-child div.idea-wrap {
+	border-bottom: 1px solid #ccc;
+}
 div.idea {
 	width: 970px;
 	margin: 0 auto;
 	padding-top: 16px;
 	padding-bottom: 16px;
 	clear: both;
+	/* background: url("../images/line.png") repeat-y 31px 0; */
 }
 a.edit-count {
     border: 6px solid #DDDDDD;
@@ -398,6 +410,7 @@ div.revisions .idea-wrap {
 	top: 62px;
 	width: 100%;
 	z-index: 125;
+	box-shadow: 0 0 5px rgba(0,0,0,0.1); border-bottom: 1px solid #ccc;
 }
 div.revisions .idea-wrap .actions {
 	position: relative;
@@ -407,6 +420,7 @@ div.revisions .idea-wrap .actions .icon {
 	position: relative;
 	top: -1px;
 }
+
 /*
 div.revisions div.line,
 div.slider div.line {
@@ -465,7 +479,7 @@ div.slider .idea-wrap {
 	border-bottom: 1px solid #ccc;
 }
 .dialog {
-	display: none;
+	/* display: none; */
 }
 
 /* Revison */
@@ -486,6 +500,27 @@ div.revision {
 div.revision-wrap .actions {
 	float: right;
 }
+.voted_up .upvote {
+	background: #d3fbc7;
+}
+.voted_up .upvote,
+.voted_up .upvote .icon {
+	color: #359916;
+}
+.voted_down .button.downvote {
+	background: #fbdbdd;
+	box-shadow: 0 1px 0 white, 0 1px 0 #fff7f8 inset;
+}
+.voted_down .button.downvote:active {
+	box-shadow: 0 1px 0 white, 0 0 5px rgba(0,0,0,0.1) inset;
+	/* box-shadow: 0 1px 0 white, 0 0 5px #f1c0c3 inset; */
+}
+.voted_down .downvote,
+.voted_down .downvote .icon {
+	color: #bf1521;
+	color: #d4343f;
+}
+
 div.editing div.dialog {
 	display: block;
 }

@@ -4,8 +4,6 @@
 // Convenience functions
 //
 
-"Put something here";
-
 function rnd () {
     return parseInt(Math.random()*(Math.pow(2,32))).toString('16');
 }
@@ -13,12 +11,6 @@ function rnd () {
 function getid(u) {
     return u.split(':')[1];
 }
-
-(function($) {
-    $.fn.hasScrollBar = function() {
-        return this.get(0).scrollHeight > this.height();
-    }
-})(jQuery);
 
 //
 // Backbone Models
@@ -231,15 +223,13 @@ var RevisionsInAIdeaView = Backbone.View.extend({
         $(this.el).html(this.template({}));
     },
     events: {
-        'click .improve': 'improve',
-        'click .edit-count': 'improve',
+        'click .improve'	: 'improve',
+        'click .edit-count'	: 'improve',
         'click .idea-text a': 'improve',
     },
     improve: function () {
-        if (this.improve) {
-        
-        	// Close Idea
-        	
+        if (this.improve) { // Close Idea
+
         	window.Main.close_dialog();
             var offset = $(this.el).offset();
         	var travel = offset.top;
@@ -247,11 +237,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
             clone_wrap = this.$('.slider');
             
             this.$('.revisions').fadeOut(200,function() {
-            	$(clone_wrap).animate({
-						top: travel + 'px',
-						bottom: b_travel +"px"
-					}, 
-					400,
+            	$(clone_wrap).animate({ top: travel + 'px', bottom: b_travel +"px" }, 400,
 					function() {
 						$(clone_wrap).fadeOut(100,function() {
 		    				$(clone_wrap).remove();	
@@ -261,14 +247,10 @@ var RevisionsInAIdeaView = Backbone.View.extend({
             });
             this.improve = false;
         }
-        else {
+        else { // Open Idea
         
-        	// Open Idea
-        		
         	window.Main.close_dialog();
-        
         	revheight = $(this.el).height();
-        
         	var offset = $(this.el).offset();
         	var travel = offset.top;
         	var b_travel = ( $(window).height() - travel - $(this.el).height() );
@@ -281,7 +263,6 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 			$(clone).children("div.idea").css("padding-left",0);
 
 			clone_wrap = $(document.createElement('div'));
-			// $(clone_wrap).html('<div class="line"></div>');
 			$(clone_wrap).addClass("slider");
 			$(clone).appendTo(clone_wrap);
 			$(clone_wrap).appendTo(this.el);
@@ -289,11 +270,7 @@ var RevisionsInAIdeaView = Backbone.View.extend({
 			$(clone_wrap).css("bottom",b_travel + "px");
 			
 			// Slide up and show the revisions
-			$(clone_wrap).animate({
-					top: '62px',
-					bottom: "0"
-				}, 
-				300,
+			$(clone_wrap).animate({ top: '62px', bottom: "0"}, 300,
 				function() {
 					that.$('.revisions').css("top",(revheight + 62) + "px");
 		    		that.$('.revisions').fadeIn(300);
@@ -323,21 +300,20 @@ var RevisionView = Backbone.View.extend({
         this.model.bind('all', this.render, this);
     },
     finishFork: function () {
-        console.log('finish fork');
         this.model.fork($("#fork-input textarea").val());
     },
     startFork: function () {
         $('#fork-input textarea').val(this.model.get('text'));
         $('#fork-input').unbind();
         var that = this;
-        $('#fork-input .done').click(function () {that.finishFork()});
-        $('#fork-input .done').click(function () {window.Main.close_dialog()});
+        $('#fork-input .done').click(function () { that.finishFork() });
+        $('#fork-input .done').click(function () { window.Main.close_dialog() });
         $('#fork-input').toggle();
     },
     events: {
-        "click .fork": "startFork",
-        "click .upvote": "upvote",
-        "click .downvote": "downvote",
+        "click .fork"		: "startFork",
+        "click .upvote"		: "upvote",
+        "click .downvote"	: "downvote",
     },
     upvote: function() {
         this.model.upVote();
@@ -371,8 +347,7 @@ var MainView = Backbone.View.extend({
     },
     addRevisionToIdea: function (rev) {
         var root = rev.get('root');
-        var t = _(this.ideas)
-                 .find(function (th) {return th.root == root });
+        var t = _(this.ideas).find(function (th) {return th.root == root });
         if (!t) {
             this.ideas.push(new RevisionsInAIdea([rev]));
         }
@@ -388,9 +363,20 @@ var MainView = Backbone.View.extend({
 		});
     },
     populateUserData: function (total_votes) {
-             $("#screen_name strong").html(window.user.get('screen_name'));
-             $("#screen_name").show()
-             $("#header-right .remaining .header-link").html(5 - total_votes)
+		$("#screen_name strong").html(window.user.get('screen_name'));
+		$("#screen_name").show();
+		$("#header-right .remaining .header-link").html(5 - total_votes);
+		/* $(".dialog").draggable({ handle: '.dialog-header' }); */
+		$.ajax({
+			url: "/api/documents",
+			success: function(data){
+				var pathname = getid(window.revisions.first().get('document'));
+				$(data).each(function(i,doc) {
+					if(doc.id == pathname) $("#doc-title").text(doc.name);
+				});
+			}
+		});
+		
     },
     events: {
         "click #new-idea-box .done": "newIdea",
@@ -408,7 +394,7 @@ var MainView = Backbone.View.extend({
         window.revisions.fetch();
     },
     newIdea: function () {
-        console.log('newidea');
+        /* console.log('newidea'); */
         var rev = new Revision({'text': this.$('.new-text').val(), 
                                 'parent': '', 'document': this.documentid});
         window.revisions.add(rev);
